@@ -1,0 +1,18 @@
+main
+	__CC2DW
+	calcPulses
+		byte2double
+			NRM4032
+				SETFUN32
+				FIXSIGN32
+				SETFOV32
+				RES032
+		Div_32x32_FP
+			SETFDZ32
+			RES032
+			SETFOV32
+			SETFUN32
+		double2int
+			SETIOV3224
+	setupCounter
+interrupt
