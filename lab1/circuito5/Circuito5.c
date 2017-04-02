@@ -1,11 +1,11 @@
 const int clockFrequency = 8000000 / 2;
-int pulses1 = 0, pulses2 = 0;
+unsigned short int pulses1 = 0, pulses2 = 0;
 
 // Sets up and initializes timer with number of pulses
-void setupCounter(char counterNumber, short pulses);
+void setupCounter(char counterNumber, unsigned short int pulses);
 
 // Calculates the number of pulses according to the provided scale and secons
-int calcPulses(float seconds, char scale);
+unsigned short int calcPulses(float seconds, unsigned short int scale);
 
 // High priority interrupt function
 void interrupt(void);
@@ -49,7 +49,7 @@ void interrupt(void)
 }
 
 
-void setupCounter(char counterNumber, short pulses)
+void setupCounter(char counterNumber, unsigned short int pulses)
 {
         switch(counterNumber)
         {
@@ -100,10 +100,10 @@ void setupCounter(char counterNumber, short pulses)
 }
 
 
-int calcPulses(float seconds, char scale)
+unsigned short int calcPulses(float seconds, unsigned short int scale)
 {
         float pulseDuration = 1/(clockFrequency / (float)scale);
-        short pulses = seconds / pulseDuration;
+        unsigned short int pulses = (seconds*1000000) / pulseDuration;
 
         return (0xffff - pulses);
 }
