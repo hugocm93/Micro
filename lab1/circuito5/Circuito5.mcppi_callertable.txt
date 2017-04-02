@@ -12,7 +12,11 @@ main
 			RES032
 			SETFOV32
 			SETFUN32
-		double2int
+		Mul_32x32_FP
+			RES032
+			SETFOV32
+			SETFUN32
+		double2byte
 			SETIOV3224
 	setupCounter
 interrupt

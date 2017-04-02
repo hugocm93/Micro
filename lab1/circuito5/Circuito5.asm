@@ -20,8 +20,6 @@ _main:
 	CALL        _calcPulses+0, 0
 	MOVF        R0, 0 
 	MOVWF       _pulses1+0 
-	MOVF        R1, 0 
-	MOVWF       _pulses1+1 
 ;Circuito5.c,20 :: 		pulses2 = calcPulses(2, 16);
 	MOVLW       0
 	MOVWF       FARG_calcPulses_seconds+0 
@@ -36,8 +34,6 @@ _main:
 	CALL        _calcPulses+0, 0
 	MOVF        R0, 0 
 	MOVWF       _pulses2+0 
-	MOVF        R1, 0 
-	MOVWF       _pulses2+1 
 ;Circuito5.c,23 :: 		setupCounter(0, pulses1);
 	CLRF        FARG_setupCounter_counterNumber+0 
 	MOVF        _pulses1+0, 0 
@@ -76,14 +72,7 @@ L_interrupt0:
 ;Circuito5.c,42 :: 		PORTD.RD0 = 0;
 	BCF         PORTD+0, 0 
 ;Circuito5.c,44 :: 		TMR0H = pulses1 >> 8;
-	MOVF        _pulses1+1, 0 
-	MOVWF       R0 
-	MOVLW       0
-	BTFSC       _pulses1+1, 7 
-	MOVLW       255
-	MOVWF       R1 
-	MOVF        R0, 0 
-	MOVWF       TMR0H+0 
+	CLRF        TMR0H+0 
 ;Circuito5.c,45 :: 		TMR0L = pulses1;
 	MOVF        _pulses1+0, 0 
 	MOVWF       TMR0L+0 
@@ -100,7 +89,7 @@ L__interrupt9:
 
 _setupCounter:
 
-;Circuito5.c,52 :: 		void setupCounter(char counterNumber, short pulses)
+;Circuito5.c,52 :: 		void setupCounter(char counterNumber, unsigned short int pulses)
 ;Circuito5.c,54 :: 		switch(counterNumber)
 	GOTO        L_setupCounter3
 ;Circuito5.c,56 :: 		case 0:
@@ -118,12 +107,7 @@ L_setupCounter5:
 ;Circuito5.c,65 :: 		T0CON.T0PS0 = 1;
 	BSF         T0CON+0, 0 
 ;Circuito5.c,68 :: 		TMR0H = pulses >> 8;  // Load Timer 0 counter - 1st TMR0H
-	MOVLW       0
-	BTFSC       FARG_setupCounter_pulses+0, 7 
-	MOVLW       255
-	MOVWF       R0 
-	MOVF        R0, 0 
-	MOVWF       TMR0H+0 
+	CLRF        TMR0H+0 
 ;Circuito5.c,69 :: 		TMR0L = pulses;       // Load Timer 0 counter - 2nd TMR0L
 	MOVF        FARG_setupCounter_pulses+0, 0 
 	MOVWF       TMR0L+0 
@@ -182,7 +166,7 @@ L_end_setupCounter:
 
 _calcPulses:
 
-;Circuito5.c,103 :: 		int calcPulses(float seconds, char scale)
+;Circuito5.c,103 :: 		unsigned short int calcPulses(float seconds, unsigned short int scale)
 ;Circuito5.c,105 :: 		float pulseDuration = 1/(clockFrequency / (float)scale);
 	MOVF        FARG_calcPulses_scale+0, 0 
 	MOVWF       R0 
@@ -221,15 +205,14 @@ _calcPulses:
 	MOVLW       127
 	MOVWF       R3 
 	CALL        _Div_32x32_FP+0, 0
-;Circuito5.c,106 :: 		short pulses = seconds / pulseDuration;
 	MOVF        R0, 0 
-	MOVWF       R4 
+	MOVWF       FLOC__calcPulses+0 
 	MOVF        R1, 0 
-	MOVWF       R5 
+	MOVWF       FLOC__calcPulses+1 
 	MOVF        R2, 0 
-	MOVWF       R6 
+	MOVWF       FLOC__calcPulses+2 
 	MOVF        R3, 0 
-	MOVWF       R7 
+	MOVWF       FLOC__calcPulses+3 
 	MOVF        FARG_calcPulses_seconds+0, 0 
 	MOVWF       R0 
 	MOVF        FARG_calcPulses_seconds+1, 0 
@@ -238,18 +221,30 @@ _calcPulses:
 	MOVWF       R2 
 	MOVF        FARG_calcPulses_seconds+3, 0 
 	MOVWF       R3 
+	MOVLW       0
+	MOVWF       R4 
+	MOVLW       36
+	MOVWF       R5 
+	MOVLW       116
+	MOVWF       R6 
+	MOVLW       146
+	MOVWF       R7 
+	CALL        _Mul_32x32_FP+0, 0
+;Circuito5.c,106 :: 		unsigned short int pulses = (seconds*1000000) / pulseDuration;
+	MOVF        FLOC__calcPulses+0, 0 
+	MOVWF       R4 
+	MOVF        FLOC__calcPulses+1, 0 
+	MOVWF       R5 
+	MOVF        FLOC__calcPulses+2, 0 
+	MOVWF       R6 
+	MOVF        FLOC__calcPulses+3, 0 
+	MOVWF       R7 
 	CALL        _Div_32x32_FP+0, 0
-	CALL        _double2int+0, 0
+	CALL        _double2byte+0, 0
 ;Circuito5.c,108 :: 		return (0xffff - pulses);
 	MOVF        R0, 0 
 	SUBLW       255
 	MOVWF       R0 
-	MOVLW       0
-	BTFSC       R0, 7 
-	MOVLW       255
-	MOVWF       R1 
-	MOVLW       255
-	SUBFWB      R1, 1 
 ;Circuito5.c,109 :: 		}
 L_end_calcPulses:
 	RETURN      0
