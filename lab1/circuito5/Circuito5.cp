@@ -1,12 +1,12 @@
 #line 1 "C:/Users/hugocm93/Desktop/Micro/lab1/circuito5/Circuito5.c"
 const int clockFrequency = 8000000 / 2;
-int pulses1 = 0, pulses2 = 0;
+unsigned short int pulses1 = 0, pulses2 = 0;
 
 
-void setupCounter(char counterNumber, short pulses);
+void setupCounter(char counterNumber, unsigned short int pulses);
 
 
-int calcPulses(float seconds, char scale);
+unsigned short int calcPulses(float seconds, unsigned short int scale);
 
 
 void interrupt(void);
@@ -50,7 +50,7 @@ void interrupt(void)
 }
 
 
-void setupCounter(char counterNumber, short pulses)
+void setupCounter(char counterNumber, unsigned short int pulses)
 {
  switch(counterNumber)
  {
@@ -101,10 +101,10 @@ void setupCounter(char counterNumber, short pulses)
 }
 
 
-int calcPulses(float seconds, char scale)
+unsigned short int calcPulses(float seconds, unsigned short int scale)
 {
  float pulseDuration = 1/(clockFrequency / (float)scale);
- short pulses = seconds / pulseDuration;
+ unsigned short int pulses = (seconds*1000000) / pulseDuration;
 
  return (0xffff - pulses);
 }
