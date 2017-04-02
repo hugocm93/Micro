@@ -102,8 +102,8 @@ void setupCounter(char counterNumber, unsigned short int pulses)
 
 unsigned short int calcPulses(float seconds, unsigned short int scale)
 {
-        float pulseDuration = 1/(clockFrequency / (float)scale);
-        unsigned short int pulses = (seconds*1000000) / pulseDuration;
+        double pulseDuration = 1/(clockFrequency / (float)scale);
+        unsigned short int pulses = seconds / pulseDuration;
 
         return (0xffff - pulses);
 }
