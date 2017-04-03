@@ -6,7 +6,7 @@ Value=-1
 [BUILD_TYPE]
 Value=0
 [ACTIVE_TAB]
-Value=Circuito3.c
+Value=..\circuito5\Circuito5.c
 [USE_EEPROM]
 Value=0
 [USE_HEAP]
@@ -25,7 +25,7 @@ Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
 Count=1
-File0=Circuito3.c
+File0=..\circuito5\Circuito5.c
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -33,11 +33,12 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=4
+Count=5
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path2=C:\Users\mplab.LCA-08\Desktop\lab1\circuito3\
-Path3=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\HX711 Library\Uses\
+Path2=C:\Users\mplab.LCA-06\Downloads\Micro-master\Micro-master\lab1\circuito3\
+Path3=C:\Users\mplab.LCA-08\Desktop\lab1\circuito3\
+Path4=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\HX711 Library\Uses\
 [HEADER_PATH]
 Count=0
 [HEADERS]
