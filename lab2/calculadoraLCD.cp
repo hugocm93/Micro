@@ -19,22 +19,37 @@ volatile char xx;
 void interrupt(void){
  if(INTCON.RBIF)
  {
- char rows = PORTA;
  char text[7];
- xx = ~(PORTB) >> 4;
- xx += rows;
+ char i;
+ for(i = 0, xx = 0x0f; (i < 4) && (xx==0x0f); i++)
+ {
+ PORTB.RB0 = 1;
+ PORTB.RB1 = 1;
+ PORTB.RB2 = 1;
+ PORTB.RB3 = 1;
+
+
+ if(i==0)PORTB.RB0 = 0;
+ if(i==1)PORTB.RB1 = 0;
+ if(i==2)PORTB.RB2 = 0;
+ if(i==3)PORTB.RB3 = 0;
+ xx = PORTB >> 4;
+ }
+
  Lcd_Cmd(_LCD_CLEAR);
- IntToStr(xx, text);
+ IntToStr(PORTB, text);
  Lcd_Out(1,1,text);
+
  INTCON.RBIF = 0;
+ PORTB.RB0 = 0;
+ PORTB.RB1 = 0;
+ PORTB.RB2 = 0;
+ PORTB.RB3 = 0;
  }
  }
 
 void main()
 {
- trisa = 0;
- PORTA = 0xf;
-
 
  ADCON1 = 0x6;
 
@@ -50,15 +65,16 @@ void main()
  TRISB.RB6 = 1;
  TRISB.RB7 = 1;
 
+ TRISB.RB0 = 0;
+ TRISB.RB1 = 0;
+ TRISB.RB2 = 0;
+ TRISB.RB3 = 0;
+
+ PORTB.RB0 = 0;
+ PORTB.RB1 = 0;
+ PORTB.RB2 = 0;
+ PORTB.RB3 = 0;
+
  INTCON.RBIE = 1;
  INTCON.RBIF = 0;
-
- while(1)
- {
- char i = 0;
- for(; i < 4; i++)
- {
- PORTA = ~(1 << i);
- }
- }
 }
