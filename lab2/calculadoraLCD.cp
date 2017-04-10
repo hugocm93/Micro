@@ -14,21 +14,22 @@
  sbit LCD_D6_Direction at TRISD6_bit;
  sbit LCD_D7_Direction at TRISD7_bit;
 
+ char edge = 1;
 
-volatile char xx;
-void interrupt(void){
+
+ volatile char xx;
+ void interrupt(void){
  if(INTCON.RBIF)
  {
  char text[7];
  char i;
+
  for(i = 0, xx = 0x0f; (i < 4) && (xx==0x0f); i++)
  {
  PORTB.RB0 = 1;
  PORTB.RB1 = 1;
  PORTB.RB2 = 1;
  PORTB.RB3 = 1;
-
-
  if(i==0)PORTB.RB0 = 0;
  if(i==1)PORTB.RB1 = 0;
  if(i==2)PORTB.RB2 = 0;
@@ -36,15 +37,26 @@ void interrupt(void){
  xx = PORTB >> 4;
  }
 
- Lcd_Cmd(_LCD_CLEAR);
  IntToStr(PORTB, text);
- Lcd_Out(1,1,text);
 
- INTCON.RBIF = 0;
+
  PORTB.RB0 = 0;
  PORTB.RB1 = 0;
  PORTB.RB2 = 0;
  PORTB.RB3 = 0;
+
+ if(edge == 1)
+ {
+ Lcd_Cmd(_LCD_CLEAR);
+ Lcd_Out(1,1,text);
+ }
+ else
+ {
+
+ }
+
+ edge = !edge;
+ INTCON.RBIF = 0;
  }
  }
 

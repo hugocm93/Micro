@@ -526,6 +526,7 @@ double2int
 double2longint
 double2longword
 double2word
+edge
 eeadr
 eecon1
 eecon2
