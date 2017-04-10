@@ -13,12 +13,18 @@
   sbit LCD_D6_Direction at TRISD6_bit;
   sbit LCD_D7_Direction at TRISD7_bit;
 
-  char edge = 1; //tratar mudança de nível
-
 typedef enum keyType
 {
-        IGUAL, SOMA, SUB, MULT, DIVI, ON_CLEAR, NUM
+        IGUAL, SOMA, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
 }KeyType;
+
+  char edge = 1; //tratar mudança de nível
+
+  int operando1 = 0;
+  int operando2 = 0;
+  char text[40];
+  KeyType operation = EMPTY;
+  
 
 int convertTecla (int tecla, KeyType* type);
 
@@ -27,7 +33,6 @@ int convertTecla (int tecla, KeyType* type);
   void interrupt(void){
    if(INTCON.RBIF)
    {
-        char text[7];
         char i;
         KeyType type;
         int result;
@@ -44,19 +49,55 @@ int convertTecla (int tecla, KeyType* type);
            if(i==3)PORTB.RB3 = 0;
            xx = PORTB >> 4;
         }
-
-    result = convertTecla(PORTB, &type);
-    IntToStr(result, text);
-    //Lcd_Out(1,1,text);
-
-    PORTB.RB0 = 0; // digital output
-    PORTB.RB1 = 0;
-    PORTB.RB2 = 0;
-    PORTB.RB3 = 0;
+        result = convertTecla(PORTB, &type);
+        PORTB.RB0 = 0; // digital output
+        PORTB.RB1 = 0;
+        PORTB.RB2 = 0;
+        PORTB.RB3 = 0;
 
         if(edge == 1)
         {
          Lcd_Cmd(_LCD_CLEAR);
+         
+          if(type == NUM && operation == EMPTY)
+          {
+           operando1 *= 10;
+           operando1 += result;
+           IntToStr(operando1, text);
+          }
+          if(type != NUM && type != ON_CLEAR && type != IGUAL)
+          {
+           operation = type;
+          }
+          if(type == NUM && operation != EMPTY)
+          {
+           operando2 *= 10;
+           operando2 += result;
+           IntToStr(operando2, text);
+          }
+          if(type == IGUAL)
+          {
+           if(operation == SOMA)
+                   IntToStr(operando1 + operando2, text);
+
+           if(operation == SUB)
+                   IntToStr(operando1 - operando2, text);
+
+           if(operation == MULT)
+                   IntToStr(operando1 * operando2, text);
+
+           if(operation == DIVI)
+                   IntToStr(operando1 / operando2, text);
+          }
+          if(type == ON_CLEAR)
+          {
+           operando1 = 0;
+           operando2 = 0;
+           operation = EMPTY;
+           Lcd_Cmd(_LCD_CLEAR);
+          }
+
+          //Lcd_Out(1,1,text);
          Lcd_Out(1,1,text);
         }
         else

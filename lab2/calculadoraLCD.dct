@@ -1016,6 +1016,9 @@ obf_trise_bit
 oerr
 oerr_bit
 offset
+operando1
+operando2
+operation
 osc2
 osc2_bit
 osccon
@@ -1826,6 +1829,7 @@ tblptru3
 tblptru3_bit
 tblptru4
 tblptru4_bit
+text
 tft_16bit_circle
 tft_16bit_color16bittorgb
 tft_16bit_defaultfont
