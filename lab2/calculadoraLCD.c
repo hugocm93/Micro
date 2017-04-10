@@ -94,7 +94,7 @@ int convertTecla (int tecla, KeyType* type);
            operando1 = 0;
            operando2 = 0;
            operation = EMPTY;
-           Lcd_Cmd(_LCD_CLEAR);
+           IntToStr(0, text);
           }
 
           //Lcd_Out(1,1,text);

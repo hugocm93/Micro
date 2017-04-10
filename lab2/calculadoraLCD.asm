@@ -320,10 +320,14 @@ L_interrupt20:
 ;calculadoraLCD.c,96 :: 		operation = EMPTY;
 	MOVLW       7
 	MOVWF       _operation+0 
-;calculadoraLCD.c,97 :: 		Lcd_Cmd(_LCD_CLEAR);
-	MOVLW       1
-	MOVWF       FARG_Lcd_Cmd_out_char+0 
-	CALL        _Lcd_Cmd+0, 0
+;calculadoraLCD.c,97 :: 		IntToStr(0, text);
+	CLRF        FARG_IntToStr_input+0 
+	CLRF        FARG_IntToStr_input+1 
+	MOVLW       _text+0
+	MOVWF       FARG_IntToStr_output+0 
+	MOVLW       hi_addr(_text+0)
+	MOVWF       FARG_IntToStr_output+1 
+	CALL        _IntToStr+0, 0
 ;calculadoraLCD.c,98 :: 		}
 L_interrupt25:
 ;calculadoraLCD.c,101 :: 		Lcd_Out(1,1,text);
