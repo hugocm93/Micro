@@ -4,6 +4,7 @@ main
 		Delay_5500us
 		Delay_1us
 interrupt
+	convertTecla
 	IntToStr
 		WordToStr
 			Div_16x16_U

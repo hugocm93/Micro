@@ -16,6 +16,13 @@
 
  char edge = 1;
 
+typedef enum keyType
+{
+ IGUAL, SOMA, SUB, MULT, DIVI, ON_CLEAR, NUM
+}KeyType;
+
+int convertTecla (int tecla, KeyType* type);
+
 
  volatile char xx;
  void interrupt(void){
@@ -23,6 +30,8 @@
  {
  char text[7];
  char i;
+ KeyType type;
+ int result;
 
  for(i = 0, xx = 0x0f; (i < 4) && (xx==0x0f); i++)
  {
@@ -37,7 +46,8 @@
  xx = PORTB >> 4;
  }
 
- IntToStr(PORTB, text);
+ result = convertTecla(PORTB, &type);
+ IntToStr(result, text);
 
 
  PORTB.RB0 = 0;
@@ -89,4 +99,87 @@ void main()
 
  INTCON.RBIE = 1;
  INTCON.RBIF = 0;
+}
+
+int convertTecla (int tecla, KeyType* type)
+{
+ int result = -1;
+ switch(tecla)
+ {
+ case 231:
+ *type = ON_CLEAR;
+ break;
+
+ case 215:
+ *type = NUM;
+ result = 0;
+ break;
+
+ case 183:
+ *type = IGUAL;
+ break;
+
+ case 119:
+ *type = SOMA;
+ break;
+
+ case 235:
+ *type = NUM;
+ result = 1;
+ break;
+
+ case 219:
+ *type = NUM;
+ result = 2;
+ break;
+
+ case 187:
+ *type = NUM;
+ result = 3;
+ break;
+
+ case 123:
+ *type = SUB;
+ break;
+
+ case 237:
+ *type = NUM;
+ result = 4;
+ break;
+
+ case 221:
+ *type = NUM;
+ result = 5;
+ break;
+
+ case 189:
+ *type = NUM;
+ result = 6;
+ break;
+
+ case 125:
+ *type = MULT;
+ break;
+
+ case 238:
+ *type = NUM;
+ result = 7;
+ break;
+
+ case 222:
+ *type = NUM;
+ result = 8;
+ break;
+
+ case 190:
+ *type = NUM;
+ result = 9;
+ break;
+
+ case 126:
+ *type = DIVI;
+ break;
+ }
+
+ return result;
 }
