@@ -1,17 +1,20 @@
-  // LCD module connections
-  sbit LCD_EN at RE1_bit;
-  sbit LCD_RS at RE2_bit;
-  sbit LCD_D4 at RD4_bit;
-  sbit LCD_D5 at RD5_bit;
-  sbit LCD_D6 at RD6_bit;
-  sbit LCD_D7 at RD7_bit;
+#define SUM 10
+#define SUB 11
+#define MUL 12
+#define DIV 13
+#define IGU 14
+#define CLR 15
 
-  sbit LCD_EN_Direction at TRISE1_bit;
-  sbit LCD_RS_Direction at TRISE2_bit;
-  sbit LCD_D4_Direction at TRISD4_bit;
-  sbit LCD_D5_Direction at TRISD5_bit;
-  sbit LCD_D6_Direction at TRISD6_bit;
-  sbit LCD_D7_Direction at TRISD7_bit;
+
+unsigned int display (int number);
+int convertTecla (int tecla, KeyType* type);
+
+
+int acumulador = 0;
+int ultValor = 0;
+int operador = -1;
+int lastRead = 0xFF;
+
 
 typedef enum keyType
 {
@@ -24,122 +27,28 @@ typedef enum keyType
   int operando2 = 0;
   char text[40];
   KeyType operation = EMPTY;
-  
-
-int convertTecla (int tecla, KeyType* type);
 
 // High priority interrupt function
   volatile char xx;
-  void interrupt(void){
-   if(INTCON.RBIF)
-   {
-        char i;
-        KeyType type;
-        int result;
-
-        for(i = 0, xx = 0x0f; (i < 4) && (xx==0x0f); i++)
-        {
-           PORTB.RB0 = 1; // digital output
-           PORTB.RB1 = 1;
-           PORTB.RB2 = 1;
-           PORTB.RB3 = 1;
-           if(i==0)PORTB.RB0 = 0; // digital output
-           if(i==1)PORTB.RB1 = 0;
-           if(i==2)PORTB.RB2 = 0;
-           if(i==3)PORTB.RB3 = 0;
-           xx = PORTB >> 4;
-        }
-        result = convertTecla(PORTB, &type);
-        PORTB.RB0 = 0; // digital output
-        PORTB.RB1 = 0;
-        PORTB.RB2 = 0;
-        PORTB.RB3 = 0;
-
-        if(edge == 1)
-        {
-         Lcd_Cmd(_LCD_CLEAR);
-         
-          if(type == NUM && operation == EMPTY)
-          {
-           operando1 *= 10;
-           operando1 += result;
-           IntToStr(operando1, text);
-          }
-          if(type != NUM && type != ON_CLEAR && type != IGUAL)
-          {
-           operation = type;
-          }
-          if(type == NUM && operation != EMPTY)
-          {
-           operando2 *= 10;
-           operando2 += result;
-           IntToStr(operando2, text);
-          }
-          if(type == IGUAL)
-          {
-           if(operation == SOMA)
-                   IntToStr(operando1 + operando2, text);
-
-           if(operation == SUB)
-                   IntToStr(operando1 - operando2, text);
-
-           if(operation == MULT)
-                   IntToStr(operando1 * operando2, text);
-
-           if(operation == DIVI)
-                   IntToStr(operando1 / operando2, text);
-          }
-          if(type == ON_CLEAR)
-          {
-           operando1 = 0;
-           operando2 = 0;
-           operation = EMPTY;
-           IntToStr(0, text);
-          }
-
-          //Lcd_Out(1,1,text);
-         Lcd_Out(1,1,text);
-        }
-        else
-        {
-         //Lcd_Out(1,1,"soltar");
-        }
-
-    edge = !edge;
-    INTCON.RBIF = 0;
-   }
- }
-
-void main()
+  
+  unsigned int display (int number)
 {
-    //Pins as digital I/O
-    ADCON1 = 0x6;
-
-    // Configuring display
-    Lcd_Init();
-
-    // Global Interrupt Enable
-    INTCON.GIE = 1;
-
-    // Int0/PORTB0 interrupt config
-    TRISB.RB4 = 1; // digital input
-    TRISB.RB5 = 1; // digital input
-    TRISB.RB6 = 1; // digital input
-    TRISB.RB7 = 1; // digital input
-
-    TRISB.RB0 = 0; // digital output
-    TRISB.RB1 = 0;
-    TRISB.RB2 = 0;
-    TRISB.RB3 = 0;
-
-    PORTB.RB0 = 0; // digital output
-    PORTB.RB1 = 0;
-    PORTB.RB2 = 0;
-    PORTB.RB3 = 0;
-
-    INTCON.RBIE = 1;
-    INTCON.RBIF = 0;
+        switch(number)
+        {
+                case 0: return 0x3F ;
+                case 1: return 0x06;
+                case 2: return 0x5B;
+                case 3: return 0x4F;
+                case 4: return 0x66;
+                case 5: return 0x6D;
+                case 6: return 0x7D;
+                case 7: return 0x07;
+                case 8: return 0x7F;
+                case 9: return 0x67;
+        }
 }
+
+
 
 int convertTecla (int tecla, KeyType* type)
 {
@@ -222,4 +131,119 @@ int convertTecla (int tecla, KeyType* type)
     }
 
     return result;
+}
+
+
+  void interrupt(void){
+   if(INTCON.RBIF)
+   {
+        char i;
+        KeyType type;
+        int result;
+
+        for(i = 0, xx = 0x0f; (i < 4) && (xx==0x0f); i++)
+        {
+           PORTB.RB0 = 1; // digital output
+           PORTB.RB1 = 1;
+           PORTB.RB2 = 1;
+           PORTB.RB3 = 1;
+           if(i==0)PORTB.RB0 = 0; // digital output
+           if(i==1)PORTB.RB1 = 0;
+           if(i==2)PORTB.RB2 = 0;
+           if(i==3)PORTB.RB3 = 0;
+           xx = PORTB >> 4;
+        }
+        result = convertTecla(PORTB, &type);
+        PORTB.RB0 = 0; // digital output
+        PORTB.RB1 = 0;
+        PORTB.RB2 = 0;
+        PORTB.RB3 = 0;
+
+        if(edge == 1)
+        {
+         Lcd_Cmd(_LCD_CLEAR);
+
+          if(type == NUM && operation == EMPTY)
+          {
+           operando1 *= 10;
+           operando1 += result;
+           IntToStr(operando1, text);
+          }
+          if(type != NUM && type != ON_CLEAR && type != IGUAL)
+          {
+           operation = type;
+          }
+          if(type == NUM && operation != EMPTY)
+          {
+           operando2 *= 10;
+           operando2 += result;
+           IntToStr(operando2, text);
+          }
+          if(type == IGUAL)
+          {
+           if(operation == SOMA)
+                   IntToStr(operando1 + operando2, text);
+
+           if(operation == SUB)
+                   IntToStr(operando1 - operando2, text);
+
+           if(operation == MULT)
+                   IntToStr(operando1 * operando2, text);
+
+           if(operation == DIVI)
+                   IntToStr(operando1 / operando2, text);
+          }
+          if(type == ON_CLEAR)
+          {
+           operando1 = 0;
+           operando2 = 0;
+           operation = EMPTY;
+           IntToStr(0, text);
+          }
+    }
+
+    edge = !edge;
+    INTCON.RBIF = 0;
+   }
+ }
+
+
+void main()
+{
+     //Pins as digital I/O
+    ADCON1 = 0x6;
+
+    // Global Interrupt Enable
+    INTCON.GIE = 1;
+
+    // Int0/PORTB0 interrupt config
+    TRISB.RB4 = 1; // digital input
+    TRISB.RB5 = 1; // digital input
+    TRISB.RB6 = 1; // digital input
+    TRISB.RB7 = 1; // digital input
+
+    TRISB.RB0 = 0; // digital output
+    TRISB.RB1 = 0; // digital output
+    TRISB.RB2 = 0; // digital output
+    TRISB.RB3 = 0; // digital output
+
+    PORTB.RB0 = 0; // digital output
+    PORTB.RB1 = 0; // digital output
+    PORTB.RB2 = 0; // digital output
+    PORTB.RB3 = 0; // digital output
+
+    INTCON.RBIE = 1;
+    INTCON.RBIF = 0;
+
+        while(1)
+        {
+                tecla = nextKey();
+
+                if (tecla != 0xFF)
+                {
+                        processaTecla(tecla);
+                }
+
+                show7seg(acumulador);
+        }
 }
