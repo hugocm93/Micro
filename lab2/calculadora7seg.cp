@@ -1,4 +1,7 @@
 #line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab2/calculadora7seg.c"
+
+
+
 typedef enum keyType{
  EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
 }KeyType;
@@ -17,13 +20,37 @@ int keyHandler(int key, KeyType* type);
 void keypadHandler();
 
 
-void segmentInit();
-void segmentClear();
-void segmentOut(int number);
-unsigned int display (int number);
+unsigned int display();
+int nDigit = 0;
 
 void interrupt(void)
 {
+ if(INTCON.TMR0IF)
+ {
+ TMR0H =  ( 0xffff - 100 )  >> 8;
+ TMR0L =  ( 0xffff - 100 ) ;
+
+ if(nDigit == 4)
+ {
+ nDigit = 0;
+ }
+
+ PORTA.RA2 = 0;
+ PORTA.RA3 = 0;
+ PORTA.RA4 = 0;
+ PORTA.RA5 = 0;
+
+ if(nDigit==0)PORTA.RA2 = 1;
+ if(nDigit==1)PORTA.RA3 = 1;
+ if(nDigit==2)PORTA.RA4 = 1;
+ if(nDigit==3)PORTA.RA5 = 1;
+
+ PORTD = display();
+
+ nDigit++;
+ INTCON.TMR0IF=0;
+ }
+
  if(INTCON.RBIF)
  {
  keypadHandler();
@@ -36,10 +63,31 @@ void interrupt(void)
 void main()
 {
 
+ T0CON.T08BIT = 0;
+ T0CON.T0CS = 0;
+ T0CON.PSA = 0;
+
+
+ T0CON.T0PS2 = 1;
+ T0CON.T0PS1 = 1;
+ T0CON.T0PS0 = 1;
+
+
+ TMR0H =  ( 0xffff - 100 )  >> 8;
+ TMR0L =  ( 0xffff - 100 ) ;
+
+
+ INTCON.TMR0IP = 1;
+ INTCON.TMR0IF=0;
+ INTCON.TMR0IE=1;
+ INTCON.PEIE=0;
+ INTCON.GIE=1;
+
+
+ T0CON.TMR0ON=1;
+
+
  ADCON1 = 0x6;
-
-
- segmentInit();
 
 
  INTCON.GIE = 1;
@@ -59,6 +107,36 @@ void main()
  PORTB.RB1 = 0;
  PORTB.RB2 = 0;
  PORTB.RB3 = 0;
+
+
+ TRISD.RD0 = 0;
+ TRISD.RD1 = 0;
+ TRISD.RD2 = 0;
+ TRISD.RD3 = 0;
+ TRISD.RD4 = 0;
+ TRISD.RD5 = 0;
+ TRISD.RD6 = 0;
+ TRISD.RD7 = 0;
+
+ PORTD.RD0 = 0;
+ PORTD.RD1 = 0;
+ PORTD.RD2 = 0;
+ PORTD.RD3 = 0;
+ PORTD.RD4 = 0;
+ PORTD.RD5 = 0;
+ PORTD.RD6 = 0;
+ PORTD.RD7 = 0;
+
+
+ TRISA.RA2 = 0;
+ TRISA.RA3 = 0;
+ TRISA.RA4 = 0;
+ TRISA.RA5 = 0;
+
+ PORTA.RA2 = 0;
+ PORTA.RA3 = 0;
+ PORTA.RA4 = 0;
+ PORTA.RA5 = 0;
 
  INTCON.RBIE = 1;
  INTCON.RBIF = 0;
@@ -90,7 +168,6 @@ void keypadHandler()
 
  if(edge == 1)
  {
- segmentClear();
 
  if(type == NUM && operation == EMPTY)
  {
@@ -129,8 +206,6 @@ void keypadHandler()
  operation = EMPTY;
  numberOnDisplay = 0;
  }
-
- segmentOut(numberOnDisplay);
  }
 }
 
@@ -218,23 +293,13 @@ int keyHandler (int key, KeyType* type)
  return result;
 }
 
-void segmentInit()
-{
-}
 
-void segmentClear()
+unsigned int display ()
 {
-}
-
-void segmentOut(int number)
-{
-}
-
-unsigned int display (int number)
-{
+ int number = (int)(numberOnDisplay/pow(10, nDigit)) % 10;
  switch(number)
  {
- case 0: return 0x3F ;
+ case 0: return 0x3F;
  case 1: return 0x06;
  case 2: return 0x5B;
  case 3: return 0x4F;
@@ -243,6 +308,6 @@ unsigned int display (int number)
  case 6: return 0x7D;
  case 7: return 0x07;
  case 8: return 0x7F;
- case 9: return 0x67;
+ case 9: return 0x6F;
  }
 }

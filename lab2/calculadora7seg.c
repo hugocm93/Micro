@@ -1,3 +1,6 @@
+// (8MHz / 4 ) / 256 => 128us x 100 = 0.0128
+#define COUNTER ( 0xffff - 100 )
+
 typedef enum keyType{
         EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
 }KeyType;
@@ -16,13 +19,37 @@ int keyHandler(int key, KeyType* type);
 void keypadHandler();
 
 // 7 segment display functions
-void segmentInit();
-void segmentClear();
-void segmentOut(int number);
-unsigned int display (int number);
+unsigned int display();
+int nDigit = 0;
 
 void interrupt(void)
 {
+  if(INTCON.TMR0IF)
+  {
+     TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
+     TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
+
+     if(nDigit == 4)
+     {
+	nDigit = 0;
+     }
+
+	PORTA.RA2 = 0;
+	PORTA.RA3 = 0;
+	PORTA.RA4 = 0;
+	PORTA.RA5 = 0;
+
+     if(nDigit==0)PORTA.RA2 = 1;
+     if(nDigit==1)PORTA.RA3 = 1;
+     if(nDigit==2)PORTA.RA4 = 1;
+     if(nDigit==3)PORTA.RA5 = 1;
+	
+     PORTD = display();
+
+     nDigit++;
+     INTCON.TMR0IF=0;
+  }
+
   if(INTCON.RBIF)
   {
     keypadHandler();
@@ -34,11 +61,32 @@ void interrupt(void)
 
 void main()
 {
-    //Pins as digital I/O
-    ADCON1 = 0x6;
+    // Timer 0 Configuration
+    T0CON.T08BIT = 0;       // 16 bits
+    T0CON.T0CS = 0;         // Internal clock => Crystal/4
+    T0CON.PSA = 0;          // Prescaler ON
+    
+    // Prescaler = 111 => 1:256
+    T0CON.T0PS2 = 1;
+    T0CON.T0PS1 = 1;
+    T0CON.T0PS0 = 1;
+    
+    // Load Timer 0 counter
+    TMR0H = COUNTER >> 8;  // Load Timer 0 counter - 1st TMR0H
+    TMR0L = COUNTER;       // Load Timer 0 counter - 2nd TMR0L
+    
+    // Timer 0 interrupt
+    INTCON.TMR0IP = 1;
+    INTCON.TMR0IF=0;
+    INTCON.TMR0IE=1;
+    INTCON.PEIE=0;
+    INTCON.GIE=1;
 
-    // Configuring display
-    segmentInit();
+    // Start timer 0
+    T0CON.TMR0ON=1;         
+    
+    // Timer ON//Pins as digital I/O
+    ADCON1 = 0x6;
 
     // Global Interrupt Enable
     INTCON.GIE = 1;
@@ -58,6 +106,36 @@ void main()
     PORTB.RB1 = 0;
     PORTB.RB2 = 0;
     PORTB.RB3 = 0;
+
+    //7 segments
+    TRISD.RD0 = 0; // digital output
+    TRISD.RD1 = 0;
+    TRISD.RD2 = 0;
+    TRISD.RD3 = 0;
+    TRISD.RD4 = 0;
+    TRISD.RD5 = 0;
+    TRISD.RD6 = 0;
+    TRISD.RD7 = 0;
+
+    PORTD.RD0 = 0;
+    PORTD.RD1 = 0;
+    PORTD.RD2 = 0;
+    PORTD.RD3 = 0;
+    PORTD.RD4 = 0;
+    PORTD.RD5 = 0;
+    PORTD.RD6 = 0;
+    PORTD.RD7 = 0;
+
+    //7 seg controle
+    TRISA.RA2 = 0; // digital output
+    TRISA.RA3 = 0;
+    TRISA.RA4 = 0;
+    TRISA.RA5 = 0;
+
+    PORTA.RA2 = 0;
+    PORTA.RA3 = 0;
+    PORTA.RA4 = 0;
+    PORTA.RA5 = 0;
 
     INTCON.RBIE = 1;
     INTCON.RBIF = 0;
@@ -89,7 +167,6 @@ void keypadHandler()
 
     if(edge == 1)
     {
-      segmentClear();
 
       if(type == NUM && operation == EMPTY)
       {
@@ -128,8 +205,6 @@ void keypadHandler()
        operation = EMPTY;
        numberOnDisplay = 0;
       }
-
-     segmentOut(numberOnDisplay);
     }
 }
 
@@ -217,31 +292,21 @@ int keyHandler (int key, KeyType* type)
     return result;
 }
 
-void segmentInit()
-{
-}
 
-void segmentClear()
+unsigned int display ()
 {
-}
-
-void segmentOut(int number)
-{
-}
-
-unsigned int display (int number)
-{
-      switch(number)
-      {
-              case 0: return 0x3F ;
-              case 1: return 0x06;
-              case 2: return 0x5B;
-              case 3: return 0x4F;
-              case 4: return 0x66;
-              case 5: return 0x6D;
-              case 6: return 0x7D;
-              case 7: return 0x07;
-              case 8: return 0x7F;
-              case 9: return 0x67;
-      }
+    int number = (int)(numberOnDisplay/pow(10, nDigit)) % 10;
+    switch(number)
+    {
+          case 0: return 0x3F;
+          case 1: return 0x06;
+          case 2: return 0x5B;
+          case 3: return 0x4F;
+          case 4: return 0x66;
+          case 5: return 0x6D;
+          case 6: return 0x7D;
+          case 7: return 0x07;
+          case 8: return 0x7F;
+          case 9: return 0x6F;
+    }
 }

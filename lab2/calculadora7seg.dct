@@ -954,6 +954,7 @@ mul_32x32_u
 mul_8x8_s
 n
 n_bit
+ndigit
 not_a
 not_a_bit
 not_address
@@ -1348,9 +1349,6 @@ sdi_bit
 sdiv3232l
 sdo
 sdo_bit
-segmentclear
-segmentinit
-segmentout
 sen
 sen_bit
 setfdz32

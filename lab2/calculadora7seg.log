@@ -17,11 +17,11 @@ diagnostics: 0	122	Compilation Started	__Lib_TFT_16bit_Defs.c
 diagnostics: 1776	123	Compiled Successfully	__Lib_TFT_16bit_Defs.c
 diagnostics: 0	126	All files Preprocessed in 31 ms	 
 diagnostics: 0	122	Compilation Started	calculadora7seg.c
-diagnostics: 247	123	Compiled Successfully	calculadora7seg.c
-diagnostics: 0	127	All files Compiled in 31 ms	 
-hint: 0	1144	Used RAM (bytes): 19 (1%)  Free RAM (bytes): 1496 (99%)	Used RAM (bytes): 19 (1%)  Free RAM (bytes): 1496 (99%)
-hint: 0	1144	Used ROM (bytes): 1432 (4%)  Free ROM (bytes): 31336 (96%)	Used ROM (bytes): 1432 (4%)  Free ROM (bytes): 31336 (96%)
+diagnostics: 312	123	Compiled Successfully	calculadora7seg.c
+diagnostics: 0	127	All files Compiled in 47 ms	 
+hint: 0	1144	Used RAM (bytes): 50 (3%)  Free RAM (bytes): 1465 (97%)	Used RAM (bytes): 50 (3%)  Free RAM (bytes): 1465 (97%)
+hint: 0	1144	Used ROM (bytes): 7416 (23%)  Free ROM (bytes): 25352 (77%)	Used ROM (bytes): 7416 (23%)  Free ROM (bytes): 25352 (77%)
 diagnostics: 0	125	Project Linked Successfully	calculadora7seg.mcppi
 diagnostics: 0	128	Linked in 156 ms	 
-diagnostics: 0	129	Project 'calculadora7seg.mcppi' completed: 905 ms	 
-diagnostics: 0	103	Finished successfully: 11 abr 2017, 14:05:11	calculadora7seg.mcppi
+diagnostics: 0	129	Project 'calculadora7seg.mcppi' completed: 874 ms	 
+diagnostics: 0	103	Finished successfully: 11 abr 2017, 15:05:05	calculadora7seg.mcppi
