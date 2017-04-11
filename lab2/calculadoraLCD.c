@@ -1,114 +1,42 @@
-  // LCD module connections
-  sbit LCD_EN at RE1_bit;
-  sbit LCD_RS at RE2_bit;
-  sbit LCD_D4 at RD4_bit;
-  sbit LCD_D5 at RD5_bit;
-  sbit LCD_D6 at RD6_bit;
-  sbit LCD_D7 at RD7_bit;
+// LCD module connections
+sbit LCD_EN at RE1_bit;
+sbit LCD_RS at RE2_bit;
+sbit LCD_D4 at RD4_bit;
+sbit LCD_D5 at RD5_bit;
+sbit LCD_D6 at RD6_bit;
+sbit LCD_D7 at RD7_bit;
+sbit LCD_EN_Direction at TRISE1_bit;
+sbit LCD_RS_Direction at TRISE2_bit;
+sbit LCD_D4_Direction at TRISD4_bit;
+sbit LCD_D5_Direction at TRISD5_bit;
+sbit LCD_D6_Direction at TRISD6_bit;
+sbit LCD_D7_Direction at TRISD7_bit;
 
-  sbit LCD_EN_Direction at TRISE1_bit;
-  sbit LCD_RS_Direction at TRISE2_bit;
-  sbit LCD_D4_Direction at TRISD4_bit;
-  sbit LCD_D5_Direction at TRISD5_bit;
-  sbit LCD_D6_Direction at TRISD6_bit;
-  sbit LCD_D7_Direction at TRISD7_bit;
-
-typedef enum keyType
-{
-        IGUAL, SOMA, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
+typedef enum keyType{
+        EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
 }KeyType;
 
-  char edge = 1; //tratar mudanca de nivel
-
-  int operando1 = 0;
-  int operando2 = 0;
-  char text[40];
-  KeyType operation = EMPTY;
+char xx;
+char edge = 1; //tratar mudanca de nivel
+int operando1 = 0;
+int operando2 = 0;
+char text[40];
+KeyType operation = EMPTY;
   
+int keyHandler(int key, KeyType* type);
 
-int convertTecla (int tecla, KeyType* type);
+void keypadHandler();
 
-// High priority interrupt function
-  volatile char xx;
-  void interrupt(void){
-   if(INTCON.RBIF)
-   {
-        char i;
-        KeyType type;
-        int result;
-
-        for(i = 0, xx = 0x0f; (i < 4) && (xx==0x0f); i++)
-        {
-           PORTB.RB0 = 1; // digital output
-           PORTB.RB1 = 1;
-           PORTB.RB2 = 1;
-           PORTB.RB3 = 1;
-           if(i==0)PORTB.RB0 = 0; // digital output
-           if(i==1)PORTB.RB1 = 0;
-           if(i==2)PORTB.RB2 = 0;
-           if(i==3)PORTB.RB3 = 0;
-           xx = PORTB >> 4;
-        }
-        result = convertTecla(PORTB, &type);
-        PORTB.RB0 = 0; // digital output
-        PORTB.RB1 = 0;
-        PORTB.RB2 = 0;
-        PORTB.RB3 = 0;
-
-        if(edge == 1)
-        {
-         Lcd_Cmd(_LCD_CLEAR);
-         
-          if(type == NUM && operation == EMPTY)
-          {
-           operando1 *= 10;
-           operando1 += result;
-           IntToStr(operando1, text);
-          }
-          if(type != NUM && type != ON_CLEAR && type != IGUAL)
-          {
-           operation = type;
-          }
-          if(type == NUM && operation != EMPTY)
-          {
-           operando2 *= 10;
-           operando2 += result;
-           IntToStr(operando2, text);
-          }
-          if(type == IGUAL)
-          {
-           if(operation == SOMA)
-                   IntToStr(operando1 + operando2, text);
-
-           if(operation == SUB)
-                   IntToStr(operando1 - operando2, text);
-
-           if(operation == MULT)
-                   IntToStr(operando1 * operando2, text);
-
-           if(operation == DIVI)
-                   IntToStr(operando1 / operando2, text);
-          }
-          if(type == ON_CLEAR)
-          {
-           operando1 = 0;
-           operando2 = 0;
-           operation = EMPTY;
-           IntToStr(0, text);
-          }
-
-          //Lcd_Out(1,1,text);
-         Lcd_Out(1,1,text);
-        }
-        else
-        {
-         //Lcd_Out(1,1,"soltar");
-        }
+void interrupt(void)
+{
+  if(INTCON.RBIF)
+  {
+    keypadHandler();
 
     edge = !edge;
     INTCON.RBIF = 0;
-   }
- }
+  }
+}
 
 void main()
 {
@@ -141,10 +69,86 @@ void main()
     INTCON.RBIF = 0;
 }
 
-int convertTecla (int tecla, KeyType* type)
+void keypadHandler()
+{
+    char i;
+    KeyType type;
+    int result;
+
+    for(i = 0, xx = 0x0f; (i < 4) && (xx==0x0f); i++)
+    {
+       PORTB.RB0 = 1; // digital output
+       PORTB.RB1 = 1;
+       PORTB.RB2 = 1;
+       PORTB.RB3 = 1;
+       if(i==0)PORTB.RB0 = 0; // digital output
+       if(i==1)PORTB.RB1 = 0;
+       if(i==2)PORTB.RB2 = 0;
+       if(i==3)PORTB.RB3 = 0;
+       xx = PORTB >> 4;
+    }
+    result = keyHandler(PORTB, &type);
+    PORTB.RB0 = 0; // digital output
+    PORTB.RB1 = 0;
+    PORTB.RB2 = 0;
+    PORTB.RB3 = 0;
+
+    if(edge == 1)
+    {
+     Lcd_Cmd(_LCD_CLEAR);
+
+      if(type == NUM && operation == EMPTY)
+      {
+       operando1 *= 10;
+       operando1 += result;
+       IntToStr(operando1, text);
+      }
+      if(type != NUM && type != ON_CLEAR && type != EQUALS)
+      {
+       operation = type;
+      }
+      if(type == NUM && operation != EMPTY)
+      {
+       operando2 *= 10;
+       operando2 += result;
+       IntToStr(operando2, text);
+      }
+      if(type == EQUALS)
+      {
+       if(operation == SUM)
+               IntToStr(operando1 + operando2, text);
+
+       if(operation == SUB)
+               IntToStr(operando1 - operando2, text);
+
+       if(operation == MULT)
+               IntToStr(operando1 * operando2, text);
+
+       if(operation == DIVI)
+               IntToStr(operando1 / operando2, text);
+      }
+      if(type == ON_CLEAR)
+      {
+       operando1 = 0;
+       operando2 = 0;
+       operation = EMPTY;
+       IntToStr(0, text);
+      }
+
+      //Lcd_Out(1,1,text);
+     Lcd_Out(1,1,text);
+    }
+    else
+    {
+     //Lcd_Out(1,1,"soltar");
+    }
+}
+
+
+int keyHandler (int key, KeyType* type)
 {
     int result = -1;
-    switch(tecla)
+    switch(key)
     {
      case 231:
      *type = ON_CLEAR;
@@ -156,11 +160,11 @@ int convertTecla (int tecla, KeyType* type)
      break;
 
      case 183:
-     *type = IGUAL;
+     *type = EQUALS;
      break;
 
      case 119:
-     *type = SOMA;
+     *type = SUM;
      break;
 
      case 235:

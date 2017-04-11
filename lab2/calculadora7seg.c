@@ -1,59 +1,143 @@
-#define SUM 10
-#define SUB 11
-#define MUL 12
-#define DIV 13
-#define IGU 14
-#define CLR 15
-
-
-unsigned int display (int number);
-int convertTecla (int tecla, KeyType* type);
-
-
-int acumulador = 0;
-int ultValor = 0;
-int operador = -1;
-int lastRead = 0xFF;
-
-
-typedef enum keyType
-{
-        IGUAL, SOMA, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
+typedef enum keyType{
+        EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
 }KeyType;
 
-  char edge = 1; //tratar mudanca de nivel
+char edge = 1; //Controle de nível na interrupção
 
-  int operando1 = 0;
-  int operando2 = 0;
-  char text[40];
-  KeyType operation = EMPTY;
+//Calculator vars
+char columnCode;
+int operando1 = 0;
+int operando2 = 0;
+int numberOnDisplay;
+KeyType operation = EMPTY;
 
-// High priority interrupt function
-  volatile char xx;
-  
-  unsigned int display (int number)
+// Keypad functions
+int keyHandler(int key, KeyType* type);
+void keypadHandler();
+
+// 7 segment display functions
+void segmentInit();
+void segmentClear();
+void segmentOut(int number);
+unsigned int display (int number);
+
+void interrupt(void)
 {
-        switch(number)
-        {
-                case 0: return 0x3F ;
-                case 1: return 0x06;
-                case 2: return 0x5B;
-                case 3: return 0x4F;
-                case 4: return 0x66;
-                case 5: return 0x6D;
-                case 6: return 0x7D;
-                case 7: return 0x07;
-                case 8: return 0x7F;
-                case 9: return 0x67;
-        }
+  if(INTCON.RBIF)
+  {
+    keypadHandler();
+
+    edge = !edge;
+    INTCON.RBIF = 0;
+  }
+}
+
+void main()
+{
+    //Pins as digital I/O
+    ADCON1 = 0x6;
+
+    // Configuring display
+    segmentInit();
+
+    // Global Interrupt Enable
+    INTCON.GIE = 1;
+
+    // Int0/PORTB0 interrupt config
+    TRISB.RB4 = 1; // digital input
+    TRISB.RB5 = 1; // digital input
+    TRISB.RB6 = 1; // digital input
+    TRISB.RB7 = 1; // digital input
+
+    TRISB.RB0 = 0; // digital output
+    TRISB.RB1 = 0;
+    TRISB.RB2 = 0;
+    TRISB.RB3 = 0;
+
+    PORTB.RB0 = 0; // digital output
+    PORTB.RB1 = 0;
+    PORTB.RB2 = 0;
+    PORTB.RB3 = 0;
+
+    INTCON.RBIE = 1;
+    INTCON.RBIF = 0;
+}
+
+void keypadHandler()
+{
+    char i;
+    KeyType type;
+    int result;
+
+    for(i = 0, columnCode = 0x0f; (i < 4) && (columnCode==0x0f); i++)
+    {
+       PORTB.RB0 = 1; // digital output
+       PORTB.RB1 = 1;
+       PORTB.RB2 = 1;
+       PORTB.RB3 = 1;
+       if(i==0)PORTB.RB0 = 0; // digital output
+       if(i==1)PORTB.RB1 = 0;
+       if(i==2)PORTB.RB2 = 0;
+       if(i==3)PORTB.RB3 = 0;
+       columnCode = PORTB >> 4;
+    }
+    result = keyHandler(PORTB, &type);
+    PORTB.RB0 = 0; // digital output
+    PORTB.RB1 = 0;
+    PORTB.RB2 = 0;
+    PORTB.RB3 = 0;
+
+    if(edge == 1)
+    {
+      segmentClear();
+
+      if(type == NUM && operation == EMPTY)
+      {
+       operando1 *= 10;
+       operando1 += result;
+       numberOnDisplay = operando1;
+      }
+      if(type != NUM && type != ON_CLEAR && type != EQUALS)
+      {
+       operation = type;
+      }
+      if(type == NUM && operation != EMPTY)
+      {
+       operando2 *= 10;
+       operando2 += result;
+       numberOnDisplay = operando2;
+      }
+      if(type == EQUALS)
+      {
+       if(operation == SUM)
+	       numberOnDisplay = operando1 + operando2;
+
+       if(operation == SUB)
+	       numberOnDisplay = operando1 - operando2;
+
+       if(operation == MULT)
+	       numberOnDisplay = operando1 * operando2;
+
+       if(operation == DIVI)
+	       numberOnDisplay = operando1 / operando2;
+      }
+      if(type == ON_CLEAR)
+      {
+       operando1 = 0;
+       operando2 = 0;
+       operation = EMPTY;
+       numberOnDisplay = 0;
+      }
+
+     segmentOut(numberOnDisplay);
+    }
 }
 
 
-
-int convertTecla (int tecla, KeyType* type)
+int keyHandler (int key, KeyType* type)
 {
     int result = -1;
-    switch(tecla)
+    switch(key)
     {
      case 231:
      *type = ON_CLEAR;
@@ -65,11 +149,11 @@ int convertTecla (int tecla, KeyType* type)
      break;
 
      case 183:
-     *type = IGUAL;
+     *type = EQUALS;
      break;
 
      case 119:
-     *type = SOMA;
+     *type = SUM;
      break;
 
      case 235:
@@ -133,117 +217,31 @@ int convertTecla (int tecla, KeyType* type)
     return result;
 }
 
-
-  void interrupt(void){
-   if(INTCON.RBIF)
-   {
-        char i;
-        KeyType type;
-        int result;
-
-        for(i = 0, xx = 0x0f; (i < 4) && (xx==0x0f); i++)
-        {
-           PORTB.RB0 = 1; // digital output
-           PORTB.RB1 = 1;
-           PORTB.RB2 = 1;
-           PORTB.RB3 = 1;
-           if(i==0)PORTB.RB0 = 0; // digital output
-           if(i==1)PORTB.RB1 = 0;
-           if(i==2)PORTB.RB2 = 0;
-           if(i==3)PORTB.RB3 = 0;
-           xx = PORTB >> 4;
-        }
-        result = convertTecla(PORTB, &type);
-        PORTB.RB0 = 0; // digital output
-        PORTB.RB1 = 0;
-        PORTB.RB2 = 0;
-        PORTB.RB3 = 0;
-
-        if(edge == 1)
-        {
-         Lcd_Cmd(_LCD_CLEAR);
-
-          if(type == NUM && operation == EMPTY)
-          {
-           operando1 *= 10;
-           operando1 += result;
-           IntToStr(operando1, text);
-          }
-          if(type != NUM && type != ON_CLEAR && type != IGUAL)
-          {
-           operation = type;
-          }
-          if(type == NUM && operation != EMPTY)
-          {
-           operando2 *= 10;
-           operando2 += result;
-           IntToStr(operando2, text);
-          }
-          if(type == IGUAL)
-          {
-           if(operation == SOMA)
-                   IntToStr(operando1 + operando2, text);
-
-           if(operation == SUB)
-                   IntToStr(operando1 - operando2, text);
-
-           if(operation == MULT)
-                   IntToStr(operando1 * operando2, text);
-
-           if(operation == DIVI)
-                   IntToStr(operando1 / operando2, text);
-          }
-          if(type == ON_CLEAR)
-          {
-           operando1 = 0;
-           operando2 = 0;
-           operation = EMPTY;
-           IntToStr(0, text);
-          }
-    }
-
-    edge = !edge;
-    INTCON.RBIF = 0;
-   }
- }
-
-
-void main()
+void segmentInit()
 {
-     //Pins as digital I/O
-    ADCON1 = 0x6;
+}
 
-    // Global Interrupt Enable
-    INTCON.GIE = 1;
+void segmentClear()
+{
+}
 
-    // Int0/PORTB0 interrupt config
-    TRISB.RB4 = 1; // digital input
-    TRISB.RB5 = 1; // digital input
-    TRISB.RB6 = 1; // digital input
-    TRISB.RB7 = 1; // digital input
+void segmentOut(int number)
+{
+}
 
-    TRISB.RB0 = 0; // digital output
-    TRISB.RB1 = 0; // digital output
-    TRISB.RB2 = 0; // digital output
-    TRISB.RB3 = 0; // digital output
-
-    PORTB.RB0 = 0; // digital output
-    PORTB.RB1 = 0; // digital output
-    PORTB.RB2 = 0; // digital output
-    PORTB.RB3 = 0; // digital output
-
-    INTCON.RBIE = 1;
-    INTCON.RBIF = 0;
-
-        while(1)
-        {
-                tecla = nextKey();
-
-                if (tecla != 0xFF)
-                {
-                        processaTecla(tecla);
-                }
-
-                show7seg(acumulador);
-        }
+unsigned int display (int number)
+{
+      switch(number)
+      {
+              case 0: return 0x3F ;
+              case 1: return 0x06;
+              case 2: return 0x5B;
+              case 3: return 0x4F;
+              case 4: return 0x66;
+              case 5: return 0x6D;
+              case 6: return 0x7D;
+              case 7: return 0x07;
+              case 8: return 0x7F;
+              case 9: return 0x67;
+      }
 }

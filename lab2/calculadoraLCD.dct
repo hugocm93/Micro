@@ -1,3 +1,4 @@
+    
 ______
 ____doifc
 ___boot_delay128k
@@ -462,7 +463,6 @@ clko
 clko_bit
 comfrem
 compare_double
-converttecla
 cos
 cose3
 cosh
@@ -606,6 +606,7 @@ fsr2h
 fsr2l
 fsr2ptr
 fullbits
+gain
 gcen
 gcen_bit
 get_fosc_khz
@@ -659,6 +660,19 @@ go_done_bit
 go_not_done
 go_not_done_bit
 halfbits
+hx711_get_units
+hx711_get_value
+hx711_init
+hx711_offset
+hx711_power_down
+hx711_power_up
+hx711_read
+hx711_read_average
+hx711_ready
+hx711_reset_measure
+hx711_set_gain
+hx711_set_offset
+hx711_set_scale
 i2c_dat
 i2c_dat_bit
 i2c_data
@@ -760,9 +774,11 @@ isupper
 isxdigit
 jpegdecoder
 jpegdecoder_16bit
+keyhandler
 keypad_init
 keypad_key_click
 keypad_key_press
+keypadhandler
 labs
 lata
 lata0
@@ -1000,6 +1016,7 @@ nrm4032
 obf_trise_bit
 oerr
 oerr_bit
+offset
 operando1
 operando2
 operation
@@ -1342,6 +1359,7 @@ s1d13700_write_parameter
 s1d13700_write_text
 s1d13700_write_text_adv
 s1d13700_write_text_return_pos
+scale
 sck
 sck_bit
 scl
@@ -1904,10 +1922,6 @@ tft_init_ili9340
 tft_init_ili9340_8bit
 tft_init_ili9340_8bit_custom
 tft_init_ili9340_custom
-tft_init_ili9341_16bit
-tft_init_ili9341_16bit_custom
-tft_init_ili9341_8bit
-tft_init_ili9341_8bit_custom
 tft_init_ili9342
 tft_init_ili9342_custom
 tft_init_ili9481
