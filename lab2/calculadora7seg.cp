@@ -1,4 +1,4 @@
-#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab2/calculadora7seg.c"
+#line 1 "C:/Users/aula/Downloads/Micro/lab2/calculadora7seg.c"
 
 
 
@@ -9,10 +9,10 @@ typedef enum keyType{
 char edge = 1;
 
 
-char columnCode;
+char columnCode = 0;
 int operando1 = 0;
 int operando2 = 0;
-int numberOnDisplay;
+int numberOnDisplay = 0;
 KeyType operation = EMPTY;
 
 
@@ -37,15 +37,15 @@ void interrupt(void)
 
  PORTA.RA2 = 0;
  PORTA.RA3 = 0;
- PORTA.RA4 = 0;
+ PORTA.RA0 = 0;
  PORTA.RA5 = 0;
+
+ PORTD = display();
 
  if(nDigit==0)PORTA.RA2 = 1;
  if(nDigit==1)PORTA.RA3 = 1;
- if(nDigit==2)PORTA.RA4 = 1;
+ if(nDigit==2)PORTA.RA0 = 1;
  if(nDigit==3)PORTA.RA5 = 1;
-
- PORTD = display();
 
  nDigit++;
  INTCON.TMR0IF=0;
@@ -130,12 +130,12 @@ void main()
 
  TRISA.RA2 = 0;
  TRISA.RA3 = 0;
- TRISA.RA4 = 0;
+ TRISA.RA0 = 0;
  TRISA.RA5 = 0;
 
  PORTA.RA2 = 0;
  PORTA.RA3 = 0;
- PORTA.RA4 = 0;
+ PORTA.RA0 = 0;
  PORTA.RA5 = 0;
 
  INTCON.RBIE = 1;
@@ -198,6 +198,10 @@ void keypadHandler()
 
  if(operation == DIVI)
  numberOnDisplay = operando1 / operando2;
+
+ operando1 = numberOnDisplay;
+ operando2 = 0;
+ operation = EMPTY;
  }
  if(type == ON_CLEAR)
  {

@@ -30,11 +30,15 @@ L_interrupt1:
 	BCF         PORTA+0, 2 
 ;calculadora7seg.c,38 :: 		PORTA.RA3 = 0;
 	BCF         PORTA+0, 3 
-;calculadora7seg.c,39 :: 		PORTA.RA4 = 0;
-	BCF         PORTA+0, 4 
+;calculadora7seg.c,39 :: 		PORTA.RA0 = 0;
+	BCF         PORTA+0, 0 
 ;calculadora7seg.c,40 :: 		PORTA.RA5 = 0;
 	BCF         PORTA+0, 5 
-;calculadora7seg.c,42 :: 		if(nDigit==0)PORTA.RA2 = 1;
+;calculadora7seg.c,42 :: 		PORTD = display();
+	CALL        _display+0, 0
+	MOVF        R0, 0 
+	MOVWF       PORTD+0 
+;calculadora7seg.c,44 :: 		if(nDigit==0)PORTA.RA2 = 1;
 	MOVLW       0
 	XORWF       _nDigit+1, 0 
 	BTFSS       STATUS+0, 2 
@@ -46,7 +50,7 @@ L__interrupt69:
 	GOTO        L_interrupt2
 	BSF         PORTA+0, 2 
 L_interrupt2:
-;calculadora7seg.c,43 :: 		if(nDigit==1)PORTA.RA3 = 1;
+;calculadora7seg.c,45 :: 		if(nDigit==1)PORTA.RA3 = 1;
 	MOVLW       0
 	XORWF       _nDigit+1, 0 
 	BTFSS       STATUS+0, 2 
@@ -58,7 +62,7 @@ L__interrupt70:
 	GOTO        L_interrupt3
 	BSF         PORTA+0, 3 
 L_interrupt3:
-;calculadora7seg.c,44 :: 		if(nDigit==2)PORTA.RA4 = 1;
+;calculadora7seg.c,46 :: 		if(nDigit==2)PORTA.RA0 = 1;
 	MOVLW       0
 	XORWF       _nDigit+1, 0 
 	BTFSS       STATUS+0, 2 
@@ -68,9 +72,9 @@ L_interrupt3:
 L__interrupt71:
 	BTFSS       STATUS+0, 2 
 	GOTO        L_interrupt4
-	BSF         PORTA+0, 4 
+	BSF         PORTA+0, 0 
 L_interrupt4:
-;calculadora7seg.c,45 :: 		if(nDigit==3)PORTA.RA5 = 1;
+;calculadora7seg.c,47 :: 		if(nDigit==3)PORTA.RA5 = 1;
 	MOVLW       0
 	XORWF       _nDigit+1, 0 
 	BTFSS       STATUS+0, 2 
@@ -82,10 +86,6 @@ L__interrupt72:
 	GOTO        L_interrupt5
 	BSF         PORTA+0, 5 
 L_interrupt5:
-;calculadora7seg.c,47 :: 		PORTD = display();
-	CALL        _display+0, 0
-	MOVF        R0, 0 
-	MOVWF       PORTD+0 
 ;calculadora7seg.c,49 :: 		nDigit++;
 	INFSNZ      _nDigit+0, 1 
 	INCF        _nDigit+1, 1 
@@ -212,16 +212,16 @@ _main:
 	BCF         TRISA+0, 2 
 ;calculadora7seg.c,131 :: 		TRISA.RA3 = 0;
 	BCF         TRISA+0, 3 
-;calculadora7seg.c,132 :: 		TRISA.RA4 = 0;
-	BCF         TRISA+0, 4 
+;calculadora7seg.c,132 :: 		TRISA.RA0 = 0;
+	BCF         TRISA+0, 0 
 ;calculadora7seg.c,133 :: 		TRISA.RA5 = 0;
 	BCF         TRISA+0, 5 
 ;calculadora7seg.c,135 :: 		PORTA.RA2 = 0;
 	BCF         PORTA+0, 2 
 ;calculadora7seg.c,136 :: 		PORTA.RA3 = 0;
 	BCF         PORTA+0, 3 
-;calculadora7seg.c,137 :: 		PORTA.RA4 = 0;
-	BCF         PORTA+0, 4 
+;calculadora7seg.c,137 :: 		PORTA.RA0 = 0;
+	BCF         PORTA+0, 0 
 ;calculadora7seg.c,138 :: 		PORTA.RA5 = 0;
 	BCF         PORTA+0, 5 
 ;calculadora7seg.c,140 :: 		INTCON.RBIE = 1;
@@ -499,236 +499,247 @@ L_keypadHandler29:
 	MOVF        R1, 0 
 	MOVWF       _numberOnDisplay+1 
 L_keypadHandler30:
-;calculadora7seg.c,200 :: 		}
+;calculadora7seg.c,201 :: 		operando1 = numberOnDisplay;
+	MOVF        _numberOnDisplay+0, 0 
+	MOVWF       _operando1+0 
+	MOVF        _numberOnDisplay+1, 0 
+	MOVWF       _operando1+1 
+;calculadora7seg.c,202 :: 		operando2 = 0;
+	CLRF        _operando2+0 
+	CLRF        _operando2+1 
+;calculadora7seg.c,203 :: 		operation = EMPTY;
+	MOVLW       7
+	MOVWF       _operation+0 
+;calculadora7seg.c,204 :: 		}
 L_keypadHandler26:
-;calculadora7seg.c,201 :: 		if(type == ON_CLEAR)
+;calculadora7seg.c,205 :: 		if(type == ON_CLEAR)
 	MOVF        keypadHandler_type_L0+0, 0 
 	XORLW       5
 	BTFSS       STATUS+0, 2 
 	GOTO        L_keypadHandler31
-;calculadora7seg.c,203 :: 		operando1 = 0;
+;calculadora7seg.c,207 :: 		operando1 = 0;
 	CLRF        _operando1+0 
 	CLRF        _operando1+1 
-;calculadora7seg.c,204 :: 		operando2 = 0;
+;calculadora7seg.c,208 :: 		operando2 = 0;
 	CLRF        _operando2+0 
 	CLRF        _operando2+1 
-;calculadora7seg.c,205 :: 		operation = EMPTY;
+;calculadora7seg.c,209 :: 		operation = EMPTY;
 	MOVLW       7
 	MOVWF       _operation+0 
-;calculadora7seg.c,206 :: 		numberOnDisplay = 0;
+;calculadora7seg.c,210 :: 		numberOnDisplay = 0;
 	CLRF        _numberOnDisplay+0 
 	CLRF        _numberOnDisplay+1 
-;calculadora7seg.c,207 :: 		}
+;calculadora7seg.c,211 :: 		}
 L_keypadHandler31:
-;calculadora7seg.c,208 :: 		}
+;calculadora7seg.c,212 :: 		}
 L_keypadHandler16:
-;calculadora7seg.c,209 :: 		}
+;calculadora7seg.c,213 :: 		}
 L_end_keypadHandler:
 	RETURN      0
 ; end of _keypadHandler
 
 _keyHandler:
 
-;calculadora7seg.c,212 :: 		int keyHandler (int key, KeyType* type)
-;calculadora7seg.c,214 :: 		int result = -1;
+;calculadora7seg.c,216 :: 		int keyHandler (int key, KeyType* type)
+;calculadora7seg.c,218 :: 		int result = -1;
 	MOVLW       255
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       255
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,215 :: 		switch(key)
+;calculadora7seg.c,219 :: 		switch(key)
 	GOTO        L_keyHandler32
-;calculadora7seg.c,217 :: 		case 231:
+;calculadora7seg.c,221 :: 		case 231:
 L_keyHandler34:
-;calculadora7seg.c,218 :: 		*type = ON_CLEAR;
+;calculadora7seg.c,222 :: 		*type = ON_CLEAR;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       5
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,219 :: 		break;
+;calculadora7seg.c,223 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,221 :: 		case 215:
+;calculadora7seg.c,225 :: 		case 215:
 L_keyHandler35:
-;calculadora7seg.c,222 :: 		*type = NUM;
+;calculadora7seg.c,226 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,223 :: 		result = 0;
+;calculadora7seg.c,227 :: 		result = 0;
 	CLRF        keyHandler_result_L0+0 
 	CLRF        keyHandler_result_L0+1 
-;calculadora7seg.c,224 :: 		break;
+;calculadora7seg.c,228 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,226 :: 		case 183:
+;calculadora7seg.c,230 :: 		case 183:
 L_keyHandler36:
-;calculadora7seg.c,227 :: 		*type = EQUALS;
+;calculadora7seg.c,231 :: 		*type = EQUALS;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	CLRF        POSTINC1+0 
-;calculadora7seg.c,228 :: 		break;
+;calculadora7seg.c,232 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,230 :: 		case 119:
+;calculadora7seg.c,234 :: 		case 119:
 L_keyHandler37:
-;calculadora7seg.c,231 :: 		*type = SUM;
+;calculadora7seg.c,235 :: 		*type = SUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       1
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,232 :: 		break;
+;calculadora7seg.c,236 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,234 :: 		case 235:
+;calculadora7seg.c,238 :: 		case 235:
 L_keyHandler38:
-;calculadora7seg.c,235 :: 		*type = NUM;
+;calculadora7seg.c,239 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,236 :: 		result = 1;
+;calculadora7seg.c,240 :: 		result = 1;
 	MOVLW       1
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,237 :: 		break;
+;calculadora7seg.c,241 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,239 :: 		case 219:
+;calculadora7seg.c,243 :: 		case 219:
 L_keyHandler39:
-;calculadora7seg.c,240 :: 		*type = NUM;
+;calculadora7seg.c,244 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,241 :: 		result = 2;
+;calculadora7seg.c,245 :: 		result = 2;
 	MOVLW       2
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,242 :: 		break;
+;calculadora7seg.c,246 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,244 :: 		case 187:
+;calculadora7seg.c,248 :: 		case 187:
 L_keyHandler40:
-;calculadora7seg.c,245 :: 		*type = NUM;
+;calculadora7seg.c,249 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,246 :: 		result = 3;
+;calculadora7seg.c,250 :: 		result = 3;
 	MOVLW       3
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,247 :: 		break;
+;calculadora7seg.c,251 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,249 :: 		case 123:
+;calculadora7seg.c,253 :: 		case 123:
 L_keyHandler41:
-;calculadora7seg.c,250 :: 		*type = SUB;
+;calculadora7seg.c,254 :: 		*type = SUB;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       2
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,251 :: 		break;
+;calculadora7seg.c,255 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,253 :: 		case 237:
+;calculadora7seg.c,257 :: 		case 237:
 L_keyHandler42:
-;calculadora7seg.c,254 :: 		*type = NUM;
+;calculadora7seg.c,258 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,255 :: 		result = 4;
+;calculadora7seg.c,259 :: 		result = 4;
 	MOVLW       4
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,256 :: 		break;
+;calculadora7seg.c,260 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,258 :: 		case 221:
+;calculadora7seg.c,262 :: 		case 221:
 L_keyHandler43:
-;calculadora7seg.c,259 :: 		*type = NUM;
+;calculadora7seg.c,263 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,260 :: 		result = 5;
+;calculadora7seg.c,264 :: 		result = 5;
 	MOVLW       5
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,261 :: 		break;
+;calculadora7seg.c,265 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,263 :: 		case 189:
+;calculadora7seg.c,267 :: 		case 189:
 L_keyHandler44:
-;calculadora7seg.c,264 :: 		*type = NUM;
+;calculadora7seg.c,268 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,265 :: 		result = 6;
+;calculadora7seg.c,269 :: 		result = 6;
 	MOVLW       6
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,266 :: 		break;
+;calculadora7seg.c,270 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,268 :: 		case 125:
+;calculadora7seg.c,272 :: 		case 125:
 L_keyHandler45:
-;calculadora7seg.c,269 :: 		*type = MULT;
+;calculadora7seg.c,273 :: 		*type = MULT;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       3
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,270 :: 		break;
+;calculadora7seg.c,274 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,272 :: 		case 238:
+;calculadora7seg.c,276 :: 		case 238:
 L_keyHandler46:
-;calculadora7seg.c,273 :: 		*type = NUM;
+;calculadora7seg.c,277 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,274 :: 		result = 7;
+;calculadora7seg.c,278 :: 		result = 7;
 	MOVLW       7
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,275 :: 		break;
+;calculadora7seg.c,279 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,277 :: 		case 222:
+;calculadora7seg.c,281 :: 		case 222:
 L_keyHandler47:
-;calculadora7seg.c,278 :: 		*type = NUM;
+;calculadora7seg.c,282 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,279 :: 		result = 8;
+;calculadora7seg.c,283 :: 		result = 8;
 	MOVLW       8
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,280 :: 		break;
+;calculadora7seg.c,284 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,282 :: 		case 190:
+;calculadora7seg.c,286 :: 		case 190:
 L_keyHandler48:
-;calculadora7seg.c,283 :: 		*type = NUM;
+;calculadora7seg.c,287 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,284 :: 		result = 9;
+;calculadora7seg.c,288 :: 		result = 9;
 	MOVLW       9
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;calculadora7seg.c,285 :: 		break;
+;calculadora7seg.c,289 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,287 :: 		case 126:
+;calculadora7seg.c,291 :: 		case 126:
 L_keyHandler49:
-;calculadora7seg.c,288 :: 		*type = DIVI;
+;calculadora7seg.c,292 :: 		*type = DIVI;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       4
 	MOVWF       POSTINC1+0 
-;calculadora7seg.c,289 :: 		break;
+;calculadora7seg.c,293 :: 		break;
 	GOTO        L_keyHandler33
-;calculadora7seg.c,290 :: 		}
+;calculadora7seg.c,294 :: 		}
 L_keyHandler32:
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
@@ -875,20 +886,20 @@ L__keyHandler91:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler49
 L_keyHandler33:
-;calculadora7seg.c,292 :: 		return result;
+;calculadora7seg.c,296 :: 		return result;
 	MOVF        keyHandler_result_L0+0, 0 
 	MOVWF       R0 
 	MOVF        keyHandler_result_L0+1, 0 
 	MOVWF       R1 
-;calculadora7seg.c,293 :: 		}
+;calculadora7seg.c,297 :: 		}
 L_end_keyHandler:
 	RETURN      0
 ; end of _keyHandler
 
 _display:
 
-;calculadora7seg.c,296 :: 		unsigned int display ()
-;calculadora7seg.c,298 :: 		int number = (int)(numberOnDisplay/pow(10, nDigit)) % 10;
+;calculadora7seg.c,300 :: 		unsigned int display ()
+;calculadora7seg.c,302 :: 		int number = (int)(numberOnDisplay/pow(10, nDigit)) % 10;
 	MOVLW       0
 	MOVWF       FARG_pow_x+0 
 	MOVLW       0
@@ -947,79 +958,79 @@ _display:
 	MOVWF       display_number_L0+0 
 	MOVF        R1, 0 
 	MOVWF       display_number_L0+1 
-;calculadora7seg.c,299 :: 		switch(number)
+;calculadora7seg.c,303 :: 		switch(number)
 	GOTO        L_display50
-;calculadora7seg.c,301 :: 		case 0: return 0x3F;
+;calculadora7seg.c,305 :: 		case 0: return 0x3F;
 L_display52:
 	MOVLW       63
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,302 :: 		case 1: return 0x06;
+;calculadora7seg.c,306 :: 		case 1: return 0x06;
 L_display53:
 	MOVLW       6
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,303 :: 		case 2: return 0x5B;
+;calculadora7seg.c,307 :: 		case 2: return 0x5B;
 L_display54:
 	MOVLW       91
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,304 :: 		case 3: return 0x4F;
+;calculadora7seg.c,308 :: 		case 3: return 0x4F;
 L_display55:
 	MOVLW       79
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,305 :: 		case 4: return 0x66;
+;calculadora7seg.c,309 :: 		case 4: return 0x66;
 L_display56:
 	MOVLW       102
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,306 :: 		case 5: return 0x6D;
+;calculadora7seg.c,310 :: 		case 5: return 0x6D;
 L_display57:
 	MOVLW       109
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,307 :: 		case 6: return 0x7D;
+;calculadora7seg.c,311 :: 		case 6: return 0x7D;
 L_display58:
 	MOVLW       125
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,308 :: 		case 7: return 0x07;
+;calculadora7seg.c,312 :: 		case 7: return 0x07;
 L_display59:
 	MOVLW       7
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,309 :: 		case 8: return 0x7F;
+;calculadora7seg.c,313 :: 		case 8: return 0x7F;
 L_display60:
 	MOVLW       127
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,310 :: 		case 9: return 0x6F;
+;calculadora7seg.c,314 :: 		case 9: return 0x6F;
 L_display61:
 	MOVLW       111
 	MOVWF       R0 
 	MOVLW       0
 	MOVWF       R1 
 	GOTO        L_end_display
-;calculadora7seg.c,311 :: 		}
+;calculadora7seg.c,315 :: 		}
 L_display50:
 	MOVLW       0
 	XORWF       display_number_L0+1, 0 
@@ -1111,7 +1122,7 @@ L__display101:
 L__display102:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_display61
-;calculadora7seg.c,312 :: 		}
+;calculadora7seg.c,316 :: 		}
 L_end_display:
 	RETURN      0
 ; end of _display
