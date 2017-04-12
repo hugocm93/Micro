@@ -1,4 +1,4 @@
-#line 1 "C:/Users/aula/Downloads/Micro/lab2/calculadora7seg.c"
+#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab2/calculadora7seg.c"
 
 
 
@@ -21,39 +21,47 @@ void keypadHandler();
 
 
 unsigned int display();
-int nDigit = 0;
+volatile int nDigit = 3;
+volatile int pot = 1000;
+volatile float timer = 0;
 
 void interrupt(void)
 {
  if(INTCON.TMR0IF)
  {
- TMR0H =  ( 0xffff - 100 )  >> 8;
- TMR0L =  ( 0xffff - 100 ) ;
+ INTCON.TMR0IE=0;
+ TMR0H =  ( 0xffff - 10 )  >> 8;
+ TMR0L =  ( 0xffff - 10 ) ;
 
- if(nDigit == 4)
- {
- nDigit = 0;
- }
+ nDigit = nDigit == -1 ? 3 : nDigit;
 
- PORTA.RA2 = 0;
- PORTA.RA3 = 0;
- PORTA.RA0 = 0;
- PORTA.RA5 = 0;
+ pot = pot == 1000 ? 1 : pot*10;
+
+ PORTA = 0;
 
  PORTD = display();
 
- if(nDigit==0)PORTA.RA2 = 1;
- if(nDigit==1)PORTA.RA3 = 1;
- if(nDigit==2)PORTA.RA0 = 1;
- if(nDigit==3)PORTA.RA5 = 1;
+ PORTA = 1 << nDigit + 2;
 
- nDigit++;
+ nDigit--;
+
  INTCON.TMR0IF=0;
+ INTCON.TMR0IE=1;
+ timer +=  ( 0xffff - 10 ) ;
  }
 
  if(INTCON.RBIF)
  {
+ if( (timer > 0.02))
+ {
+ PORTC.RC1 = 1;
  keypadHandler();
+ timer = 0;
+ }
+ else
+{
+ PORTC.RC1 = 0;
+}
 
  edge = !edge;
  INTCON.RBIF = 0;
@@ -73,8 +81,8 @@ void main()
  T0CON.T0PS0 = 1;
 
 
- TMR0H =  ( 0xffff - 100 )  >> 8;
- TMR0L =  ( 0xffff - 100 ) ;
+ TMR0H =  ( 0xffff - 10 )  >> 8;
+ TMR0L =  ( 0xffff - 10 ) ;
 
 
  INTCON.TMR0IP = 1;
@@ -127,15 +135,17 @@ void main()
  PORTD.RD6 = 0;
  PORTD.RD7 = 0;
 
+ TRISC.RC1 = 0;
+
 
  TRISA.RA2 = 0;
  TRISA.RA3 = 0;
- TRISA.RA0 = 0;
+ TRISA.RA4 = 0;
  TRISA.RA5 = 0;
 
  PORTA.RA2 = 0;
  PORTA.RA3 = 0;
- PORTA.RA0 = 0;
+ PORTA.RA4 = 0;
  PORTA.RA5 = 0;
 
  INTCON.RBIE = 1;
@@ -168,7 +178,6 @@ void keypadHandler()
 
  if(edge == 1)
  {
-
  if(type == NUM && operation == EMPTY)
  {
  operando1 *= 10;
@@ -238,17 +247,17 @@ int keyHandler (int key, KeyType* type)
 
  case 235:
  *type = NUM;
- result = 1;
+ result = 7;
  break;
 
  case 219:
  *type = NUM;
- result = 2;
+ result = 8;
  break;
 
  case 187:
  *type = NUM;
- result = 3;
+ result = 9;
  break;
 
  case 123:
@@ -276,17 +285,17 @@ int keyHandler (int key, KeyType* type)
 
  case 238:
  *type = NUM;
- result = 7;
+ result = 1;
  break;
 
  case 222:
  *type = NUM;
- result = 8;
+ result = 2;
  break;
 
  case 190:
  *type = NUM;
- result = 9;
+ result = 3;
  break;
 
  case 126:
@@ -300,7 +309,7 @@ int keyHandler (int key, KeyType* type)
 
 unsigned int display ()
 {
- int number = (int)(numberOnDisplay/pow(10, nDigit)) % 10;
+ int number = (numberOnDisplay/pot) % 10;
  switch(number)
  {
  case 0: return 0x3F;

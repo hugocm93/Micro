@@ -1067,6 +1067,7 @@ postdec2
 postinc0
 postinc1
 postinc2
+pot
 pow
 pr2
 preinc0
@@ -1954,6 +1955,7 @@ tft_write_text_return_pos
 time_datetoepoch
 time_epochtodate
 time_jd1970
+timer
 tmr0h
 tmr0ie
 tmr0ie_bit

@@ -36,12 +36,12 @@ Count=0
 Count=0
 [SEARCH_PATH]
 Count=6
-Path0=C:\Program Files\mikroC PRO for PIC\defs\
-Path1=C:\Program Files\mikroC PRO for PIC\uses\P18\
-Path2=C:\Users\aula\Downloads\Micro\lab2\
-Path3=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
-Path4=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path5=C:\Users\mplab.LCA-06\Downloads\Micro\lab2\
+Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
+Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
+Path2=C:\Users\mplab.LCA-06\Downloads\Micro\lab2\
+Path3=C:\Program Files\mikroC PRO for PIC\defs\
+Path4=C:\Program Files\mikroC PRO for PIC\uses\P18\
+Path5=C:\Users\aula\Downloads\Micro\lab2\
 [HEADER_PATH]
 Count=0
 [HEADERS]

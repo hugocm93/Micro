@@ -1,5 +1,5 @@
-// (8MHz / 4 ) / 256 => 128us x 100 = 0.0128
-#define COUNTER ( 0xffff - 100 )
+// (8MHz / 4 ) / 256 => 128us x 10 = 0.00128s
+#define COUNTER ( 0xffff - 10 )
 
 typedef enum keyType{
         EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
@@ -20,39 +20,47 @@ void keypadHandler();
 
 // 7 segment display functions
 unsigned int display();
-int nDigit = 0;
+volatile int nDigit = 3;
+volatile int pot = 1000;
+volatile float timer = 0;
 
 void interrupt(void)
 {
   if(INTCON.TMR0IF)
   {
+     INTCON.TMR0IE=0;
      TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
      TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
 
-     if(nDigit == 4)
-     {
-	nDigit = 0;
-     }
+     nDigit = nDigit == -1 ? 3 : nDigit;
 
-	PORTA.RA2 = 0;
-	PORTA.RA3 = 0;
-	PORTA.RA0 = 0;
-	PORTA.RA5 = 0;
-	
-	PORTD = display();
+     pot = pot == 1000 ? 1 : pot*10;
 
-     if(nDigit==0)PORTA.RA2 = 1;
-     if(nDigit==1)PORTA.RA3 = 1;
-     if(nDigit==2)PORTA.RA0 = 1;
-     if(nDigit==3)PORTA.RA5 = 1;
-	
-     nDigit++;
+     PORTA = 0;
+
+     PORTD = display();
+
+     PORTA = 1 << nDigit + 2;
+
+     nDigit--;
+     
      INTCON.TMR0IF=0;
+     INTCON.TMR0IE=1;
+     timer += COUNTER;
   }
 
   if(INTCON.RBIF)
   {
-    keypadHandler();
+    if(/*edge == 1 && */(timer > 0.02))
+    {
+         PORTC.RC1 = 1;
+         keypadHandler();
+         timer = 0;
+     }
+     else
+{
+    PORTC.RC1 = 0;
+}
 
     edge = !edge;
     INTCON.RBIF = 0;
@@ -126,15 +134,17 @@ void main()
     PORTD.RD6 = 0;
     PORTD.RD7 = 0;
 
+    TRISC.RC1 = 0; // digital output
+
     //7 seg controle
     TRISA.RA2 = 0; // digital output
     TRISA.RA3 = 0;
-    TRISA.RA0 = 0;
+    TRISA.RA4 = 0;
     TRISA.RA5 = 0;
 
     PORTA.RA2 = 0;
     PORTA.RA3 = 0;
-    PORTA.RA0 = 0;
+    PORTA.RA4 = 0;
     PORTA.RA5 = 0;
 
     INTCON.RBIE = 1;
@@ -167,7 +177,6 @@ void keypadHandler()
 
     if(edge == 1)
     {
-
       if(type == NUM && operation == EMPTY)
       {
        operando1 *= 10;
@@ -187,17 +196,17 @@ void keypadHandler()
       if(type == EQUALS)
       {
        if(operation == SUM)
-	       numberOnDisplay = operando1 + operando2;
+               numberOnDisplay = operando1 + operando2;
 
        if(operation == SUB)
-	       numberOnDisplay = operando1 - operando2;
+               numberOnDisplay = operando1 - operando2;
 
        if(operation == MULT)
-	       numberOnDisplay = operando1 * operando2;
+               numberOnDisplay = operando1 * operando2;
 
        if(operation == DIVI)
-	       numberOnDisplay = operando1 / operando2;
-	       
+               numberOnDisplay = operando1 / operando2;
+               
        operando1 = numberOnDisplay;
        operando2 = 0;
        operation = EMPTY;
@@ -209,7 +218,7 @@ void keypadHandler()
        operation = EMPTY;
        numberOnDisplay = 0;
       }
-    }
+      }
 }
 
 
@@ -237,17 +246,17 @@ int keyHandler (int key, KeyType* type)
 
      case 235:
      *type = NUM;
-     result = 1;
+     result = 7;
      break;
 
      case 219:
      *type = NUM;
-     result = 2;
+     result = 8;
      break;
 
      case 187:
      *type = NUM;
-     result = 3;
+     result = 9;
      break;
 
      case 123:
@@ -275,17 +284,17 @@ int keyHandler (int key, KeyType* type)
 
      case 238:
      *type = NUM;
-     result = 7;
+     result = 1;
      break;
 
      case 222:
      *type = NUM;
-     result = 8;
+     result = 2;
      break;
 
      case 190:
      *type = NUM;
-     result = 9;
+     result = 3;
      break;
 
      case 126:
@@ -299,7 +308,7 @@ int keyHandler (int key, KeyType* type)
 
 unsigned int display ()
 {
-    int number = (int)(numberOnDisplay/pow(10, nDigit)) % 10;
+    int number = (numberOnDisplay/pot) % 10;
     switch(number)
     {
           case 0: return 0x3F;
