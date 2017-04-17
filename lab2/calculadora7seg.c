@@ -53,13 +53,13 @@ void interrupt(void)
   {
     if(/*edge == 1 && */(timer > 0.02))
     {
-         PORTC.RC1 = 1;
+        // PORTC.RC1 = 1;
          keypadHandler();
          timer = 0;
      }
      else
 {
-    PORTC.RC1 = 0;
+   // PORTC.RC1 = 0;
 }
 
     edge = !edge;
@@ -134,7 +134,7 @@ void main()
     PORTD.RD6 = 0;
     PORTD.RD7 = 0;
 
-    TRISC.RC1 = 0; // digital output
+  //  TRISC.RC1 = 0; // digital output
 
     //7 seg controle
     TRISA.RA2 = 0; // digital output

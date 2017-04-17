@@ -167,8 +167,6 @@ L_interrupt0:
 	MOVF        R0, 1 
 	BTFSC       STATUS+0, 2 
 	GOTO        L_interrupt6
-;calculadora7seg.c,56 :: 		PORTC.RC1 = 1;
-	BSF         PORTC+0, 1 
 ;calculadora7seg.c,57 :: 		keypadHandler();
 	CALL        _keypadHandler+0, 0
 ;calculadora7seg.c,58 :: 		timer = 0;
@@ -179,8 +177,6 @@ L_interrupt0:
 ;calculadora7seg.c,59 :: 		}
 	GOTO        L_interrupt7
 L_interrupt6:
-;calculadora7seg.c,62 :: 		PORTC.RC1 = 0;
-	BCF         PORTC+0, 1 
 ;calculadora7seg.c,63 :: 		}
 L_interrupt7:
 ;calculadora7seg.c,65 :: 		edge = !edge;
@@ -293,8 +289,6 @@ _main:
 	BCF         PORTD+0, 6 
 ;calculadora7seg.c,135 :: 		PORTD.RD7 = 0;
 	BCF         PORTD+0, 7 
-;calculadora7seg.c,137 :: 		TRISC.RC1 = 0; // digital output
-	BCF         TRISC+0, 1 
 ;calculadora7seg.c,140 :: 		TRISA.RA2 = 0; // digital output
 	BCF         TRISA+0, 2 
 ;calculadora7seg.c,141 :: 		TRISA.RA3 = 0;

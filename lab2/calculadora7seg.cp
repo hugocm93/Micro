@@ -54,13 +54,13 @@ void interrupt(void)
  {
  if( (timer > 0.02))
  {
- PORTC.RC1 = 1;
+
  keypadHandler();
  timer = 0;
  }
  else
 {
- PORTC.RC1 = 0;
+
 }
 
  edge = !edge;
@@ -135,7 +135,7 @@ void main()
  PORTD.RD6 = 0;
  PORTD.RD7 = 0;
 
- TRISC.RC1 = 0;
+
 
 
  TRISA.RA2 = 0;
