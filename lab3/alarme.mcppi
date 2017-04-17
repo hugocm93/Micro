@@ -12,9 +12,12 @@ Value=0
 [USE_HEAP]
 Value=0
 [HEAP_SIZE]
-Value=0
+Value=2000
 [EEPROM_DEFINITION]
 Value=
+[EXPANDED_NODES]
+Node0=Sources
+Count=1
 [FILES]
 Count=1
 File0=alarme.c
@@ -33,13 +36,14 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=6
-Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
+Count=7
+Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path2=C:\Users\hugocm93\Desktop\Micro\lab3\
-Path3=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\FT800\Uses\
-Path4=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\FT810\Uses\
-Path5=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\FT812\Uses\
+Path2=C:\Users\mplab.LCA-06\Downloads\Micro\lab3\
+Path3=C:\Users\hugocm93\Desktop\Micro\lab3\
+Path4=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\FT800\Uses\
+Path5=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\FT810\Uses\
+Path6=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\FT812\Uses\
 [HEADER_PATH]
 Count=3
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\FT800\Uses\
@@ -112,6 +116,7 @@ File57=FT810
 File58=FT810_Defs
 File59=FT812
 File60=FT812_Defs
-[EXPANDED_NODES]
-Node0=Sources
-Count=1
+[EXPANDED NODES]
+Node1=Sources
+Node2=Output Files
+Count=2

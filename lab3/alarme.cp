@@ -1,11 +1,11 @@
-#line 1 "C:/Users/hugocm93/Desktop/Micro/lab3/alarme.c"
+#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab3/alarme.c"
 
 
 
 
 sbit LCD_EN at RE1_bit;
 sbit LCD_RS at RE2_bit;
-sbit LCD_D4 at RC4_bit;
+sbit LCD_D4 at RD4_bit;
 sbit LCD_D5 at RD5_bit;
 sbit LCD_D6 at RD6_bit;
 sbit LCD_D7 at RD7_bit;
@@ -30,11 +30,15 @@ volatile char rightKeysActivation[] = {0,0,0,0,0,0};
 volatile char rightKeysDeActivation[] = {0,0,0,0,0,0};
 volatile char nKeyPressed = 0;
 volatile char isOn = 0;
+float vSensor1 = 0;
+float vSensor2 = 0;
+volatile char lastText[80] = "";
 
 
 volatile char columnCode = 0;
 volatile KeyType operation = EMPTY;
 volatile float timer = 0;
+volatile float timer2 = 0;
 
 
 char msg1[] = "Alerta de intruso. ";
@@ -46,6 +50,9 @@ char msg4[] = " com defeito";
 int keyHandler(int key, KeyType* type);
 void keypadHandler();
 
+
+void alarm();
+
 void interrupt(void)
 {
  if(INTCON.TMR0IF)
@@ -54,14 +61,21 @@ void interrupt(void)
  TMR0H =  ( 0xffff - 10 )  >> 8;
  TMR0L =  ( 0xffff - 10 ) ;
 
+ if( (timer2 > 0.02))
+ {
+ alarm();
+ timer2 = 0;
+ }
+
  INTCON.TMR0IF=0;
  INTCON.TMR0IE=1;
  timer +=  ( 0xffff - 10 ) ;
+ timer2 +=  ( 0xffff - 10 ) ;
  }
 
  if(INTCON.RBIF)
  {
- if(edge == 1 && (timer > 0.02))
+ if( (timer > 0.02))
  {
  keypadHandler();
  timer = 0;
@@ -76,7 +90,6 @@ void main()
 {
 
  Lcd_Init();
- Lcd_Cmd(_LCD_CURSOR_OFF);
 
 
  T0CON.T08BIT = 0;
@@ -149,18 +162,18 @@ void main()
  PORTC.RC1 = 0;
  PORTC.RC2 = 0;
  PORTC.RC3 = 0;
+}
 
- while(1)
- {
- float vSensor1 = (ADC_read(0)/1023) * 5;
- float vSensor2 = (ADC_read(1)/1023) * 5;
 
- Delay_ms(100);
- Lcd_Cmd(_LCD_CLEAR);
+void alarm()
+{
+ vSensor1 = (ADC_read(0)/1023.0) * 5;
+ vSensor2 = (ADC_read(1)/1023.0) * 5;
  if(isOn)
  {
  char activated = 0;
  int sensorCount = 0;
+
 
  PORTC.RC0 = PORTA.RA5;
  PORTC.RC1 = PORTC.RC5;
@@ -186,7 +199,13 @@ void main()
  strcat(str, number);
  strcat(str, msg2);
 
+ if(strcmp(lastText, str))
+ {
+ Lcd_Cmd(_LCD_CLEAR);
+ strcpy(lastText, str);
+
  Lcd_Out(1,1,str);
+ }
  }
  else
  {
@@ -211,11 +230,18 @@ void main()
  if(vSensor2 > 3)
  strcpy(number, "6");
 
+
  strcat(str, msg3);
  strcat(str, number);
  strcat(str, msg4);
 
+ if(strcmp(lastText, str))
+ {
+ Lcd_Cmd(_LCD_CLEAR);
+ strcpy(lastText, str);
+
  Lcd_Out(1,1,str);
+ }
  }
  }
  else
@@ -233,10 +259,16 @@ void main()
  strcat(str, str2);
  strcat(str, "V");
 
+ if(strcmp(lastText, str))
+ {
+ Lcd_Cmd(_LCD_CLEAR);
+ strcpy(lastText, str);
+
  Lcd_Out(1,1,str);
  }
  }
 }
+
 
 void keypadHandler()
 {
@@ -310,8 +342,8 @@ void keypadHandler()
  if(type == DIVI)
  nKeyPressed = "/";
 
- rightKeysActivation[nKeyPressed] = strcmp(activationCode[nKeyPressed], keyPressed) == 0 ? 1 : 0;
- rightKeysDeActivation[nKeyPressed] = strcmp(DeActivationCode[nKeyPressed], keyPressed) == 0 ? 1 : 0;
+ rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
+ rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
 
  if(nKeyPressed == 6)
  {

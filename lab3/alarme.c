@@ -4,7 +4,7 @@
 // LCD module connections
 sbit LCD_EN at RE1_bit;
 sbit LCD_RS at RE2_bit;
-sbit LCD_D4 at RC4_bit;
+sbit LCD_D4 at RD4_bit;
 sbit LCD_D5 at RD5_bit;
 sbit LCD_D6 at RD6_bit;
 sbit LCD_D7 at RD7_bit;
@@ -29,11 +29,15 @@ volatile char rightKeysActivation[] = {0,0,0,0,0,0};
 volatile char rightKeysDeActivation[] = {0,0,0,0,0,0};
 volatile char nKeyPressed = 0;
 volatile char isOn = 0;
+float vSensor1 = 0;
+float vSensor2 = 0;
+volatile char lastText[80] = "";
 
 // Keypad control
 volatile char columnCode = 0;
 volatile KeyType operation = EMPTY;
 volatile float timer = 0;
+volatile float timer2 = 0;
 
 // Messages
 char msg1[] = "Alerta de intruso. ";
@@ -45,6 +49,9 @@ char msg4[] = " com defeito";
 int keyHandler(int key, KeyType* type);
 void keypadHandler();
 
+// Alarm functions
+void alarm();
+
 void interrupt(void)
 {
   if(INTCON.TMR0IF)
@@ -53,14 +60,21 @@ void interrupt(void)
      TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
      TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
      
+    if(/*edge == 1 && */(timer2 > 0.02))
+    {
+      alarm();
+      timer2 = 0;
+    }
+
      INTCON.TMR0IF=0;
      INTCON.TMR0IE=1;
      timer += COUNTER;
+     timer2 += COUNTER;
   }
 
   if(INTCON.RBIF)
   {
-    if(edge == 1 && (timer > 0.02))
+    if(/*edge == 1 && */(timer > 0.02))
     {
          keypadHandler();
          timer = 0;
@@ -75,7 +89,6 @@ void main()
 {
         //LCD
         Lcd_Init();
-        Lcd_Cmd(_LCD_CURSOR_OFF);
 
     // Timer 0 Configuration
     T0CON.T08BIT = 0;       // 16 bits
@@ -148,73 +161,49 @@ void main()
     PORTC.RC1 = 0;
     PORTC.RC2 = 0;
     PORTC.RC3 = 0;
+}
 
-        while(1)
+
+void alarm()
+{
+        vSensor1 = (ADC_read(0)/1023.0) * 5;
+        vSensor2 = (ADC_read(1)/1023.0) * 5;
+        if(isOn)
         {
-                float vSensor1 = (ADC_read(0)/1023) * 5;
-                float vSensor2 = (ADC_read(1)/1023) * 5;
+                char activated = 0;
+                int sensorCount = 0;
 
-                Delay_ms(100);
-                Lcd_Cmd(_LCD_CLEAR);
-                if(isOn)
+                // Leds
+                PORTC.RC0 = PORTA.RA5;
+                PORTC.RC1 = PORTC.RC5;
+                PORTC.RC2 = PORTC.RC6;
+                PORTC.RC3 = PORTC.RC7;
+
+                sensorCount += PORTA.RA5;
+                sensorCount += PORTC.RC5;
+                sensorCount += PORTC.RC6;
+                sensorCount += PORTC.RC7;
+                sensorCount += vSensor1 >= 4 ? 1 : 0;
+                sensorCount += vSensor2 > 3 ? 1 : 0;
+
+                activated = sensorCount >= 2 ? 1 : 0;
+
+                if(activated)
                 {
-                        char activated = 0;
-                        int sensorCount = 0;
+                        char number[4];
+                        char str[60];
+                        IntToStr(sensorCount, number);
 
-                        PORTC.RC0 = PORTA.RA5;
-                        PORTC.RC1 = PORTC.RC5;
-                        PORTC.RC2 = PORTC.RC6;
-                        PORTC.RC3 = PORTC.RC7;
+                        strcat(str, msg1);
+                        strcat(str, number);
+                        strcat(str, msg2);
 
-                        sensorCount += PORTA.RA5;
-                        sensorCount += PORTC.RC5;
-                        sensorCount += PORTC.RC6;
-                        sensorCount += PORTC.RC7;
-                        sensorCount += vSensor1 >= 4 ? 1 : 0;
-                        sensorCount += vSensor2 > 3 ? 1 : 0;
-
-                        activated = sensorCount >= 2 ? 1 : 0;
-
-                        if(activated)
+                        if(strcmp(lastText, str))
                         {
-                                char number[4];
-                                char str[60];
-                                IntToStr(sensorCount, number);
-        
-                                strcat(str, msg1);
-                                strcat(str, number);        
-                                strcat(str, msg2);        
+                          Lcd_Cmd(_LCD_CLEAR);
+                          strcpy(lastText, str);
 
-                                Lcd_Out(1,1,str);
-                        }
-                        else
-                        {
-                                char number[4];
-                                char str[60];
-
-                                if(PORTA.RA5)
-                                        strcpy(number, "1");
-        
-                                if(PORTC.RC5)
-                                        strcpy(number, "2");
-        
-                                if(PORTC.RC6)
-                                        strcpy(number, "3");
-        
-                                if(PORTC.RC7)
-                                        strcpy(number, "4");
-        
-                                if(vSensor1 >= 4)
-                                        strcpy(number, "5");
-
-                                if(vSensor2 > 3)
-                                        strcpy(number, "6");
-        
-                                strcat(str, msg3);        
-                                strcat(str, number);        
-                                strcat(str, msg4);        
-
-                                Lcd_Out(1,1,str);
+                          Lcd_Out(1,1,str);
                         }
                 }
                 else
@@ -222,20 +211,63 @@ void main()
                         char number[4];
                         char str[60];
 
-                        char str1[5];
-                        char str2[5];
-                        IntToStr(vSensor1, str1);
-                        IntToStr(vSensor2, str2);
-                        
-                        strcat(str, str1);
-                        strcat(str, "V ");        
-                        strcat(str, str2);
-                        strcat(str, "V");        
+                        if(PORTA.RA5)
+                                strcpy(number, "1");
 
-                        Lcd_Out(1,1,str);
+                        if(PORTC.RC5)
+                                strcpy(number, "2");
+
+                        if(PORTC.RC6)
+                                strcpy(number, "3");
+
+                        if(PORTC.RC7)
+                                strcpy(number, "4");
+
+                        if(vSensor1 >= 4)
+                                strcpy(number, "5");
+
+                        if(vSensor2 > 3)
+                                strcpy(number, "6");
+
+
+                          strcat(str, msg3);
+                          strcat(str, number);
+                          strcat(str, msg4);
+
+                        if(strcmp(lastText, str))
+                        {
+                          Lcd_Cmd(_LCD_CLEAR);
+                          strcpy(lastText, str);
+
+                          Lcd_Out(1,1,str);
+                        }
+                }
+        }
+        else
+        {
+                char number[4];
+                char str[60];
+
+                char str1[5];
+                char str2[5];
+                IntToStr(vSensor1, str1);
+                IntToStr(vSensor2, str2);
+
+                strcat(str, str1);
+                strcat(str, "V ");
+                strcat(str, str2);
+                strcat(str, "V");
+
+                if(strcmp(lastText, str))
+                {
+                  Lcd_Cmd(_LCD_CLEAR);
+                  strcpy(lastText, str);
+
+                  Lcd_Out(1,1,str);
                 }
         }
 }
+
 
 void keypadHandler()
 {
@@ -309,8 +341,8 @@ void keypadHandler()
                 if(type == DIVI)
                         nKeyPressed = "/";
 
-                rightKeysActivation[nKeyPressed] = strcmp(activationCode[nKeyPressed], keyPressed) == 0 ? 1 : 0;
-                rightKeysDeActivation[nKeyPressed] = strcmp(DeActivationCode[nKeyPressed], keyPressed) == 0 ? 1 : 0;
+                rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
+                rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
                 
                 if(nKeyPressed == 6)
                 {
