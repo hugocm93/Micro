@@ -8,7 +8,7 @@ interrupt
 	alarm
 		ADC_Read
 			Delay_22us
-		Word2Double
+		word2double
 			NRM3232
 				RES032
 				SETFUN32
@@ -25,7 +25,7 @@ interrupt
 		Compare_Double
 		IntToStr
 			WordToStr
-				Div_16x16_U
+				Div_16X16_U
 		strcat
 		strcmp
 		Lcd_Cmd
@@ -43,7 +43,7 @@ interrupt
 					Delay_1us
 					Delay_5500us
 					Delay_50us
-		Double2Int
+		double2int
 			SETIOV3224
 	Add_32x32_FP
 		NRM4032

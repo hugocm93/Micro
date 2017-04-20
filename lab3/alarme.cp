@@ -1,16 +1,25 @@
-#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab3/alarme.c"
+#line 1 "C:/Users/marco/Documents/Faculdade/Micro/Micro-master/Micro/lab3/alarme.c"
 
 
 
 
 sbit LCD_EN at RE1_bit;
 sbit LCD_RS at RE2_bit;
+sbit LCD_D0 at RD0_bit;
+sbit LCD_D1 at RD1_bit;
+sbit LCD_D2 at RD2_bit;
+sbit LCD_D3 at RD3_bit;
 sbit LCD_D4 at RD4_bit;
 sbit LCD_D5 at RD5_bit;
 sbit LCD_D6 at RD6_bit;
 sbit LCD_D7 at RD7_bit;
+
 sbit LCD_EN_Direction at TRISE1_bit;
 sbit LCD_RS_Direction at TRISE2_bit;
+sbit LCD_D0_Direction at TRISD0_bit;
+sbit LCD_D1_Direction at TRISD1_bit;
+sbit LCD_D2_Direction at TRISD2_bit;
+sbit LCD_D3_Direction at TRISD3_bit;
 sbit LCD_D4_Direction at TRISD4_bit;
 sbit LCD_D5_Direction at TRISD5_bit;
 sbit LCD_D6_Direction at TRISD6_bit;
@@ -120,7 +129,7 @@ void main()
 
 
 
- TRISA.RA5 = 1;
+ TRISC.RC4 = 1;
  TRISC.RC5 = 1;
  TRISC.RC6 = 1;
  TRISC.RC7 = 1;
@@ -175,12 +184,12 @@ void alarm()
  int sensorCount = 0;
 
 
- PORTC.RC0 = PORTA.RA5;
+ PORTC.RC0 = PORTC.RC4;
  PORTC.RC1 = PORTC.RC5;
  PORTC.RC2 = PORTC.RC6;
  PORTC.RC3 = PORTC.RC7;
 
- sensorCount += PORTA.RA5;
+ sensorCount += PORTC.RC4;
  sensorCount += PORTC.RC5;
  sensorCount += PORTC.RC6;
  sensorCount += PORTC.RC7;
@@ -212,7 +221,7 @@ void alarm()
  char number[4];
  char str[60];
 
- if(PORTA.RA5)
+ if(PORTC.RC4)
  strcpy(number, "1");
 
  if(PORTC.RC5)
