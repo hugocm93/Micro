@@ -1,5 +1,5 @@
-// (8MHz / 4 ) / 256 => 128us x 10 = 0.00128s
-#define COUNTER ( 0xffff - 10 )
+// (8MHz / 4 ) / 256 => 128us x 200 = 0.0256s
+#define COUNTER ( 0xffff - 200 )
 
 // LCD module connections
 sbit LCD_EN at RE1_bit;
@@ -45,8 +45,7 @@ volatile char lastText[80] = "";
 // Keypad control
 volatile char columnCode = 0;
 volatile KeyType operation = EMPTY;
-volatile float timer = 0;
-volatile float timer2 = 0;
+volatile int canTypeAgain = 0;
 
 // Messages
 char msg1[] = "Alerta de intruso. ";
@@ -61,111 +60,110 @@ void keypadHandler();
 // Alarm functions
 void alarm();
 
+
 void interrupt(void)
 {
-  if(INTCON.TMR0IF)
-  {
-     INTCON.TMR0IE=0;
-     TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
-     TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
-     
-    if(/*edge == 1 && */(timer2 > 0.02))
+    if(INTCON3.INT1IF)
     {
-      alarm();
-      timer2 = 0;
-    }
-
-     INTCON.TMR0IF=0;
-     INTCON.TMR0IE=1;
-     timer += COUNTER;
-     timer2 += COUNTER;
-  }
-
-  if(INTCON.RBIF)
-  {
-    if(/*edge == 1 && */(timer > 0.02))
-    {
-         keypadHandler();
-         timer = 0;
+        if(1 || canTypeAgain)
+        {
+            keypadHandler();
+            canTypeAgain = 0;
         }
 
-    edge = !edge;
-    INTCON.RBIF = 0;
-  }
+        INTCON3.INT1IF = 0;
+    }
+
+    // Related to bouncing
+//    else if(INTCON.TMR0IF)
+//    {
+//        TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
+//        TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
+//
+//        canTypeAgain = 1;
+//
+//        INTCON.TMR0IF=0;
+//    }
+
+    // Controls alarm
+//    else if(outro timer)
+//    {
+//        alarm();
+//    }
+
 }
 
 void main()
 {
-        //LCD
-        Lcd_Init();
+    // Timer ON//Pins as digital I/O
+    ADCON1 = 0x04;
+    
+    //LCD
+    Lcd_Init();
 
     // Timer 0 Configuration
     T0CON.T08BIT = 0;       // 16 bits
     T0CON.T0CS = 0;         // Internal clock => Crystal/4
     T0CON.PSA = 0;          // Prescaler ON
-    
     // Prescaler = 111 => 1:256
     T0CON.T0PS2 = 1;
     T0CON.T0PS1 = 1;
     T0CON.T0PS0 = 1;
-    
     // Load Timer 0 counter
     TMR0H = COUNTER >> 8;  // Load Timer 0 counter - 1st TMR0H
     TMR0L = COUNTER;       // Load Timer 0 counter - 2nd TMR0L
-    
     // Timer 0 interrupt
-    INTCON.TMR0IP = 1;
+    //INTCON.TMR0IP = 1;
+    INTCON2.TMR0IP=0;
     INTCON.TMR0IF=0;
     INTCON.TMR0IE=1;
-    INTCON.PEIE=0;
     INTCON.GIE=1;
-
     // Start timer 0
     T0CON.TMR0ON=1;         
-    
-    // Timer ON//Pins as digital I/O
-    ADCON1 = 0x04;
 
-        // Sensors
-        // digital input
-        TRISC.RC4 = 1;
-        TRISC.RC5 = 1;
-        TRISC.RC6 = 1;
-        TRISC.RC7 = 1;
-        // analog input
-        TRISA.RA0 = 1;
-        TRISA.RA1 = 1;
-
-    // Global Interrupt Enable
-    INTCON.GIE = 1;
-    INTCON.RBIE = 1;
-    INTCON.RBIF = 0;
-
+    // External interrupt
+    INTCON3.INT1IP = 1;
+    INTCON3.INT1IE = 1;
+    INTCON3.INT1IF = 0;
     // Int0/PORTB0 interrupt config
-        // digital input
-    TRISB.RB4 = 1; 
-    TRISB.RB5 = 1; 
-    TRISB.RB6 = 1;
-    TRISB.RB7 = 1;
+    // digital input
+    TRISB.RB1 = 1; 
 
-        // Keypad
-        // digital output
-    TRISB.RB0 = 0; 
-    TRISB.RB1 = 0; 
-    TRISB.RB2 = 0;
-    TRISB.RB3 = 0;
-        // Init with low
-    PORTB.RB0 = 0; 
-    PORTB.RB1 = 0;
-    PORTB.RB2 = 0;
-    PORTB.RB3 = 0;
+    // Sensors
+    // digital input
+    TRISC.RC4 = 1;
+    TRISC.RC5 = 1;
+    TRISC.RC6 = 1;
+    TRISC.RC7 = 1;
+    // analog input
+    TRISA.RA0 = 1;
+    TRISA.RA1 = 1;
 
-        // Leds
+    // Keypad rows
+    // digital output
+    TRISB.RB4 = 0; 
+    TRISB.RB5 = 0; 
+    TRISB.RB6 = 0;
+    TRISB.RB7 = 0;
+    // Init with low
+    PORTB.RB4 = 0; 
+    PORTB.RB5 = 0;
+    PORTB.RB6 = 0;
+    PORTB.RB7 = 0;
+    
+    // Keypad cols
+    // digital input
+    TRISA.RA2 = 1; 
+    TRISA.RA3 = 1; 
+    TRISA.RA5 = 1; 
+    TRISB.RB3 = 1;
+    
+    // Leds
     TRISC.RC0 = 0;
     TRISC.RC1 = 0; 
     TRISC.RC2 = 0;
     TRISC.RC3 = 0;
-        // Init with low
+    // Init with low
     PORTC.RC0 = 0;
     PORTC.RC1 = 0;
     PORTC.RC2 = 0;
@@ -175,106 +173,106 @@ void main()
 
 void alarm()
 {
-        vSensor1 = (ADC_read(0)/1023.0) * 5;
-        vSensor2 = (ADC_read(1)/1023.0) * 5;
-        if(isOn)
+    vSensor1 = (ADC_read(0)/1023.0) * 5;
+    vSensor2 = (ADC_read(1)/1023.0) * 5;
+    if(isOn)
+    {
+        char activated = 0;
+        int sensorCount = 0;
+
+        // Leds
+        PORTC.RC0 = PORTC.RC4;
+        PORTC.RC1 = PORTC.RC5;
+        PORTC.RC2 = PORTC.RC6;
+        PORTC.RC3 = PORTC.RC7;
+
+        sensorCount += PORTC.RC4;
+        sensorCount += PORTC.RC5;
+        sensorCount += PORTC.RC6;
+        sensorCount += PORTC.RC7;
+        sensorCount += vSensor1 >= 4 ? 1 : 0;
+        sensorCount += vSensor2 > 3 ? 1 : 0;
+
+        activated = sensorCount >= 2 ? 1 : 0;
+
+        if(activated)
         {
-                char activated = 0;
-                int sensorCount = 0;
+            char number[4];
+            char str[60];
+            IntToStr(sensorCount, number);
 
-                // Leds
-                PORTC.RC0 = PORTC.RC4;
-                PORTC.RC1 = PORTC.RC5;
-                PORTC.RC2 = PORTC.RC6;
-                PORTC.RC3 = PORTC.RC7;
+            strcat(str, msg1);
+            strcat(str, number);
+            strcat(str, msg2);
 
-                sensorCount += PORTC.RC4;
-                sensorCount += PORTC.RC5;
-                sensorCount += PORTC.RC6;
-                sensorCount += PORTC.RC7;
-                sensorCount += vSensor1 >= 4 ? 1 : 0;
-                sensorCount += vSensor2 > 3 ? 1 : 0;
+            if(strcmp(lastText, str))
+            {
+                Lcd_Cmd(_LCD_CLEAR);
+                strcpy(lastText, str);
 
-                activated = sensorCount >= 2 ? 1 : 0;
-
-                if(activated)
-                {
-                        char number[4];
-                        char str[60];
-                        IntToStr(sensorCount, number);
-
-                        strcat(str, msg1);
-                        strcat(str, number);
-                        strcat(str, msg2);
-
-                        if(strcmp(lastText, str))
-                        {
-                          Lcd_Cmd(_LCD_CLEAR);
-                          strcpy(lastText, str);
-
-                          Lcd_Out(1,1,str);
-                        }
-                }
-                else
-                {
-                        char number[4];
-                        char str[60];
-
-                        if(PORTC.RC4)
-                                strcpy(number, "1");
-
-                        if(PORTC.RC5)
-                                strcpy(number, "2");
-
-                        if(PORTC.RC6)
-                                strcpy(number, "3");
-
-                        if(PORTC.RC7)
-                                strcpy(number, "4");
-
-                        if(vSensor1 >= 4)
-                                strcpy(number, "5");
-
-                        if(vSensor2 > 3)
-                                strcpy(number, "6");
-
-
-                          strcat(str, msg3);
-                          strcat(str, number);
-                          strcat(str, msg4);
-
-                        if(strcmp(lastText, str))
-                        {
-                          Lcd_Cmd(_LCD_CLEAR);
-                          strcpy(lastText, str);
-
-                          Lcd_Out(1,1,str);
-                        }
-                }
+                Lcd_Out(1,1,str);
+            }
         }
         else
         {
-                char number[4];
-                char str[60];
+            char number[4];
+            char str[60];
 
-                char str1[5];
-                char str2[5];
-                IntToStr(vSensor1, str1);
-                IntToStr(vSensor2, str2);
+            if(PORTC.RC4)
+                strcpy(number, "1");
 
-                strcat(str, str1);
-                strcat(str, "V ");
-                strcat(str, str2);
-                strcat(str, "V");
+            if(PORTC.RC5)
+                strcpy(number, "2");
 
-                if(strcmp(lastText, str))
-                {
-                  Lcd_Cmd(_LCD_CLEAR);
-                  strcpy(lastText, str);
+            if(PORTC.RC6)
+                strcpy(number, "3");
 
-                  Lcd_Out(1,1,str);
-                }
+            if(PORTC.RC7)
+                strcpy(number, "4");
+
+            if(vSensor1 >= 4)
+                strcpy(number, "5");
+
+            if(vSensor2 > 3)
+                strcpy(number, "6");
+
+
+            strcat(str, msg3);
+            strcat(str, number);
+            strcat(str, msg4);
+
+            if(strcmp(lastText, str))
+            {
+                Lcd_Cmd(_LCD_CLEAR);
+                strcpy(lastText, str);
+
+                Lcd_Out(1,1,str);
+            }
         }
+    }
+    else
+    {
+        char number[4];
+        char str[60];
+
+        char str1[5];
+        char str2[5];
+        IntToStr(vSensor1, str1);
+        IntToStr(vSensor2, str2);
+
+        strcat(str, str1);
+        strcat(str, "V ");
+        strcat(str, str2);
+        strcat(str, "V");
+
+        if(strcmp(lastText, str))
+        {
+            Lcd_Cmd(_LCD_CLEAR);
+            strcpy(lastText, str);
+
+            Lcd_Out(1,1,str);
+        }
+    }
 }
 
 
@@ -284,99 +282,113 @@ void keypadHandler()
     KeyType type;
     int result;
     char keyPressed[2];
+    int rowCode = 0;
+    int realCode = 0;
 
-    for(i = 0, columnCode = 0x0f; (i < 4) && (columnCode==0x0f); i++)
+    for(i = 0; (i < 4) && PORTB.RB1 == 0; i++)
     {
-       PORTB.RB0 = 1; // digital output
-       PORTB.RB1 = 1;
-       PORTB.RB2 = 1;
-       PORTB.RB3 = 1;
-       if(i==0)PORTB.RB0 = 0; // digital output
-       if(i==1)PORTB.RB1 = 0;
-       if(i==2)PORTB.RB2 = 0;
-       if(i==3)PORTB.RB3 = 0;
-       columnCode = PORTB >> 4;
+        PORTB.RB4 = 1; 
+        PORTB.RB5 = 1;
+        PORTB.RB6 = 1;
+        PORTB.RB7 = 1;
+        if(i==0)PORTB.RB4 = 0;
+        if(i==1)PORTB.RB5 = 0;
+        if(i==2)PORTB.RB6 = 0;
+        if(i==3)PORTB.RB7 = 0;
+        columnCode = PORTA.RA2 | PORTA.RA3 << 1 | 
+                     PORTA.RA5 << 2 | PORTB.RB3 << 3;
     }
-    result = keyHandler(PORTB, &type);
-    PORTB.RB0 = 0; // digital output
-    PORTB.RB1 = 0;
-    PORTB.RB2 = 0;
-    PORTB.RB3 = 0;
+    rowCode = PORTB >> 4; 
+    realCode = rowCode | columnCode << 4; 
+    result = keyHandler(realCode, &type);
+
+    // rows <- 0
+    PORTB.RB4 = 0;
+    PORTB.RB5 = 0;
+    PORTB.RB6 = 0;
+    PORTB.RB7 = 0;
 
     if(edge == 1)
     {
-                if(type == NUM)
-                {
-                        if(result == 0)
-                              nKeyPressed = "0";
+        if(type == NUM)
+        {
+            if(result == 0)
+                keyPressed[0] = '0';
 
-                        if(result == 1)
-                              nKeyPressed = "1";
+            if(result == 1)
+                keyPressed[0] = '1';
 
-                        if(result == 2)
-                              nKeyPressed = "2";
+            if(result == 2)
+                keyPressed[0] = '2';
 
-                        if(result == 3)
-                              nKeyPressed = "3";
+            if(result == 3)
+                keyPressed[0] = '3';
 
-                        if(result == 4)
-                              nKeyPressed = "4";
+            if(result == 4)
+                keyPressed[0] = '4';
 
-                        if(result == 5)
-                              nKeyPressed = "5";
+            if(result == 5)
+                keyPressed[0] = '5';
 
-                        if(result == 6)
-                              nKeyPressed = "6";
+            if(result == 6)
+                keyPressed[0] = '6';
 
-                        if(result == 7)
-                              nKeyPressed = "7";
+            if(result == 7)
+                keyPressed[0] = '7';
 
-                        if(result == 8)
-                              nKeyPressed = "8";
+            if(result == 8)
+                keyPressed[0] = '8';
 
-                        if(result == 9)
-                              nKeyPressed = "9";
-                }
-
-                if(type == SUM)
-                        nKeyPressed = "+";
-
-                if(type == SUB)
-                        nKeyPressed = "-";
-
-                if(type == MULT)
-                        nKeyPressed = "*";
-
-                if(type == DIVI)
-                        nKeyPressed = "/";
-
-                rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
-                rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
-                
-                if(nKeyPressed == 6)
-                {
-                        int i;
-                        char activationCounter = 0;
-                        char deActivationCounter = 0;
-                        for(i = 0; i < nKeyPressed; i++)
-                        {
-                                activationCounter += rightKeysActivation[i];
-                                deActivationCounter += rightKeysDeActivation[i];
-                        }
-                
-                        if(activationCounter == 6)
-                        {
-                                isOn = 1;
-                        }
-                        
-                        if(deActivationCounter == 6)
-                        {
-                                isOn = 0;
-                        }
-                }
-        
-                nKeyPressed = nKeyPressed == 6 ? 0 : nKeyPressed++;
+            if(result == 9)
+                keyPressed[0] = '9';
         }
+
+        if(type == SUM)
+            keyPressed[0] = '+';
+
+        if(type == SUB)
+            keyPressed[0] = '-';
+
+        if(type == MULT)
+            keyPressed[0] = '*';
+
+        if(type == DIVI)
+            keyPressed[0] = '/';
+
+        keyPressed[1] = '\0';
+
+        IntToStr(columnCode, lastText);
+        
+        Lcd_Cmd(_LCD_CLEAR);
+        Lcd_Out(1,1,lastText);
+
+        rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
+        rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
+
+        if(nKeyPressed == 6)
+        {
+            int i;
+            char activationCounter = 0;
+            char deActivationCounter = 0;
+            for(i = 0; i < nKeyPressed; i++)
+            {
+                activationCounter += rightKeysActivation[i];
+                deActivationCounter += rightKeysDeActivation[i];
+            }
+
+            if(activationCounter == 6)
+            {
+                isOn = 1;
+            }
+
+            if(deActivationCounter == 6)
+            {
+                isOn = 0;
+            }
+        }
+
+        nKeyPressed = nKeyPressed == 6 ? 0 : nKeyPressed++;
+    }
 }
 
 
@@ -385,79 +397,79 @@ int keyHandler (int key, KeyType* type)
     int result = -1;
     switch(key)
     {
-     case 231:
-     *type = ON_CLEAR;
-     break;
+        case 231:
+            *type = ON_CLEAR;
+        break;
 
-     case 215:
-     *type = NUM;
-     result = 0;
-     break;
+        case 215:
+            *type = NUM;
+            result = 0;
+        break;
 
-     case 183:
-     *type = EQUALS;
-     break;
+        case 183:
+            *type = EQUALS;
+        break;
 
-     case 119:
-     *type = SUM;
-     break;
+        case 119:
+            *type = SUM;
+        break;
 
-     case 235:
-     *type = NUM;
-     result = 7;
-     break;
+        case 235:
+            *type = NUM;
+            result = 7;
+        break;
 
-     case 219:
-     *type = NUM;
-     result = 8;
-     break;
+        case 219:
+            *type = NUM;
+            result = 8;
+        break;
 
-     case 187:
-     *type = NUM;
-     result = 9;
-     break;
+        case 187:
+            *type = NUM;
+            result = 9;
+        break;
 
-     case 123:
-     *type = SUB;
-     break;
+        case 123:
+            *type = SUB;
+        break;
 
-     case 237:
-     *type = NUM;
-     result = 4;
-     break;
+        case 237:
+            *type = NUM;
+            result = 4;
+        break;
 
-     case 221:
-     *type = NUM;
-     result = 5;
-     break;
+        case 221:
+            *type = NUM;
+            result = 5;
+        break;
 
-     case 189:
-     *type = NUM;
-     result = 6;
-     break;
+        case 189:
+            *type = NUM;
+            result = 6;
+        break;
 
-     case 125:
-     *type = MULT;
-     break;
+        case 125:
+            *type = MULT;
+        break;
 
-     case 238:
-     *type = NUM;
-     result = 1;
-     break;
+        case 238:
+            *type = NUM;
+            result = 1;
+        break;
 
-     case 222:
-     *type = NUM;
-     result = 2;
-     break;
+        case 222:
+            *type = NUM;
+            result = 2;
+        break;
 
-     case 190:
-     *type = NUM;
-     result = 3;
-     break;
+        case 190:
+            *type = NUM;
+            result = 3;
+        break;
 
-     case 126:
-     *type = DIVI;
-     break;
+        case 126:
+            *type = DIVI;
+        break;
     }
 
     return result;

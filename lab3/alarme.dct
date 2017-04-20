@@ -1,3 +1,4 @@
+    
 ______
 ____doifc
 ___boot_delay128k
@@ -331,6 +332,7 @@ canspisetfilter
 canspisetmask
 canspisetoperationmode
 canspiwrite
+cantypeagain
 ccp1
 ccp1_bit
 ccp1con
@@ -1923,10 +1925,6 @@ tft_init_ili9340
 tft_init_ili9340_8bit
 tft_init_ili9340_8bit_custom
 tft_init_ili9340_custom
-tft_init_ili9341_16bit
-tft_init_ili9341_16bit_custom
-tft_init_ili9341_8bit
-tft_init_ili9341_8bit_custom
 tft_init_ili9342
 tft_init_ili9342_custom
 tft_init_ili9481
@@ -1984,8 +1982,6 @@ tft_write_text_return_pos
 time_datetoepoch
 time_epochtodate
 time_jd1970
-timer
-timer2
 tmr0h
 tmr0ie
 tmr0ie_bit

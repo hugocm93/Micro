@@ -4,35 +4,15 @@ main
 		Delay_5500us
 		Delay_1us
 interrupt
-	Compare_Double
-	alarm
-		ADC_Read
-			Delay_22us
-		word2double
-			NRM3232
-				RES032
-				SETFUN32
-				FIXSIGN32
-		Div_32x32_FP
-			SETFDZ32
-			RES032
-			SETFOV32
-			SETFUN32
-		Mul_32x32_FP
-			RES032
-			SETFOV32
-			SETFUN32
-		Compare_Double
+	keypadHandler
+		keyHandler
 		IntToStr
 			WordToStr
-				Div_16X16_U
-		strcat
-		strcmp
+				Div_16x16_U
 		Lcd_Cmd
 			Delay_1us
 			Delay_5500us
 			Delay_50us
-		strcpy
 		Lcd_Out
 			Lcd_Cmd
 				Delay_1us
@@ -43,14 +23,3 @@ interrupt
 					Delay_1us
 					Delay_5500us
 					Delay_50us
-		double2int
-			SETIOV3224
-	Add_32x32_FP
-		NRM4032
-			SETFUN32
-			FIXSIGN32
-			SETFOV32
-			RES032
-		SETFOV32
-	keypadHandler
-		keyHandler
