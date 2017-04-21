@@ -1,4 +1,4 @@
-#line 1 "F:/Repos/Micro/lab3/alarme.c"
+#line 1 "C:/Users/hugocm93/Desktop/Micro/lab3/alarme.c"
 
 
 
@@ -30,23 +30,15 @@ typedef enum keyType{
 }KeyType;
 
 
-volatile char edge = 1;
-
-
-const char activationCode[] = "*2025*";
-const char deActivationCode[] = "+1830+";
+volatile const char activationCode[] = "*2025*";
+volatile const char deActivationCode[] = "+1830+";
 volatile char rightKeysActivation[] = {0,0,0,0,0,0};
 volatile char rightKeysDeActivation[] = {0,0,0,0,0,0};
 volatile char nKeyPressed = 0;
 volatile char isOn = 0;
-float vSensor1 = 0;
-float vSensor2 = 0;
+volatile float vSensor1 = 0;
+volatile float vSensor2 = 0;
 volatile char lastText[80] = "";
-
-
-volatile char columnCode = 0;
-volatile KeyType operation = EMPTY;
-volatile int canTypeAgain = 0;
 
 
 char msg1[] = "Alerta de intruso. ";
@@ -66,15 +58,36 @@ void interrupt(void)
 {
  if(INTCON3.INT1IF)
  {
- if(1 || canTypeAgain)
- {
  keypadHandler();
- canTypeAgain = 0;
- }
 
+
+ TMR0H =  ( 0xffff - 200 )  >> 8;
+ TMR0L =  ( 0xffff - 200 ) ;
+ INTCON.TMR0IF=0;
+ INTCON.TMR0IE=1;
+ T0CON.TMR0ON=1;
+
+
+ INTCON3.INT1IE = 0;
  INTCON3.INT1IF = 0;
  }
-#line 94 "F:/Repos/Micro/lab3/alarme.c"
+ else if(INTCON.TMR0IF)
+ {
+
+ INTCON.TMR0IF=0;
+ INTCON.TMR0IE=0;
+ T0CON.TMR0ON=0;
+
+
+ INTCON3.INT1IE = 1;
+ }
+
+
+
+
+
+
+
 }
 
 void main()
@@ -94,19 +107,8 @@ void main()
  T0CON.T0PS1 = 1;
  T0CON.T0PS0 = 1;
 
- TMR0H =  ( 0xffff - 200 )  >> 8;
- TMR0L =  ( 0xffff - 200 ) ;
 
-
- INTCON2.TMR0IP=0;
- INTCON.TMR0IF=0;
- INTCON.TMR0IE=1;
  INTCON.GIE=1;
-
- T0CON.TMR0ON=1;
-
-
- INTCON3.INT1IP = 1;
  INTCON3.INT1IE = 1;
  INTCON3.INT1IF = 0;
 
@@ -266,34 +268,22 @@ void keypadHandler()
  KeyType type;
  int result;
  char keyPressed[2];
- int rowCode = 0;
- int realCode = 0;
+ char rowCode = 0;
+ char realCode = 0;
+ char columnCode = 0;
 
- for(i = 0; (i < 4) && PORTB.RB1 == 0; i++)
+ for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
  {
- PORTB.RB4 = 1;
- PORTB.RB5 = 1;
- PORTB.RB6 = 1;
- PORTB.RB7 = 1;
- if(i==0)PORTB.RB4 = 0;
- if(i==1)PORTB.RB5 = 0;
- if(i==2)PORTB.RB6 = 0;
- if(i==3)PORTB.RB7 = 0;
- columnCode = PORTA.RA2 | PORTA.RA3 << 1 |
- PORTA.RA5 << 2 | PORTB.RB3 << 3;
+ PORTB = ~(1 << i) << 4;
+ columnCode = PORTA.RA2 | (PORTA.RA3 << 1) |
+ (PORTA.RA5 << 2) | (PORTB.RB3) << 3;
  }
  rowCode = PORTB >> 4;
- realCode = rowCode | columnCode << 4;
+ PORTB = 0;
+
+ realCode = rowCode | (columnCode << 4);
  result = keyHandler(realCode, &type);
 
-
- PORTB.RB4 = 0;
- PORTB.RB5 = 0;
- PORTB.RB6 = 0;
- PORTB.RB7 = 0;
-
- if(edge == 1)
- {
  if(type == NUM)
  {
  if(result == 0)
@@ -341,10 +331,15 @@ void keypadHandler()
 
  keyPressed[1] = '\0';
 
- IntToStr(columnCode, lastText);
 
  Lcd_Cmd(_LCD_CLEAR);
- Lcd_Out(1,1,"oi");
+
+ IntToStr(rowCode, lastText);
+ Lcd_Out(1,1,lastText);
+
+ IntToStr(columnCode, lastText);
+ Lcd_Out(2,1,lastText);
+
 
  rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
  rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
@@ -372,7 +367,6 @@ void keypadHandler()
  }
 
  nKeyPressed = nKeyPressed == 6 ? 0 : nKeyPressed++;
- }
 }
 
 

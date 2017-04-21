@@ -15,9 +15,10 @@ Value=0
 Value=2000
 [EEPROM_DEFINITION]
 Value=
-[EXPANDED_NODES]
-Node0=Sources
-Count=1
+[EXPANDED NODES]
+Node1=Sources
+Node2=Output Files
+Count=2
 [FILES]
 Count=1
 File0=alarme.c
@@ -36,11 +37,10 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=4
-Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
+Count=5
+Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path2=F:\Repos\Micro\lab3\
-Path3=C:\Users\marco\Documents\Faculdade\Micro\Micro-master\Micro\lab3\
+Path2=C:\Users\hugocm93\Desktop\Micro\lab3\
 [HEADER_PATH]
 Count=0
 [HEADERS]
@@ -110,7 +110,6 @@ File57=FT810
 File58=FT810_Defs
 File59=FT812
 File60=FT812_Defs
-[EXPANDED NODES]
-Node1=Sources
-Node2=Output Files
-Count=2
+[EXPANDED_NODES]
+Node0=Sources
+Count=1

@@ -39,10 +39,6 @@ volatile float vSensor1 = 0;
 volatile float vSensor2 = 0;
 volatile char lastText[80] = "";
 
-// Keypad control
-volatile char columnCode = 0;
-volatile int canTypeAgain = 1;
-
 // Messages
 char msg1[] = "Alerta de intruso. ";
 char msg2[] = " sensores ativados";
@@ -61,31 +57,28 @@ void interrupt(void)
 {
     if(INTCON3.INT1IF)
     {
-        if(canTypeAgain)
-        {
-            // Timer 0 interrupt
-            TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
-            TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
-            INTCON.TMR0IF=0;
-            INTCON.TMR0IE=1;
-            // Start timer 0
-            T0CON.TMR0ON=1;         
+        keypadHandler();
 
-            keypadHandler();
-            canTypeAgain = 0;
-        }
+        // Start timer 0
+        TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
+        TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
+        INTCON.TMR0IF=0;
+        INTCON.TMR0IE=1;
+        T0CON.TMR0ON=1;         
 
+        // Stop interruption
+        INTCON3.INT1IE = 0;
         INTCON3.INT1IF = 0;
     }
     else if(INTCON.TMR0IF) // Related to bouncing
     {
-        canTypeAgain = 1;
-	
-        // Timer 0 interrupt
+        // End timer 0
         INTCON.TMR0IF=0;
         INTCON.TMR0IE=0;
-        // End timer 0
         T0CON.TMR0ON=0;         
+
+        // Resume interruption
+        INTCON3.INT1IE = 1;
     }
 
     // Controls alarm
@@ -274,16 +267,17 @@ void keypadHandler()
     KeyType type;
     int result;
     char keyPressed[2];
-    int rowCode = 0;
-    int realCode = 0;
+    char rowCode = 0;
+    char realCode = 0;
+	char columnCode = 0;
 
-    for(i = 0, columnCode = 0xf; (i < 4) && columnCode == 0xf; i++)
+    for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
     {
         PORTB = ~(1 << i) << 4;
-        rowCode = PORTB >> 4; 
-        columnCode = PORTA.RA2 | PORTA.RA3 << 1 | 
-                     PORTA.RA5 << 2 | PORTB.RB3 << 3;
+        columnCode = PORTA.RA2 | (PORTA.RA3 << 1) | 
+                     (PORTA.RA5 << 2) | (PORTB.RB3) << 3;
     }
+    rowCode = PORTB >> 4; 
     PORTB = 0; 
 
     realCode = rowCode | (columnCode << 4); 
@@ -336,10 +330,15 @@ void keypadHandler()
 
     keyPressed[1] = '\0';
 
-    IntToStr(columnCode, lastText);
-    
+    // Print
     Lcd_Cmd(_LCD_CLEAR);
+
+    IntToStr(rowCode, lastText);
     Lcd_Out(1,1,lastText);
+
+    IntToStr(columnCode, lastText);
+    Lcd_Out(2,1,lastText);
+    // end print
 
     rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
     rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;

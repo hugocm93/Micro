@@ -331,7 +331,6 @@ canspisetfilter
 canspisetmask
 canspisetoperationmode
 canspiwrite
-cantypeagain
 ccp1
 ccp1_bit
 ccp1con
@@ -463,7 +462,6 @@ cl_yellow
 cl_yellow_16bit
 clko
 clko_bit
-columncode
 comfrem
 compare_double
 cos
@@ -530,7 +528,6 @@ double2int
 double2longint
 double2longword
 double2word
-edge
 eeadr
 eecon1
 eecon2
@@ -1021,7 +1018,6 @@ nrm4032
 obf_trise_bit
 oerr
 oerr_bit
-operation
 osc2
 osc2_bit
 osccon
