@@ -28,24 +28,20 @@ typedef enum keyType{
         EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
 }KeyType;
 
-// Edge control
-volatile char edge = 1;
-
 //Alarm vars
-const char activationCode[] = "*2025*";
-const char deActivationCode[] = "+1830+";
+volatile const char activationCode[] = "*2025*";
+volatile const char deActivationCode[] = "+1830+";
 volatile char rightKeysActivation[] = {0,0,0,0,0,0};
 volatile char rightKeysDeActivation[] = {0,0,0,0,0,0};
 volatile char nKeyPressed = 0;
 volatile char isOn = 0;
-float vSensor1 = 0;
-float vSensor2 = 0;
+volatile float vSensor1 = 0;
+volatile float vSensor2 = 0;
 volatile char lastText[80] = "";
 
 // Keypad control
 volatile char columnCode = 0;
-volatile KeyType operation = EMPTY;
-volatile int canTypeAgain = 0;
+volatile int canTypeAgain = 1;
 
 // Messages
 char msg1[] = "Alerta de intruso. ";
@@ -65,25 +61,32 @@ void interrupt(void)
 {
     if(INTCON3.INT1IF)
     {
-        if(1 || canTypeAgain)
+        if(canTypeAgain)
         {
+            // Timer 0 interrupt
+            TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
+            TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
+            INTCON.TMR0IF=0;
+            INTCON.TMR0IE=1;
+            // Start timer 0
+            T0CON.TMR0ON=1;         
+
             keypadHandler();
             canTypeAgain = 0;
         }
 
         INTCON3.INT1IF = 0;
     }
-
-    // Related to bouncing
-//    else if(INTCON.TMR0IF)
-//    {
-//        TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
-//        TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
-//
-//        canTypeAgain = 1;
-//
-//        INTCON.TMR0IF=0;
-//    }
+    else if(INTCON.TMR0IF) // Related to bouncing
+    {
+        canTypeAgain = 1;
+	
+        // Timer 0 interrupt
+        INTCON.TMR0IF=0;
+        INTCON.TMR0IE=0;
+        // End timer 0
+        T0CON.TMR0ON=0;         
+    }
 
     // Controls alarm
 //    else if(outro timer)
@@ -109,20 +112,9 @@ void main()
     T0CON.T0PS2 = 1;
     T0CON.T0PS1 = 1;
     T0CON.T0PS0 = 1;
-    // Load Timer 0 counter
-    TMR0H = COUNTER >> 8;  // Load Timer 0 counter - 1st TMR0H
-    TMR0L = COUNTER;       // Load Timer 0 counter - 2nd TMR0L
-    // Timer 0 interrupt
-    //INTCON.TMR0IP = 1;
-    INTCON2.TMR0IP=0;
-    INTCON.TMR0IF=0;
-    INTCON.TMR0IE=1;
-    INTCON.GIE=1;
-    // Start timer 0
-    T0CON.TMR0ON=1;         
 
     // External interrupt
-    INTCON3.INT1IP = 1;
+    INTCON.GIE=1;
     INTCON3.INT1IE = 1;
     INTCON3.INT1IF = 0;
     // Int0/PORTB0 interrupt config
@@ -285,110 +277,96 @@ void keypadHandler()
     int rowCode = 0;
     int realCode = 0;
 
-    for(i = 0; (i < 4) && PORTB.RB1 == 0; i++)
+    for(i = 0, columnCode = 0xf; (i < 4) && columnCode == 0xf; i++)
     {
-        PORTB.RB4 = 1; 
-        PORTB.RB5 = 1;
-        PORTB.RB6 = 1;
-        PORTB.RB7 = 1;
-        if(i==0)PORTB.RB4 = 0;
-        if(i==1)PORTB.RB5 = 0;
-        if(i==2)PORTB.RB6 = 0;
-        if(i==3)PORTB.RB7 = 0;
+        PORTB = ~(1 << i) << 4;
+        rowCode = PORTB >> 4; 
         columnCode = PORTA.RA2 | PORTA.RA3 << 1 | 
                      PORTA.RA5 << 2 | PORTB.RB3 << 3;
     }
-    rowCode = PORTB >> 4; 
-    realCode = rowCode | columnCode << 4; 
+    PORTB = 0; 
+
+    realCode = rowCode | (columnCode << 4); 
     result = keyHandler(realCode, &type);
 
-    // rows <- 0
-    PORTB.RB4 = 0;
-    PORTB.RB5 = 0;
-    PORTB.RB6 = 0;
-    PORTB.RB7 = 0;
-
-    if(edge == 1)
+    if(type == NUM)
     {
-        if(type == NUM)
-        {
-            if(result == 0)
-                keyPressed[0] = '0';
+        if(result == 0)
+            keyPressed[0] = '0';
 
-            if(result == 1)
-                keyPressed[0] = '1';
+        if(result == 1)
+            keyPressed[0] = '1';
 
-            if(result == 2)
-                keyPressed[0] = '2';
+        if(result == 2)
+            keyPressed[0] = '2';
 
-            if(result == 3)
-                keyPressed[0] = '3';
+        if(result == 3)
+            keyPressed[0] = '3';
 
-            if(result == 4)
-                keyPressed[0] = '4';
+        if(result == 4)
+            keyPressed[0] = '4';
 
-            if(result == 5)
-                keyPressed[0] = '5';
+        if(result == 5)
+            keyPressed[0] = '5';
 
-            if(result == 6)
-                keyPressed[0] = '6';
+        if(result == 6)
+            keyPressed[0] = '6';
 
-            if(result == 7)
-                keyPressed[0] = '7';
+        if(result == 7)
+            keyPressed[0] = '7';
 
-            if(result == 8)
-                keyPressed[0] = '8';
+        if(result == 8)
+            keyPressed[0] = '8';
 
-            if(result == 9)
-                keyPressed[0] = '9';
-        }
-
-        if(type == SUM)
-            keyPressed[0] = '+';
-
-        if(type == SUB)
-            keyPressed[0] = '-';
-
-        if(type == MULT)
-            keyPressed[0] = '*';
-
-        if(type == DIVI)
-            keyPressed[0] = '/';
-
-        keyPressed[1] = '\0';
-
-        IntToStr(columnCode, lastText);
-        
-        Lcd_Cmd(_LCD_CLEAR);
-        Lcd_Out(1,1,lastText);
-
-        rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
-        rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
-
-        if(nKeyPressed == 6)
-        {
-            int i;
-            char activationCounter = 0;
-            char deActivationCounter = 0;
-            for(i = 0; i < nKeyPressed; i++)
-            {
-                activationCounter += rightKeysActivation[i];
-                deActivationCounter += rightKeysDeActivation[i];
-            }
-
-            if(activationCounter == 6)
-            {
-                isOn = 1;
-            }
-
-            if(deActivationCounter == 6)
-            {
-                isOn = 0;
-            }
-        }
-
-        nKeyPressed = nKeyPressed == 6 ? 0 : nKeyPressed++;
+        if(result == 9)
+            keyPressed[0] = '9';
     }
+
+    if(type == SUM)
+        keyPressed[0] = '+';
+
+    if(type == SUB)
+        keyPressed[0] = '-';
+
+    if(type == MULT)
+        keyPressed[0] = '*';
+
+    if(type == DIVI)
+        keyPressed[0] = '/';
+
+    keyPressed[1] = '\0';
+
+    IntToStr(columnCode, lastText);
+    
+    Lcd_Cmd(_LCD_CLEAR);
+    Lcd_Out(1,1,lastText);
+
+    rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
+    rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
+
+    if(nKeyPressed == 6)
+    {
+        int i;
+        char activationCounter = 0;
+        char deActivationCounter = 0;
+        for(i = 0; i < nKeyPressed; i++)
+        {
+            activationCounter += rightKeysActivation[i];
+            deActivationCounter += rightKeysDeActivation[i];
+        }
+
+        if(activationCounter == 6)
+        {
+            isOn = 1;
+        }
+
+        if(deActivationCounter == 6)
+        {
+            isOn = 0;
+        }
+    }
+
+    nKeyPressed = nKeyPressed == 6 ? 0 : nKeyPressed++;
 }
 
 
