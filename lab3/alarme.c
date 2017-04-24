@@ -182,7 +182,6 @@ void alarm()
     vSensor2 = (ADC_read(1)/1023.0) * 5;
     if(isOn)
     {
-        char activated = 0;
         int sensorCount = 0;
 
         // Leds
@@ -198,9 +197,7 @@ void alarm()
         sensorCount += vSensor1 >= 4 ? 1 : 0;
         sensorCount += vSensor2 > 3 ? 1 : 0;
 
-        activated = sensorCount >= 2 ? 1 : 0;
-
-        if(activated)
+        if(sensorCount >= 2)
         {
             char number[4];
             char str[60] = "";
@@ -214,7 +211,7 @@ void alarm()
 
             Lcd_Out(2,1,msg2);
         }
-        else
+        else if(sensorCount == 1)
         {
             char number[4];
             char str[60] = "";
@@ -222,19 +219,19 @@ void alarm()
             if(PORTC.RC4)
                 strcpy(number, "1");
 
-            if(PORTC.RC5)
+            else if(PORTC.RC5)
                 strcpy(number, "2");
 
-            if(PORTC.RC6)
+            else if(PORTC.RC6)
                 strcpy(number, "3");
 
-            if(PORTC.RC7)
+            else if(PORTC.RC7)
                 strcpy(number, "4");
 
-            if(vSensor1 >= 4)
+            else if(vSensor1 >= 4)
                 strcpy(number, "5");
 
-            if(vSensor2 > 3)
+            else if(vSensor2 > 3)
                 strcpy(number, "6");
 
 
@@ -245,6 +242,12 @@ void alarm()
             Lcd_Out(1,1, str);
 
             Lcd_Out(2,1, msg4);
+        }
+        else if(sensorCount == 0)
+        {
+            Lcd_Cmd(_LCD_CLEAR);
+
+            Lcd_Out(1,1, "OK");
         }
     }
     else
@@ -265,9 +268,9 @@ void alarm()
         Lcd_Cmd(_LCD_CLEAR);
 
         Lcd_Out(1,1,str1);
-        Lcd_Out(1,4,"V");
+        //Lcd_Out(1,4,"V");
         Lcd_Out(2,1,str2);
-        Lcd_Out(2,4,"V");
+        //Lcd_Out(2,4,"V");
     }
 }
 

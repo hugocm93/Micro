@@ -58,7 +58,7 @@ L_interrupt3:
 L_interrupt1:
 ;alarme.c,99 :: 		}
 L_end_interrupt:
-L__interrupt72:
+L__interrupt78:
 	RETFIE      1
 ; end of _interrupt
 
@@ -231,43 +231,42 @@ _alarm:
 	MOVF        _isOn+0, 1 
 	BTFSC       STATUS+0, 2 
 	GOTO        L_alarm5
-;alarme.c,185 :: 		char activated = 0;
-;alarme.c,186 :: 		int sensorCount = 0;
+;alarme.c,185 :: 		int sensorCount = 0;
 	CLRF        alarm_sensorCount_L1+0 
 	CLRF        alarm_sensorCount_L1+1 
-;alarme.c,189 :: 		PORTC.RC0 = PORTC.RC4;
+;alarme.c,188 :: 		PORTC.RC0 = PORTC.RC4;
 	BTFSC       PORTC+0, 4 
-	GOTO        L__alarm75
-	BCF         PORTC+0, 0 
-	GOTO        L__alarm76
-L__alarm75:
-	BSF         PORTC+0, 0 
-L__alarm76:
-;alarme.c,190 :: 		PORTC.RC1 = PORTC.RC5;
-	BTFSC       PORTC+0, 5 
-	GOTO        L__alarm77
-	BCF         PORTC+0, 1 
-	GOTO        L__alarm78
-L__alarm77:
-	BSF         PORTC+0, 1 
-L__alarm78:
-;alarme.c,191 :: 		PORTC.RC2 = PORTC.RC6;
-	BTFSC       PORTC+0, 6 
-	GOTO        L__alarm79
-	BCF         PORTC+0, 2 
-	GOTO        L__alarm80
-L__alarm79:
-	BSF         PORTC+0, 2 
-L__alarm80:
-;alarme.c,192 :: 		PORTC.RC3 = PORTC.RC7;
-	BTFSC       PORTC+0, 7 
 	GOTO        L__alarm81
-	BCF         PORTC+0, 3 
+	BCF         PORTC+0, 0 
 	GOTO        L__alarm82
 L__alarm81:
-	BSF         PORTC+0, 3 
+	BSF         PORTC+0, 0 
 L__alarm82:
-;alarme.c,194 :: 		sensorCount += PORTC.RC4;
+;alarme.c,189 :: 		PORTC.RC1 = PORTC.RC5;
+	BTFSC       PORTC+0, 5 
+	GOTO        L__alarm83
+	BCF         PORTC+0, 1 
+	GOTO        L__alarm84
+L__alarm83:
+	BSF         PORTC+0, 1 
+L__alarm84:
+;alarme.c,190 :: 		PORTC.RC2 = PORTC.RC6;
+	BTFSC       PORTC+0, 6 
+	GOTO        L__alarm85
+	BCF         PORTC+0, 2 
+	GOTO        L__alarm86
+L__alarm85:
+	BSF         PORTC+0, 2 
+L__alarm86:
+;alarme.c,191 :: 		PORTC.RC3 = PORTC.RC7;
+	BTFSC       PORTC+0, 7 
+	GOTO        L__alarm87
+	BCF         PORTC+0, 3 
+	GOTO        L__alarm88
+L__alarm87:
+	BSF         PORTC+0, 3 
+L__alarm88:
+;alarme.c,193 :: 		sensorCount += PORTC.RC4;
 	CLRF        R0 
 	BTFSC       PORTC+0, 4 
 	INCF        R0, 1 
@@ -275,7 +274,7 @@ L__alarm82:
 	ADDWF       alarm_sensorCount_L1+0, 1 
 	MOVLW       0
 	ADDWFC      alarm_sensorCount_L1+1, 1 
-;alarme.c,195 :: 		sensorCount += PORTC.RC5;
+;alarme.c,194 :: 		sensorCount += PORTC.RC5;
 	CLRF        R0 
 	BTFSC       PORTC+0, 5 
 	INCF        R0, 1 
@@ -283,7 +282,7 @@ L__alarm82:
 	ADDWF       alarm_sensorCount_L1+0, 1 
 	MOVLW       0
 	ADDWFC      alarm_sensorCount_L1+1, 1 
-;alarme.c,196 :: 		sensorCount += PORTC.RC6;
+;alarme.c,195 :: 		sensorCount += PORTC.RC6;
 	CLRF        R0 
 	BTFSC       PORTC+0, 6 
 	INCF        R0, 1 
@@ -291,7 +290,7 @@ L__alarm82:
 	ADDWF       alarm_sensorCount_L1+0, 1 
 	MOVLW       0
 	ADDWFC      alarm_sensorCount_L1+1, 1 
-;alarme.c,197 :: 		sensorCount += PORTC.RC7;
+;alarme.c,196 :: 		sensorCount += PORTC.RC7;
 	CLRF        R0 
 	BTFSC       PORTC+0, 7 
 	INCF        R0, 1 
@@ -299,7 +298,7 @@ L__alarm82:
 	ADDWF       alarm_sensorCount_L1+0, 1 
 	MOVLW       0
 	ADDWFC      alarm_sensorCount_L1+1, 1 
-;alarme.c,198 :: 		sensorCount += vSensor1 >= 4 ? 1 : 0;
+;alarme.c,197 :: 		sensorCount += vSensor1 >= 4 ? 1 : 0;
 	MOVLW       0
 	MOVWF       R4 
 	MOVLW       0
@@ -336,7 +335,7 @@ L_alarm7:
 	BTFSC       R0, 7 
 	MOVLW       255
 	ADDWFC      alarm_sensorCount_L1+1, 1 
-;alarme.c,199 :: 		sensorCount += vSensor2 > 3 ? 1 : 0;
+;alarme.c,198 :: 		sensorCount += vSensor2 > 3 ? 1 : 0;
 	MOVF        _vSensor2+0, 0 
 	MOVWF       R4 
 	MOVF        _vSensor2+1, 0 
@@ -379,30 +378,20 @@ L_alarm9:
 	MOVWF       alarm_sensorCount_L1+0 
 	MOVF        R2, 0 
 	MOVWF       alarm_sensorCount_L1+1 
-;alarme.c,201 :: 		activated = sensorCount >= 2 ? 1 : 0;
+;alarme.c,200 :: 		if(sensorCount >= 2)
 	MOVLW       128
 	XORWF       R2, 0 
 	MOVWF       R0 
 	MOVLW       128
 	SUBWF       R0, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__alarm83
+	GOTO        L__alarm89
 	MOVLW       2
 	SUBWF       R1, 0 
-L__alarm83:
+L__alarm89:
 	BTFSS       STATUS+0, 0 
 	GOTO        L_alarm10
-	MOVLW       1
-	MOVWF       R0 
-	GOTO        L_alarm11
-L_alarm10:
-	CLRF        R0 
-L_alarm11:
-;alarme.c,203 :: 		if(activated)
-	MOVF        R0, 1 
-	BTFSC       STATUS+0, 2 
-	GOTO        L_alarm12
-;alarme.c,206 :: 		char str[60] = "";
+;alarme.c,203 :: 		char str[60] = "";
 	MOVLW       ?ICSalarm_str_L2+0
 	MOVWF       TBLPTRL 
 	MOVLW       hi_addr(?ICSalarm_str_L2+0)
@@ -418,7 +407,7 @@ L_alarm11:
 	MOVLW       1
 	MOVWF       R1 
 	CALL        ___CC2DW+0, 0
-;alarme.c,207 :: 		IntToStr(sensorCount, number);
+;alarme.c,204 :: 		IntToStr(sensorCount, number);
 	MOVF        alarm_sensorCount_L1+0, 0 
 	MOVWF       FARG_IntToStr_input+0 
 	MOVF        alarm_sensorCount_L1+1, 0 
@@ -428,11 +417,11 @@ L_alarm11:
 	MOVLW       hi_addr(alarm_number_L2+0)
 	MOVWF       FARG_IntToStr_output+1 
 	CALL        _IntToStr+0, 0
-;alarme.c,209 :: 		Lcd_Cmd(_LCD_CLEAR);
+;alarme.c,206 :: 		Lcd_Cmd(_LCD_CLEAR);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
 	CALL        _Lcd_Cmd+0, 0
-;alarme.c,211 :: 		strcat(str, msg1);
+;alarme.c,208 :: 		strcat(str, msg1);
 	MOVLW       alarm_str_L2+0
 	MOVWF       FARG_strcat_to+0 
 	MOVLW       hi_addr(alarm_str_L2+0)
@@ -442,7 +431,7 @@ L_alarm11:
 	MOVLW       hi_addr(_msg1+0)
 	MOVWF       FARG_strcat_from+1 
 	CALL        _strcat+0, 0
-;alarme.c,212 :: 		strcat(str, number);
+;alarme.c,209 :: 		strcat(str, number);
 	MOVLW       alarm_str_L2+0
 	MOVWF       FARG_strcat_to+0 
 	MOVLW       hi_addr(alarm_str_L2+0)
@@ -452,7 +441,7 @@ L_alarm11:
 	MOVLW       hi_addr(alarm_number_L2+0)
 	MOVWF       FARG_strcat_from+1 
 	CALL        _strcat+0, 0
-;alarme.c,213 :: 		Lcd_Out(1,1,str);
+;alarme.c,210 :: 		Lcd_Out(1,1,str);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -462,7 +451,7 @@ L_alarm11:
 	MOVLW       hi_addr(alarm_str_L2+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;alarme.c,215 :: 		Lcd_Out(2,1,msg2);
+;alarme.c,212 :: 		Lcd_Out(2,1,msg2);
 	MOVLW       2
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -472,10 +461,20 @@ L_alarm11:
 	MOVLW       hi_addr(_msg2+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;alarme.c,216 :: 		}
-	GOTO        L_alarm13
-L_alarm12:
-;alarme.c,220 :: 		char str[60] = "";
+;alarme.c,213 :: 		}
+	GOTO        L_alarm11
+L_alarm10:
+;alarme.c,214 :: 		else if(sensorCount == 1)
+	MOVLW       0
+	XORWF       alarm_sensorCount_L1+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__alarm90
+	MOVLW       1
+	XORWF       alarm_sensorCount_L1+0, 0 
+L__alarm90:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_alarm12
+;alarme.c,217 :: 		char str[60] = "";
 	MOVLW       ?ICSalarm_str_L2_L2+0
 	MOVWF       TBLPTRL 
 	MOVLW       hi_addr(?ICSalarm_str_L2_L2+0)
@@ -491,10 +490,10 @@ L_alarm12:
 	MOVLW       1
 	MOVWF       R1 
 	CALL        ___CC2DW+0, 0
-;alarme.c,222 :: 		if(PORTC.RC4)
+;alarme.c,219 :: 		if(PORTC.RC4)
 	BTFSS       PORTC+0, 4 
-	GOTO        L_alarm14
-;alarme.c,223 :: 		strcpy(number, "1");
+	GOTO        L_alarm13
+;alarme.c,220 :: 		strcpy(number, "1");
 	MOVLW       alarm_number_L2_L2+0
 	MOVWF       FARG_strcpy_to+0 
 	MOVLW       hi_addr(alarm_number_L2_L2+0)
@@ -504,11 +503,12 @@ L_alarm12:
 	MOVLW       hi_addr(?lstr1_alarme+0)
 	MOVWF       FARG_strcpy_from+1 
 	CALL        _strcpy+0, 0
-L_alarm14:
-;alarme.c,225 :: 		if(PORTC.RC5)
+	GOTO        L_alarm14
+L_alarm13:
+;alarme.c,222 :: 		else if(PORTC.RC5)
 	BTFSS       PORTC+0, 5 
 	GOTO        L_alarm15
-;alarme.c,226 :: 		strcpy(number, "2");
+;alarme.c,223 :: 		strcpy(number, "2");
 	MOVLW       alarm_number_L2_L2+0
 	MOVWF       FARG_strcpy_to+0 
 	MOVLW       hi_addr(alarm_number_L2_L2+0)
@@ -518,11 +518,12 @@ L_alarm14:
 	MOVLW       hi_addr(?lstr2_alarme+0)
 	MOVWF       FARG_strcpy_from+1 
 	CALL        _strcpy+0, 0
-L_alarm15:
-;alarme.c,228 :: 		if(PORTC.RC6)
-	BTFSS       PORTC+0, 6 
 	GOTO        L_alarm16
-;alarme.c,229 :: 		strcpy(number, "3");
+L_alarm15:
+;alarme.c,225 :: 		else if(PORTC.RC6)
+	BTFSS       PORTC+0, 6 
+	GOTO        L_alarm17
+;alarme.c,226 :: 		strcpy(number, "3");
 	MOVLW       alarm_number_L2_L2+0
 	MOVWF       FARG_strcpy_to+0 
 	MOVLW       hi_addr(alarm_number_L2_L2+0)
@@ -532,11 +533,12 @@ L_alarm15:
 	MOVLW       hi_addr(?lstr3_alarme+0)
 	MOVWF       FARG_strcpy_from+1 
 	CALL        _strcpy+0, 0
-L_alarm16:
-;alarme.c,231 :: 		if(PORTC.RC7)
+	GOTO        L_alarm18
+L_alarm17:
+;alarme.c,228 :: 		else if(PORTC.RC7)
 	BTFSS       PORTC+0, 7 
-	GOTO        L_alarm17
-;alarme.c,232 :: 		strcpy(number, "4");
+	GOTO        L_alarm19
+;alarme.c,229 :: 		strcpy(number, "4");
 	MOVLW       alarm_number_L2_L2+0
 	MOVWF       FARG_strcpy_to+0 
 	MOVLW       hi_addr(alarm_number_L2_L2+0)
@@ -546,8 +548,9 @@ L_alarm16:
 	MOVLW       hi_addr(?lstr4_alarme+0)
 	MOVWF       FARG_strcpy_from+1 
 	CALL        _strcpy+0, 0
-L_alarm17:
-;alarme.c,234 :: 		if(vSensor1 >= 4)
+	GOTO        L_alarm20
+L_alarm19:
+;alarme.c,231 :: 		else if(vSensor1 >= 4)
 	MOVLW       0
 	MOVWF       R4 
 	MOVLW       0
@@ -571,8 +574,8 @@ L_alarm17:
 	MOVWF       R0 
 	MOVF        R0, 1 
 	BTFSC       STATUS+0, 2 
-	GOTO        L_alarm18
-;alarme.c,235 :: 		strcpy(number, "5");
+	GOTO        L_alarm21
+;alarme.c,232 :: 		strcpy(number, "5");
 	MOVLW       alarm_number_L2_L2+0
 	MOVWF       FARG_strcpy_to+0 
 	MOVLW       hi_addr(alarm_number_L2_L2+0)
@@ -582,8 +585,9 @@ L_alarm17:
 	MOVLW       hi_addr(?lstr5_alarme+0)
 	MOVWF       FARG_strcpy_from+1 
 	CALL        _strcpy+0, 0
-L_alarm18:
-;alarme.c,237 :: 		if(vSensor2 > 3)
+	GOTO        L_alarm22
+L_alarm21:
+;alarme.c,234 :: 		else if(vSensor2 > 3)
 	MOVF        _vSensor2+0, 0 
 	MOVWF       R4 
 	MOVF        _vSensor2+1, 0 
@@ -607,8 +611,8 @@ L_alarm18:
 	MOVWF       R0 
 	MOVF        R0, 1 
 	BTFSC       STATUS+0, 2 
-	GOTO        L_alarm19
-;alarme.c,238 :: 		strcpy(number, "6");
+	GOTO        L_alarm23
+;alarme.c,235 :: 		strcpy(number, "6");
 	MOVLW       alarm_number_L2_L2+0
 	MOVWF       FARG_strcpy_to+0 
 	MOVLW       hi_addr(alarm_number_L2_L2+0)
@@ -618,12 +622,17 @@ L_alarm18:
 	MOVLW       hi_addr(?lstr6_alarme+0)
 	MOVWF       FARG_strcpy_from+1 
 	CALL        _strcpy+0, 0
-L_alarm19:
-;alarme.c,241 :: 		Lcd_Cmd(_LCD_CLEAR);
+L_alarm23:
+L_alarm22:
+L_alarm20:
+L_alarm18:
+L_alarm16:
+L_alarm14:
+;alarme.c,238 :: 		Lcd_Cmd(_LCD_CLEAR);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
 	CALL        _Lcd_Cmd+0, 0
-;alarme.c,243 :: 		strcat(str, msg3);
+;alarme.c,240 :: 		strcat(str, msg3);
 	MOVLW       alarm_str_L2_L2+0
 	MOVWF       FARG_strcat_to+0 
 	MOVLW       hi_addr(alarm_str_L2_L2+0)
@@ -633,7 +642,7 @@ L_alarm19:
 	MOVLW       hi_addr(_msg3+0)
 	MOVWF       FARG_strcat_from+1 
 	CALL        _strcat+0, 0
-;alarme.c,244 :: 		strcat(str, number);
+;alarme.c,241 :: 		strcat(str, number);
 	MOVLW       alarm_str_L2_L2+0
 	MOVWF       FARG_strcat_to+0 
 	MOVLW       hi_addr(alarm_str_L2_L2+0)
@@ -643,7 +652,7 @@ L_alarm19:
 	MOVLW       hi_addr(alarm_number_L2_L2+0)
 	MOVWF       FARG_strcat_from+1 
 	CALL        _strcat+0, 0
-;alarme.c,245 :: 		Lcd_Out(1,1, str);
+;alarme.c,242 :: 		Lcd_Out(1,1, str);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -653,7 +662,7 @@ L_alarm19:
 	MOVLW       hi_addr(alarm_str_L2_L2+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;alarme.c,247 :: 		Lcd_Out(2,1, msg4);
+;alarme.c,244 :: 		Lcd_Out(2,1, msg4);
 	MOVLW       2
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -663,130 +672,149 @@ L_alarm19:
 	MOVLW       hi_addr(_msg4+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;alarme.c,248 :: 		}
-L_alarm13:
-;alarme.c,249 :: 		}
-	GOTO        L_alarm20
-L_alarm5:
-;alarme.c,255 :: 		if(vSensor1 < 1)
+;alarme.c,245 :: 		}
+	GOTO        L_alarm24
+L_alarm12:
+;alarme.c,246 :: 		else if(sensorCount == 0)
 	MOVLW       0
-	MOVWF       R4 
+	XORWF       alarm_sensorCount_L1+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__alarm91
 	MOVLW       0
-	MOVWF       R5 
-	MOVLW       0
-	MOVWF       R6 
-	MOVLW       127
-	MOVWF       R7 
-	MOVF        _vSensor1+0, 0 
-	MOVWF       R0 
-	MOVF        _vSensor1+1, 0 
-	MOVWF       R1 
-	MOVF        _vSensor1+2, 0 
-	MOVWF       R2 
-	MOVF        _vSensor1+3, 0 
-	MOVWF       R3 
-	CALL        _Compare_Double+0, 0
-	MOVLW       1
-	BTFSC       STATUS+0, 0 
-	MOVLW       0
-	MOVWF       R0 
-	MOVF        R0, 1 
-	BTFSC       STATUS+0, 2 
-	GOTO        L_alarm21
-;alarme.c,256 :: 		vSensor1 = 0;
-	CLRF        _vSensor1+0 
-	CLRF        _vSensor1+1 
-	CLRF        _vSensor1+2 
-	CLRF        _vSensor1+3 
-L_alarm21:
-;alarme.c,257 :: 		if(vSensor2 < 1)
-	MOVLW       0
-	MOVWF       R4 
-	MOVLW       0
-	MOVWF       R5 
-	MOVLW       0
-	MOVWF       R6 
-	MOVLW       127
-	MOVWF       R7 
-	MOVF        _vSensor2+0, 0 
-	MOVWF       R0 
-	MOVF        _vSensor2+1, 0 
-	MOVWF       R1 
-	MOVF        _vSensor2+2, 0 
-	MOVWF       R2 
-	MOVF        _vSensor2+3, 0 
-	MOVWF       R3 
-	CALL        _Compare_Double+0, 0
-	MOVLW       1
-	BTFSC       STATUS+0, 0 
-	MOVLW       0
-	MOVWF       R0 
-	MOVF        R0, 1 
-	BTFSC       STATUS+0, 2 
-	GOTO        L_alarm22
-;alarme.c,258 :: 		vSensor2 = 0;
-	CLRF        _vSensor2+0 
-	CLRF        _vSensor2+1 
-	CLRF        _vSensor2+2 
-	CLRF        _vSensor2+3 
-L_alarm22:
-;alarme.c,260 :: 		FloatToStr(vSensor1, str1);
-	MOVF        _vSensor1+0, 0 
-	MOVWF       FARG_FloatToStr_fnum+0 
-	MOVF        _vSensor1+1, 0 
-	MOVWF       FARG_FloatToStr_fnum+1 
-	MOVF        _vSensor1+2, 0 
-	MOVWF       FARG_FloatToStr_fnum+2 
-	MOVF        _vSensor1+3, 0 
-	MOVWF       FARG_FloatToStr_fnum+3 
-	MOVLW       alarm_str1_L1+0
-	MOVWF       FARG_FloatToStr_str+0 
-	MOVLW       hi_addr(alarm_str1_L1+0)
-	MOVWF       FARG_FloatToStr_str+1 
-	CALL        _FloatToStr+0, 0
-;alarme.c,261 :: 		FloatToStr(vSensor2, str2);
-	MOVF        _vSensor2+0, 0 
-	MOVWF       FARG_FloatToStr_fnum+0 
-	MOVF        _vSensor2+1, 0 
-	MOVWF       FARG_FloatToStr_fnum+1 
-	MOVF        _vSensor2+2, 0 
-	MOVWF       FARG_FloatToStr_fnum+2 
-	MOVF        _vSensor2+3, 0 
-	MOVWF       FARG_FloatToStr_fnum+3 
-	MOVLW       alarm_str2_L1+0
-	MOVWF       FARG_FloatToStr_str+0 
-	MOVLW       hi_addr(alarm_str2_L1+0)
-	MOVWF       FARG_FloatToStr_str+1 
-	CALL        _FloatToStr+0, 0
-;alarme.c,262 :: 		str1[3] = '\0';
-	CLRF        alarm_str1_L1+3 
-;alarme.c,263 :: 		str2[3] = '\0';
-	CLRF        alarm_str2_L1+3 
-;alarme.c,265 :: 		Lcd_Cmd(_LCD_CLEAR);
+	XORWF       alarm_sensorCount_L1+0, 0 
+L__alarm91:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_alarm25
+;alarme.c,248 :: 		Lcd_Cmd(_LCD_CLEAR);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
 	CALL        _Lcd_Cmd+0, 0
-;alarme.c,267 :: 		Lcd_Out(1,1,str1);
+;alarme.c,250 :: 		Lcd_Out(1,1, "OK");
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
-	MOVWF       FARG_Lcd_Out_column+0 
-	MOVLW       alarm_str1_L1+0
-	MOVWF       FARG_Lcd_Out_text+0 
-	MOVLW       hi_addr(alarm_str1_L1+0)
-	MOVWF       FARG_Lcd_Out_text+1 
-	CALL        _Lcd_Out+0, 0
-;alarme.c,268 :: 		Lcd_Out(1,4,"V");
-	MOVLW       1
-	MOVWF       FARG_Lcd_Out_row+0 
-	MOVLW       4
 	MOVWF       FARG_Lcd_Out_column+0 
 	MOVLW       ?lstr7_alarme+0
 	MOVWF       FARG_Lcd_Out_text+0 
 	MOVLW       hi_addr(?lstr7_alarme+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;alarme.c,269 :: 		Lcd_Out(2,1,str2);
+;alarme.c,251 :: 		}
+L_alarm25:
+L_alarm24:
+L_alarm11:
+;alarme.c,252 :: 		}
+	GOTO        L_alarm26
+L_alarm5:
+;alarme.c,258 :: 		if(vSensor1 < 1)
+	MOVLW       0
+	MOVWF       R4 
+	MOVLW       0
+	MOVWF       R5 
+	MOVLW       0
+	MOVWF       R6 
+	MOVLW       127
+	MOVWF       R7 
+	MOVF        _vSensor1+0, 0 
+	MOVWF       R0 
+	MOVF        _vSensor1+1, 0 
+	MOVWF       R1 
+	MOVF        _vSensor1+2, 0 
+	MOVWF       R2 
+	MOVF        _vSensor1+3, 0 
+	MOVWF       R3 
+	CALL        _Compare_Double+0, 0
+	MOVLW       1
+	BTFSC       STATUS+0, 0 
+	MOVLW       0
+	MOVWF       R0 
+	MOVF        R0, 1 
+	BTFSC       STATUS+0, 2 
+	GOTO        L_alarm27
+;alarme.c,259 :: 		vSensor1 = 0;
+	CLRF        _vSensor1+0 
+	CLRF        _vSensor1+1 
+	CLRF        _vSensor1+2 
+	CLRF        _vSensor1+3 
+L_alarm27:
+;alarme.c,260 :: 		if(vSensor2 < 1)
+	MOVLW       0
+	MOVWF       R4 
+	MOVLW       0
+	MOVWF       R5 
+	MOVLW       0
+	MOVWF       R6 
+	MOVLW       127
+	MOVWF       R7 
+	MOVF        _vSensor2+0, 0 
+	MOVWF       R0 
+	MOVF        _vSensor2+1, 0 
+	MOVWF       R1 
+	MOVF        _vSensor2+2, 0 
+	MOVWF       R2 
+	MOVF        _vSensor2+3, 0 
+	MOVWF       R3 
+	CALL        _Compare_Double+0, 0
+	MOVLW       1
+	BTFSC       STATUS+0, 0 
+	MOVLW       0
+	MOVWF       R0 
+	MOVF        R0, 1 
+	BTFSC       STATUS+0, 2 
+	GOTO        L_alarm28
+;alarme.c,261 :: 		vSensor2 = 0;
+	CLRF        _vSensor2+0 
+	CLRF        _vSensor2+1 
+	CLRF        _vSensor2+2 
+	CLRF        _vSensor2+3 
+L_alarm28:
+;alarme.c,263 :: 		FloatToStr(vSensor1, str1);
+	MOVF        _vSensor1+0, 0 
+	MOVWF       FARG_FloatToStr_fnum+0 
+	MOVF        _vSensor1+1, 0 
+	MOVWF       FARG_FloatToStr_fnum+1 
+	MOVF        _vSensor1+2, 0 
+	MOVWF       FARG_FloatToStr_fnum+2 
+	MOVF        _vSensor1+3, 0 
+	MOVWF       FARG_FloatToStr_fnum+3 
+	MOVLW       alarm_str1_L1+0
+	MOVWF       FARG_FloatToStr_str+0 
+	MOVLW       hi_addr(alarm_str1_L1+0)
+	MOVWF       FARG_FloatToStr_str+1 
+	CALL        _FloatToStr+0, 0
+;alarme.c,264 :: 		FloatToStr(vSensor2, str2);
+	MOVF        _vSensor2+0, 0 
+	MOVWF       FARG_FloatToStr_fnum+0 
+	MOVF        _vSensor2+1, 0 
+	MOVWF       FARG_FloatToStr_fnum+1 
+	MOVF        _vSensor2+2, 0 
+	MOVWF       FARG_FloatToStr_fnum+2 
+	MOVF        _vSensor2+3, 0 
+	MOVWF       FARG_FloatToStr_fnum+3 
+	MOVLW       alarm_str2_L1+0
+	MOVWF       FARG_FloatToStr_str+0 
+	MOVLW       hi_addr(alarm_str2_L1+0)
+	MOVWF       FARG_FloatToStr_str+1 
+	CALL        _FloatToStr+0, 0
+;alarme.c,265 :: 		str1[3] = '\0';
+	CLRF        alarm_str1_L1+3 
+;alarme.c,266 :: 		str2[3] = '\0';
+	CLRF        alarm_str2_L1+3 
+;alarme.c,268 :: 		Lcd_Cmd(_LCD_CLEAR);
+	MOVLW       1
+	MOVWF       FARG_Lcd_Cmd_out_char+0 
+	CALL        _Lcd_Cmd+0, 0
+;alarme.c,270 :: 		Lcd_Out(1,1,str1);
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_row+0 
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_column+0 
+	MOVLW       alarm_str1_L1+0
+	MOVWF       FARG_Lcd_Out_text+0 
+	MOVLW       hi_addr(alarm_str1_L1+0)
+	MOVWF       FARG_Lcd_Out_text+1 
+	CALL        _Lcd_Out+0, 0
+;alarme.c,272 :: 		Lcd_Out(2,1,str2);
 	MOVLW       2
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -796,52 +824,42 @@ L_alarm22:
 	MOVLW       hi_addr(alarm_str2_L1+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;alarme.c,270 :: 		Lcd_Out(2,4,"V");
-	MOVLW       2
-	MOVWF       FARG_Lcd_Out_row+0 
-	MOVLW       4
-	MOVWF       FARG_Lcd_Out_column+0 
-	MOVLW       ?lstr8_alarme+0
-	MOVWF       FARG_Lcd_Out_text+0 
-	MOVLW       hi_addr(?lstr8_alarme+0)
-	MOVWF       FARG_Lcd_Out_text+1 
-	CALL        _Lcd_Out+0, 0
-;alarme.c,271 :: 		}
-L_alarm20:
-;alarme.c,272 :: 		}
+;alarme.c,274 :: 		}
+L_alarm26:
+;alarme.c,275 :: 		}
 L_end_alarm:
 	RETURN      0
 ; end of _alarm
 
 _keypadHandler:
 
-;alarme.c,275 :: 		void keypadHandler()
-;alarme.c,281 :: 		char rowCode = 0;
-;alarme.c,282 :: 		char realCode = 0;
-;alarme.c,283 :: 		char columnCode = 0;
+;alarme.c,278 :: 		void keypadHandler()
+;alarme.c,284 :: 		char rowCode = 0;
+;alarme.c,285 :: 		char realCode = 0;
+;alarme.c,286 :: 		char columnCode = 0;
 	CLRF        keypadHandler_columnCode_L0+0 
-;alarme.c,285 :: 		for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
+;alarme.c,288 :: 		for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
 	CLRF        keypadHandler_i_L0+0 
 	MOVLW       15
 	MOVWF       keypadHandler_columnCode_L0+0 
-L_keypadHandler23:
+L_keypadHandler29:
 	MOVF        keypadHandler_columnCode_L0+0, 0 
 	XORLW       15
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler24
-;alarme.c,288 :: 		PORTB = ~(1 << i) << 4;
+	GOTO        L_keypadHandler30
+;alarme.c,291 :: 		PORTB = ~(1 << i) << 4;
 	MOVF        keypadHandler_i_L0+0, 0 
 	MOVWF       R1 
 	MOVLW       1
 	MOVWF       R0 
 	MOVF        R1, 0 
-L__keypadHandler85:
-	BZ          L__keypadHandler86
+L__keypadHandler93:
+	BZ          L__keypadHandler94
 	RLCF        R0, 1 
 	BCF         R0, 0 
 	ADDLW       255
-	GOTO        L__keypadHandler85
-L__keypadHandler86:
+	GOTO        L__keypadHandler93
+L__keypadHandler94:
 	COMF        R0, 0 
 	MOVWF       R2 
 	MOVF        R2, 0 
@@ -856,7 +874,7 @@ L__keypadHandler86:
 	BCF         R0, 0 
 	MOVF        R0, 0 
 	MOVWF       PORTB+0 
-;alarme.c,289 :: 		columnCode = PORTA.RA2 | (PORTA.RA4 << 1) |
+;alarme.c,292 :: 		columnCode = PORTA.RA2 | (PORTA.RA4 << 1) |
 	CLRF        R2 
 	BTFSC       PORTA+0, 4 
 	INCF        R2, 1 
@@ -870,7 +888,7 @@ L__keypadHandler86:
 	MOVWF       keypadHandler_columnCode_L0+0 
 	MOVF        R0, 0 
 	IORWF       keypadHandler_columnCode_L0+0, 1 
-;alarme.c,290 :: 		(PORTA.RA5 << 2) | (PORTB.RB3) << 3;
+;alarme.c,293 :: 		(PORTA.RA5 << 2) | (PORTB.RB3) << 3;
 	CLRF        R3 
 	BTFSC       PORTA+0, 5 
 	INCF        R3, 1 
@@ -896,22 +914,22 @@ L__keypadHandler86:
 	MOVLW       0
 	MOVWF       R1 
 	MOVF        R2, 0 
-L__keypadHandler87:
-	BZ          L__keypadHandler88
+L__keypadHandler95:
+	BZ          L__keypadHandler96
 	RLCF        R0, 1 
 	BCF         R0, 0 
 	RLCF        R1, 1 
 	ADDLW       255
-	GOTO        L__keypadHandler87
-L__keypadHandler88:
+	GOTO        L__keypadHandler95
+L__keypadHandler96:
 	MOVF        R0, 0 
 	IORWF       keypadHandler_columnCode_L0+0, 1 
-;alarme.c,285 :: 		for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
+;alarme.c,288 :: 		for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
 	INCF        keypadHandler_i_L0+0, 1 
-;alarme.c,292 :: 		}
-	GOTO        L_keypadHandler23
-L_keypadHandler24:
-;alarme.c,293 :: 		rowCode = PORTB >> 4;
+;alarme.c,295 :: 		}
+	GOTO        L_keypadHandler29
+L_keypadHandler30:
+;alarme.c,296 :: 		rowCode = PORTB >> 4;
 	MOVLW       4
 	MOVWF       R0 
 	MOVF        PORTB+0, 0 
@@ -919,16 +937,16 @@ L_keypadHandler24:
 	MOVLW       0
 	MOVWF       FARG_keyHandler_key+1 
 	MOVF        R0, 0 
-L__keypadHandler89:
-	BZ          L__keypadHandler90
+L__keypadHandler97:
+	BZ          L__keypadHandler98
 	RRCF        FARG_keyHandler_key+0, 1 
 	BCF         FARG_keyHandler_key+0, 7 
 	ADDLW       255
-	GOTO        L__keypadHandler89
-L__keypadHandler90:
-;alarme.c,294 :: 		PORTB = 0;
+	GOTO        L__keypadHandler97
+L__keypadHandler98:
+;alarme.c,297 :: 		PORTB = 0;
 	CLRF        PORTB+0 
-;alarme.c,296 :: 		realCode = rowCode | (columnCode << 4);
+;alarme.c,299 :: 		realCode = rowCode | (columnCode << 4);
 	MOVF        keypadHandler_columnCode_L0+0, 0 
 	MOVWF       R0 
 	RLCF        R0, 1 
@@ -942,7 +960,7 @@ L__keypadHandler90:
 	MOVF        R0, 0 
 	IORWF       FARG_keyHandler_key+0, 0 
 	MOVWF       FARG_keyHandler_key+0 
-;alarme.c,297 :: 		result = keyHandler(realCode, &type);
+;alarme.c,300 :: 		result = keyHandler(realCode, &type);
 	MOVLW       0
 	MOVWF       FARG_keyHandler_key+1 
 	MOVLW       keypadHandler_type_L0+0
@@ -954,192 +972,192 @@ L__keypadHandler90:
 	MOVWF       keypadHandler_result_L0+0 
 	MOVF        R1, 0 
 	MOVWF       keypadHandler_result_L0+1 
-;alarme.c,299 :: 		if(type == NUM)
+;alarme.c,302 :: 		if(type == NUM)
 	MOVF        keypadHandler_type_L0+0, 0 
 	XORLW       6
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler26
-;alarme.c,301 :: 		if(result == 0)
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler91
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+0, 0 
-L__keypadHandler91:
-	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler27
-;alarme.c,302 :: 		keyPressed[0] = '0';
-	MOVLW       48
-	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler27:
-;alarme.c,304 :: 		if(result == 1)
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler92
-	MOVLW       1
-	XORWF       keypadHandler_result_L0+0, 0 
-L__keypadHandler92:
-	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler28
-;alarme.c,305 :: 		keyPressed[0] = '1';
-	MOVLW       49
-	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler28:
-;alarme.c,307 :: 		if(result == 2)
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler93
-	MOVLW       2
-	XORWF       keypadHandler_result_L0+0, 0 
-L__keypadHandler93:
-	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler29
-;alarme.c,308 :: 		keyPressed[0] = '2';
-	MOVLW       50
-	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler29:
-;alarme.c,310 :: 		if(result == 3)
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler94
-	MOVLW       3
-	XORWF       keypadHandler_result_L0+0, 0 
-L__keypadHandler94:
-	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler30
-;alarme.c,311 :: 		keyPressed[0] = '3';
-	MOVLW       51
-	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler30:
-;alarme.c,313 :: 		if(result == 4)
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler95
-	MOVLW       4
-	XORWF       keypadHandler_result_L0+0, 0 
-L__keypadHandler95:
-	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler31
-;alarme.c,314 :: 		keyPressed[0] = '4';
-	MOVLW       52
-	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler31:
-;alarme.c,316 :: 		if(result == 5)
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler96
-	MOVLW       5
-	XORWF       keypadHandler_result_L0+0, 0 
-L__keypadHandler96:
-	BTFSS       STATUS+0, 2 
 	GOTO        L_keypadHandler32
-;alarme.c,317 :: 		keyPressed[0] = '5';
-	MOVLW       53
-	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler32:
-;alarme.c,319 :: 		if(result == 6)
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler97
-	MOVLW       6
-	XORWF       keypadHandler_result_L0+0, 0 
-L__keypadHandler97:
-	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler33
-;alarme.c,320 :: 		keyPressed[0] = '6';
-	MOVLW       54
-	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler33:
-;alarme.c,322 :: 		if(result == 7)
-	MOVLW       0
-	XORWF       keypadHandler_result_L0+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler98
-	MOVLW       7
-	XORWF       keypadHandler_result_L0+0, 0 
-L__keypadHandler98:
-	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler34
-;alarme.c,323 :: 		keyPressed[0] = '7';
-	MOVLW       55
-	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler34:
-;alarme.c,325 :: 		if(result == 8)
+;alarme.c,304 :: 		if(result == 0)
 	MOVLW       0
 	XORWF       keypadHandler_result_L0+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keypadHandler99
-	MOVLW       8
+	MOVLW       0
 	XORWF       keypadHandler_result_L0+0, 0 
 L__keypadHandler99:
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler35
-;alarme.c,326 :: 		keyPressed[0] = '8';
-	MOVLW       56
+	GOTO        L_keypadHandler33
+;alarme.c,305 :: 		keyPressed[0] = '0';
+	MOVLW       48
 	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler35:
-;alarme.c,328 :: 		if(result == 9)
+L_keypadHandler33:
+;alarme.c,307 :: 		if(result == 1)
 	MOVLW       0
 	XORWF       keypadHandler_result_L0+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keypadHandler100
-	MOVLW       9
+	MOVLW       1
 	XORWF       keypadHandler_result_L0+0, 0 
 L__keypadHandler100:
 	BTFSS       STATUS+0, 2 
+	GOTO        L_keypadHandler34
+;alarme.c,308 :: 		keyPressed[0] = '1';
+	MOVLW       49
+	MOVWF       keypadHandler_keyPressed_L0+0 
+L_keypadHandler34:
+;alarme.c,310 :: 		if(result == 2)
+	MOVLW       0
+	XORWF       keypadHandler_result_L0+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keypadHandler101
+	MOVLW       2
+	XORWF       keypadHandler_result_L0+0, 0 
+L__keypadHandler101:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_keypadHandler35
+;alarme.c,311 :: 		keyPressed[0] = '2';
+	MOVLW       50
+	MOVWF       keypadHandler_keyPressed_L0+0 
+L_keypadHandler35:
+;alarme.c,313 :: 		if(result == 3)
+	MOVLW       0
+	XORWF       keypadHandler_result_L0+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keypadHandler102
+	MOVLW       3
+	XORWF       keypadHandler_result_L0+0, 0 
+L__keypadHandler102:
+	BTFSS       STATUS+0, 2 
 	GOTO        L_keypadHandler36
-;alarme.c,329 :: 		keyPressed[0] = '9';
-	MOVLW       57
+;alarme.c,314 :: 		keyPressed[0] = '3';
+	MOVLW       51
 	MOVWF       keypadHandler_keyPressed_L0+0 
 L_keypadHandler36:
-;alarme.c,330 :: 		}
-L_keypadHandler26:
-;alarme.c,332 :: 		if(type == SUM)
+;alarme.c,316 :: 		if(result == 4)
+	MOVLW       0
+	XORWF       keypadHandler_result_L0+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keypadHandler103
+	MOVLW       4
+	XORWF       keypadHandler_result_L0+0, 0 
+L__keypadHandler103:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_keypadHandler37
+;alarme.c,317 :: 		keyPressed[0] = '4';
+	MOVLW       52
+	MOVWF       keypadHandler_keyPressed_L0+0 
+L_keypadHandler37:
+;alarme.c,319 :: 		if(result == 5)
+	MOVLW       0
+	XORWF       keypadHandler_result_L0+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keypadHandler104
+	MOVLW       5
+	XORWF       keypadHandler_result_L0+0, 0 
+L__keypadHandler104:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_keypadHandler38
+;alarme.c,320 :: 		keyPressed[0] = '5';
+	MOVLW       53
+	MOVWF       keypadHandler_keyPressed_L0+0 
+L_keypadHandler38:
+;alarme.c,322 :: 		if(result == 6)
+	MOVLW       0
+	XORWF       keypadHandler_result_L0+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keypadHandler105
+	MOVLW       6
+	XORWF       keypadHandler_result_L0+0, 0 
+L__keypadHandler105:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_keypadHandler39
+;alarme.c,323 :: 		keyPressed[0] = '6';
+	MOVLW       54
+	MOVWF       keypadHandler_keyPressed_L0+0 
+L_keypadHandler39:
+;alarme.c,325 :: 		if(result == 7)
+	MOVLW       0
+	XORWF       keypadHandler_result_L0+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keypadHandler106
+	MOVLW       7
+	XORWF       keypadHandler_result_L0+0, 0 
+L__keypadHandler106:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_keypadHandler40
+;alarme.c,326 :: 		keyPressed[0] = '7';
+	MOVLW       55
+	MOVWF       keypadHandler_keyPressed_L0+0 
+L_keypadHandler40:
+;alarme.c,328 :: 		if(result == 8)
+	MOVLW       0
+	XORWF       keypadHandler_result_L0+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keypadHandler107
+	MOVLW       8
+	XORWF       keypadHandler_result_L0+0, 0 
+L__keypadHandler107:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_keypadHandler41
+;alarme.c,329 :: 		keyPressed[0] = '8';
+	MOVLW       56
+	MOVWF       keypadHandler_keyPressed_L0+0 
+L_keypadHandler41:
+;alarme.c,331 :: 		if(result == 9)
+	MOVLW       0
+	XORWF       keypadHandler_result_L0+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keypadHandler108
+	MOVLW       9
+	XORWF       keypadHandler_result_L0+0, 0 
+L__keypadHandler108:
+	BTFSS       STATUS+0, 2 
+	GOTO        L_keypadHandler42
+;alarme.c,332 :: 		keyPressed[0] = '9';
+	MOVLW       57
+	MOVWF       keypadHandler_keyPressed_L0+0 
+L_keypadHandler42:
+;alarme.c,333 :: 		}
+L_keypadHandler32:
+;alarme.c,335 :: 		if(type == SUM)
 	MOVF        keypadHandler_type_L0+0, 0 
 	XORLW       1
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler37
-;alarme.c,333 :: 		keyPressed[0] = '+';
+	GOTO        L_keypadHandler43
+;alarme.c,336 :: 		keyPressed[0] = '+';
 	MOVLW       43
 	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler37:
-;alarme.c,335 :: 		if(type == SUB)
+L_keypadHandler43:
+;alarme.c,338 :: 		if(type == SUB)
 	MOVF        keypadHandler_type_L0+0, 0 
 	XORLW       2
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler38
-;alarme.c,336 :: 		keyPressed[0] = '-';
+	GOTO        L_keypadHandler44
+;alarme.c,339 :: 		keyPressed[0] = '-';
 	MOVLW       45
 	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler38:
-;alarme.c,338 :: 		if(type == MULT)
+L_keypadHandler44:
+;alarme.c,341 :: 		if(type == MULT)
 	MOVF        keypadHandler_type_L0+0, 0 
 	XORLW       3
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler39
-;alarme.c,339 :: 		keyPressed[0] = '*';
+	GOTO        L_keypadHandler45
+;alarme.c,342 :: 		keyPressed[0] = '*';
 	MOVLW       42
 	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler39:
-;alarme.c,341 :: 		if(type == DIVI)
+L_keypadHandler45:
+;alarme.c,344 :: 		if(type == DIVI)
 	MOVF        keypadHandler_type_L0+0, 0 
 	XORLW       4
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler40
-;alarme.c,342 :: 		keyPressed[0] = '/';
+	GOTO        L_keypadHandler46
+;alarme.c,345 :: 		keyPressed[0] = '/';
 	MOVLW       47
 	MOVWF       keypadHandler_keyPressed_L0+0 
-L_keypadHandler40:
-;alarme.c,344 :: 		keyPressed[1] = '\0';
+L_keypadHandler46:
+;alarme.c,347 :: 		keyPressed[1] = '\0';
 	CLRF        keypadHandler_keyPressed_L0+1 
-;alarme.c,346 :: 		Lcd_Out(1, 15, keyPressed);
+;alarme.c,349 :: 		Lcd_Out(1, 15, keyPressed);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       15
@@ -1149,7 +1167,7 @@ L_keypadHandler40:
 	MOVLW       hi_addr(keypadHandler_keyPressed_L0+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;alarme.c,348 :: 		rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
+;alarme.c,351 :: 		rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
 	MOVLW       _rightKeysActivation+0
 	ADDWF       _nKeyPressed+0, 0 
 	MOVWF       R2 
@@ -1179,18 +1197,18 @@ L_keypadHandler40:
 	MOVF        R1, 0 
 	XORLW       0
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler41
+	GOTO        L_keypadHandler47
 	MOVLW       1
 	MOVWF       R0 
-	GOTO        L_keypadHandler42
-L_keypadHandler41:
+	GOTO        L_keypadHandler48
+L_keypadHandler47:
 	CLRF        R0 
-L_keypadHandler42:
+L_keypadHandler48:
 	MOVFF       R2, FSR1
 	MOVFF       R3, FSR1H
 	MOVF        R0, 0 
 	MOVWF       POSTINC1+0 
-;alarme.c,349 :: 		rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
+;alarme.c,352 :: 		rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
 	MOVLW       _rightKeysDeActivation+0
 	ADDWF       _nKeyPressed+0, 0 
 	MOVWF       R2 
@@ -1220,34 +1238,34 @@ L_keypadHandler42:
 	MOVF        R1, 0 
 	XORLW       0
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler43
+	GOTO        L_keypadHandler49
 	MOVLW       1
 	MOVWF       R0 
-	GOTO        L_keypadHandler44
-L_keypadHandler43:
+	GOTO        L_keypadHandler50
+L_keypadHandler49:
 	CLRF        R0 
-L_keypadHandler44:
+L_keypadHandler50:
 	MOVFF       R2, FSR1
 	MOVFF       R3, FSR1H
 	MOVF        R0, 0 
 	MOVWF       POSTINC1+0 
-;alarme.c,351 :: 		if(nKeyPressed == 5)
+;alarme.c,354 :: 		if(nKeyPressed == 5)
 	MOVLW       0
 	XORWF       _nKeyPressed+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler101
+	GOTO        L__keypadHandler109
 	MOVLW       5
 	XORWF       _nKeyPressed+0, 0 
-L__keypadHandler101:
+L__keypadHandler109:
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler45
-;alarme.c,354 :: 		char activationCounter = 0;
+	GOTO        L_keypadHandler51
+;alarme.c,357 :: 		char activationCounter = 0;
 	CLRF        keypadHandler_activationCounter_L1+0 
 	CLRF        keypadHandler_deActivationCounter_L1+0 
-;alarme.c,356 :: 		for(i = 0; i <= nKeyPressed; i++)
+;alarme.c,359 :: 		for(i = 0; i <= nKeyPressed; i++)
 	CLRF        keypadHandler_i_L1+0 
 	CLRF        keypadHandler_i_L1+1 
-L_keypadHandler46:
+L_keypadHandler52:
 	MOVLW       128
 	XORWF       _nKeyPressed+1, 0 
 	MOVWF       R0 
@@ -1255,13 +1273,13 @@ L_keypadHandler46:
 	XORWF       keypadHandler_i_L1+1, 0 
 	SUBWF       R0, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler102
+	GOTO        L__keypadHandler110
 	MOVF        keypadHandler_i_L1+0, 0 
 	SUBWF       _nKeyPressed+0, 0 
-L__keypadHandler102:
+L__keypadHandler110:
 	BTFSS       STATUS+0, 0 
-	GOTO        L_keypadHandler47
-;alarme.c,358 :: 		activationCounter += rightKeysActivation[i];
+	GOTO        L_keypadHandler53
+;alarme.c,361 :: 		activationCounter += rightKeysActivation[i];
 	MOVLW       _rightKeysActivation+0
 	ADDWF       keypadHandler_i_L1+0, 0 
 	MOVWF       FSR2 
@@ -1272,7 +1290,7 @@ L__keypadHandler102:
 	MOVWF       R0 
 	MOVF        R0, 0 
 	ADDWF       keypadHandler_activationCounter_L1+0, 1 
-;alarme.c,359 :: 		deActivationCounter += rightKeysDeActivation[i];
+;alarme.c,362 :: 		deActivationCounter += rightKeysDeActivation[i];
 	MOVLW       _rightKeysDeActivation+0
 	ADDWF       keypadHandler_i_L1+0, 0 
 	MOVWF       FSR2 
@@ -1283,47 +1301,47 @@ L__keypadHandler102:
 	MOVWF       R0 
 	MOVF        R0, 0 
 	ADDWF       keypadHandler_deActivationCounter_L1+0, 1 
-;alarme.c,356 :: 		for(i = 0; i <= nKeyPressed; i++)
+;alarme.c,359 :: 		for(i = 0; i <= nKeyPressed; i++)
 	INFSNZ      keypadHandler_i_L1+0, 1 
 	INCF        keypadHandler_i_L1+1, 1 
-;alarme.c,360 :: 		}
-	GOTO        L_keypadHandler46
-L_keypadHandler47:
-;alarme.c,362 :: 		if(activationCounter == 6)
+;alarme.c,363 :: 		}
+	GOTO        L_keypadHandler52
+L_keypadHandler53:
+;alarme.c,365 :: 		if(activationCounter == 6)
 	MOVF        keypadHandler_activationCounter_L1+0, 0 
 	XORLW       6
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler49
-;alarme.c,364 :: 		isOn = 1;
+	GOTO        L_keypadHandler55
+;alarme.c,367 :: 		isOn = 1;
 	MOVLW       1
 	MOVWF       _isOn+0 
-;alarme.c,365 :: 		}
-L_keypadHandler49:
-;alarme.c,367 :: 		if(deActivationCounter == 6)
+;alarme.c,368 :: 		}
+L_keypadHandler55:
+;alarme.c,370 :: 		if(deActivationCounter == 6)
 	MOVF        keypadHandler_deActivationCounter_L1+0, 0 
 	XORLW       6
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler50
-;alarme.c,369 :: 		isOn = 0;
+	GOTO        L_keypadHandler56
+;alarme.c,372 :: 		isOn = 0;
 	CLRF        _isOn+0 
-;alarme.c,370 :: 		}
-L_keypadHandler50:
-;alarme.c,371 :: 		}
-L_keypadHandler45:
-;alarme.c,373 :: 		nKeyPressed = (nKeyPressed == 5) ? 0 : nKeyPressed + 1;
+;alarme.c,373 :: 		}
+L_keypadHandler56:
+;alarme.c,374 :: 		}
+L_keypadHandler51:
+;alarme.c,376 :: 		nKeyPressed = (nKeyPressed == 5) ? 0 : nKeyPressed + 1;
 	MOVLW       0
 	XORWF       _nKeyPressed+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler103
+	GOTO        L__keypadHandler111
 	MOVLW       5
 	XORWF       _nKeyPressed+0, 0 
-L__keypadHandler103:
+L__keypadHandler111:
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler51
+	GOTO        L_keypadHandler57
 	CLRF        R2 
 	CLRF        R3 
-	GOTO        L_keypadHandler52
-L_keypadHandler51:
+	GOTO        L_keypadHandler58
+L_keypadHandler57:
 	MOVLW       1
 	ADDWF       _nKeyPressed+0, 0 
 	MOVWF       R0 
@@ -1334,370 +1352,370 @@ L_keypadHandler51:
 	MOVWF       R2 
 	MOVF        R1, 0 
 	MOVWF       R3 
-L_keypadHandler52:
+L_keypadHandler58:
 	MOVF        R2, 0 
 	MOVWF       _nKeyPressed+0 
 	MOVF        R3, 0 
 	MOVWF       _nKeyPressed+1 
-;alarme.c,374 :: 		}
+;alarme.c,377 :: 		}
 L_end_keypadHandler:
 	RETURN      0
 ; end of _keypadHandler
 
 _keyHandler:
 
-;alarme.c,377 :: 		int keyHandler (int key, KeyType* type)
-;alarme.c,379 :: 		int result = -1;
+;alarme.c,380 :: 		int keyHandler (int key, KeyType* type)
+;alarme.c,382 :: 		int result = -1;
 	MOVLW       255
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       255
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,380 :: 		switch(key)
-	GOTO        L_keyHandler53
-;alarme.c,382 :: 		case 231:
-L_keyHandler55:
-;alarme.c,383 :: 		*type = ON_CLEAR;
+;alarme.c,383 :: 		switch(key)
+	GOTO        L_keyHandler59
+;alarme.c,385 :: 		case 231:
+L_keyHandler61:
+;alarme.c,386 :: 		*type = ON_CLEAR;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       5
 	MOVWF       POSTINC1+0 
-;alarme.c,384 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,386 :: 		case 215:
-L_keyHandler56:
-;alarme.c,387 :: 		*type = NUM;
+;alarme.c,387 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,389 :: 		case 215:
+L_keyHandler62:
+;alarme.c,390 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,388 :: 		result = 0;
+;alarme.c,391 :: 		result = 0;
 	CLRF        keyHandler_result_L0+0 
 	CLRF        keyHandler_result_L0+1 
-;alarme.c,389 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,391 :: 		case 183:
-L_keyHandler57:
-;alarme.c,392 :: 		*type = EQUALS;
+;alarme.c,392 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,394 :: 		case 183:
+L_keyHandler63:
+;alarme.c,395 :: 		*type = EQUALS;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	CLRF        POSTINC1+0 
-;alarme.c,393 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,395 :: 		case 119:
-L_keyHandler58:
-;alarme.c,396 :: 		*type = SUM;
+;alarme.c,396 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,398 :: 		case 119:
+L_keyHandler64:
+;alarme.c,399 :: 		*type = SUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       1
 	MOVWF       POSTINC1+0 
-;alarme.c,397 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,399 :: 		case 235:
-L_keyHandler59:
-;alarme.c,400 :: 		*type = NUM;
+;alarme.c,400 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,402 :: 		case 235:
+L_keyHandler65:
+;alarme.c,403 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,401 :: 		result = 1;
+;alarme.c,404 :: 		result = 1;
 	MOVLW       1
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,402 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,404 :: 		case 219:
-L_keyHandler60:
-;alarme.c,405 :: 		*type = NUM;
+;alarme.c,405 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,407 :: 		case 219:
+L_keyHandler66:
+;alarme.c,408 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,406 :: 		result = 2;
+;alarme.c,409 :: 		result = 2;
 	MOVLW       2
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,407 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,409 :: 		case 187:
-L_keyHandler61:
-;alarme.c,410 :: 		*type = NUM;
+;alarme.c,410 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,412 :: 		case 187:
+L_keyHandler67:
+;alarme.c,413 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,411 :: 		result = 3;
+;alarme.c,414 :: 		result = 3;
 	MOVLW       3
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,412 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,414 :: 		case 123:
-L_keyHandler62:
-;alarme.c,415 :: 		*type = SUB;
+;alarme.c,415 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,417 :: 		case 123:
+L_keyHandler68:
+;alarme.c,418 :: 		*type = SUB;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       2
 	MOVWF       POSTINC1+0 
-;alarme.c,416 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,418 :: 		case 237:
-L_keyHandler63:
-;alarme.c,419 :: 		*type = NUM;
+;alarme.c,419 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,421 :: 		case 237:
+L_keyHandler69:
+;alarme.c,422 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,420 :: 		result = 4;
+;alarme.c,423 :: 		result = 4;
 	MOVLW       4
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,421 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,423 :: 		case 221:
-L_keyHandler64:
-;alarme.c,424 :: 		*type = NUM;
+;alarme.c,424 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,426 :: 		case 221:
+L_keyHandler70:
+;alarme.c,427 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,425 :: 		result = 5;
+;alarme.c,428 :: 		result = 5;
 	MOVLW       5
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,426 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,428 :: 		case 189:
-L_keyHandler65:
-;alarme.c,429 :: 		*type = NUM;
+;alarme.c,429 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,431 :: 		case 189:
+L_keyHandler71:
+;alarme.c,432 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,430 :: 		result = 6;
+;alarme.c,433 :: 		result = 6;
 	MOVLW       6
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,431 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,433 :: 		case 125:
-L_keyHandler66:
-;alarme.c,434 :: 		*type = MULT;
+;alarme.c,434 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,436 :: 		case 125:
+L_keyHandler72:
+;alarme.c,437 :: 		*type = MULT;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       3
 	MOVWF       POSTINC1+0 
-;alarme.c,435 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,437 :: 		case 238:
-L_keyHandler67:
-;alarme.c,438 :: 		*type = NUM;
+;alarme.c,438 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,440 :: 		case 238:
+L_keyHandler73:
+;alarme.c,441 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,439 :: 		result = 7;
+;alarme.c,442 :: 		result = 7;
 	MOVLW       7
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,440 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,442 :: 		case 222:
-L_keyHandler68:
-;alarme.c,443 :: 		*type = NUM;
+;alarme.c,443 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,445 :: 		case 222:
+L_keyHandler74:
+;alarme.c,446 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,444 :: 		result = 8;
+;alarme.c,447 :: 		result = 8;
 	MOVLW       8
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,445 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,447 :: 		case 190:
-L_keyHandler69:
-;alarme.c,448 :: 		*type = NUM;
+;alarme.c,448 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,450 :: 		case 190:
+L_keyHandler75:
+;alarme.c,451 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       6
 	MOVWF       POSTINC1+0 
-;alarme.c,449 :: 		result = 9;
+;alarme.c,452 :: 		result = 9;
 	MOVLW       9
 	MOVWF       keyHandler_result_L0+0 
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
-;alarme.c,450 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,452 :: 		case 126:
-L_keyHandler70:
-;alarme.c,453 :: 		*type = DIVI;
+;alarme.c,453 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,455 :: 		case 126:
+L_keyHandler76:
+;alarme.c,456 :: 		*type = DIVI;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       4
 	MOVWF       POSTINC1+0 
-;alarme.c,454 :: 		break;
-	GOTO        L_keyHandler54
-;alarme.c,455 :: 		}
-L_keyHandler53:
+;alarme.c,457 :: 		break;
+	GOTO        L_keyHandler60
+;alarme.c,458 :: 		}
+L_keyHandler59:
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler105
+	GOTO        L__keyHandler113
 	MOVLW       231
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler105:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler55
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler106
-	MOVLW       215
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler106:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler56
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler107
-	MOVLW       183
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler107:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler57
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler108
-	MOVLW       119
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler108:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler58
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler109
-	MOVLW       235
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler109:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler59
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler110
-	MOVLW       219
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler110:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler60
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler111
-	MOVLW       187
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler111:
+L__keyHandler113:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler61
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler112
-	MOVLW       123
+	GOTO        L__keyHandler114
+	MOVLW       215
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler112:
+L__keyHandler114:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler62
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler113
-	MOVLW       237
+	GOTO        L__keyHandler115
+	MOVLW       183
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler113:
+L__keyHandler115:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler63
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler114
-	MOVLW       221
+	GOTO        L__keyHandler116
+	MOVLW       119
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler114:
+L__keyHandler116:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler64
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler115
-	MOVLW       189
+	GOTO        L__keyHandler117
+	MOVLW       235
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler115:
+L__keyHandler117:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler65
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler116
-	MOVLW       125
+	GOTO        L__keyHandler118
+	MOVLW       219
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler116:
+L__keyHandler118:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler66
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler117
-	MOVLW       238
+	GOTO        L__keyHandler119
+	MOVLW       187
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler117:
+L__keyHandler119:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler67
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler118
-	MOVLW       222
+	GOTO        L__keyHandler120
+	MOVLW       123
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler118:
+L__keyHandler120:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler68
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler119
-	MOVLW       190
+	GOTO        L__keyHandler121
+	MOVLW       237
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler119:
+L__keyHandler121:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler69
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler120
-	MOVLW       126
+	GOTO        L__keyHandler122
+	MOVLW       221
 	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler120:
+L__keyHandler122:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler70
-L_keyHandler54:
-;alarme.c,457 :: 		return result;
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler123
+	MOVLW       189
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler123:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler71
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler124
+	MOVLW       125
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler124:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler72
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler125
+	MOVLW       238
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler125:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler73
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler126
+	MOVLW       222
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler126:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler74
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler127
+	MOVLW       190
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler127:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler75
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler128
+	MOVLW       126
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler128:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler76
+L_keyHandler60:
+;alarme.c,460 :: 		return result;
 	MOVF        keyHandler_result_L0+0, 0 
 	MOVWF       R0 
 	MOVF        keyHandler_result_L0+1, 0 
 	MOVWF       R1 
-;alarme.c,458 :: 		}
+;alarme.c,461 :: 		}
 L_end_keyHandler:
 	RETURN      0
 ; end of _keyHandler
