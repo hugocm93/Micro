@@ -1,5 +1,8 @@
-// (8MHz / 4 ) / 256 => 128us x 200 = 0.0256s
-#define COUNTER ( 0xffff - 200 )
+// (8MHz / 4 ) / 256 => 128us x 20000 = 2.56s
+#define COUNTER1 ( 0xffff - 20000 )
+
+// (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
+#define COUNTER2 ( 0xffff - 3200 )
 
 // LCD module connections
 sbit LCD_EN at RE1_bit;
@@ -39,11 +42,15 @@ volatile float vSensor1 = 0;
 volatile float vSensor2 = 0;
 volatile char lastText[80] = "";
 
+//Debugging
+volatile char test = 0;
+//End debugging
+
 // Messages
-char msg1[] = "Alerta de intruso. ";
-char msg2[] = " sensores ativados";
-char msg3[] = "Alerta de possivel intruso ou sensor ";
-char msg4[] = " com defeito";
+volatile char msg1[] = "Alerta de intruso. ";
+volatile char msg2[] = " sensores ativados";
+volatile char msg3[] = "Alerta de possivel intruso ou sensor ";
+volatile char msg4[] = " com defeito";
 
 // Keypad functions
 int keyHandler(int key, KeyType* type);
@@ -59,33 +66,46 @@ void interrupt(void)
     {
         keypadHandler();
 
-        // Start timer 0
-        TMR0H = COUNTER >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
-        TMR0L = COUNTER;       // RE-Load Timer 0 counter - 2nd TMR0L
-        INTCON.TMR0IF=0;
-        INTCON.TMR0IE=1;
-        T0CON.TMR0ON=1;         
+        // Load Timer 2 counter
+        TMR2 = COUNTER2;
+        // Timer 2 interrupt
+        INTCON.TMR2IF=0;
+        INTCON.TMR2IE=1;
+        // Timer 2 Configuration
+        T2CON.TMR2ON = 1; 
 
         // Stop interruption
         INTCON3.INT1IE = 0;
         INTCON3.INT1IF = 0;
+
     }
-    else if(INTCON.TMR0IF) // Related to bouncing
+    else if(INTCON.TMR2IF) // Related to bouncing
     {
-        // End timer 0
-        INTCON.TMR0IF=0;
-        INTCON.TMR0IE=0;
-        T0CON.TMR0ON=0;         
+        // End timer 2
+        INTCON.TMR2IF=0;
+        INTCON.TMR2IE=0;
+        T0CON.TMR2ON=0;         
 
         // Resume interruption
         INTCON3.INT1IE = 1;
+        INTCON3.INT1IF = 0;
     }
+    else if(INTCON.TMR0IF)
+    {
+        //alarm();
 
-    // Controls alarm
-//    else if(outro timer)
-//    {
-//        alarm();
-//    }
+        //Debugging
+        Lcd_Cmd(_LCD_CLEAR);
+        IntToStr(test, lastText);
+        Lcd_Out(1, 1, lastText);
+        test++;
+        // End debugging
+
+        TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
+        TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
+
+        INTCON.TMR0IF = 0;
+    }
 
 }
 
@@ -105,6 +125,17 @@ void main()
     T0CON.T0PS2 = 1;
     T0CON.T0PS1 = 1;
     T0CON.T0PS0 = 1;
+    // Start timer 0
+    TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
+    TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
+    INTCON.TMR0IF=0;
+    INTCON.TMR0IE=1;
+    T0CON.TMR0ON=1;         
+
+    // Timer 2 configuration
+    // Prescaler = 11 => 1:16
+    T2CON.T2CKPS1 = 1;
+    T2CON.T2CKPS0 = 1;
 
     // External interrupt
     INTCON.GIE=1;
@@ -139,7 +170,7 @@ void main()
     // Keypad cols
     // digital input
     TRISA.RA2 = 1; 
-    TRISA.RA3 = 1; 
+    TRISA.RA4 = 1; 
     TRISA.RA5 = 1; 
     TRISB.RB3 = 1;
     
@@ -273,9 +304,11 @@ void keypadHandler()
 
     for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
     {
+
         PORTB = ~(1 << i) << 4;
-        columnCode = PORTA.RA2 | (PORTA.RA3 << 1) | 
+        columnCode = PORTA.RA2 | (PORTA.RA4 << 1) | 
                      (PORTA.RA5 << 2) | (PORTB.RB3) << 3;
+    
     }
     rowCode = PORTB >> 4; 
     PORTB = 0; 
@@ -330,16 +363,6 @@ void keypadHandler()
 
     keyPressed[1] = '\0';
 
-    // Print
-    Lcd_Cmd(_LCD_CLEAR);
-
-    IntToStr(rowCode, lastText);
-    Lcd_Out(1,1,lastText);
-
-    IntToStr(columnCode, lastText);
-    Lcd_Out(2,1,lastText);
-    // end print
-
     rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
     rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
 
@@ -393,17 +416,17 @@ int keyHandler (int key, KeyType* type)
 
         case 235:
             *type = NUM;
-            result = 7;
+            result = 1;
         break;
 
         case 219:
             *type = NUM;
-            result = 8;
+            result = 2;
         break;
 
         case 187:
             *type = NUM;
-            result = 9;
+            result = 3;
         break;
 
         case 123:
@@ -431,17 +454,17 @@ int keyHandler (int key, KeyType* type)
 
         case 238:
             *type = NUM;
-            result = 1;
+            result = 7;
         break;
 
         case 222:
             *type = NUM;
-            result = 2;
+            result = 8;
         break;
 
         case 190:
             *type = NUM;
-            result = 3;
+            result = 9;
         break;
 
         case 126:
