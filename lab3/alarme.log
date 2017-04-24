@@ -1,4 +1,5 @@
-0	1	mikroCPIC1618.exe -MSF -DBG -pP18F452 -RA -DL -O11111114 -fo8 -N"C:\Users\hugocm93\Desktop\Micro\lab3\alarme.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"C:\Users\hugocm93\Desktop\Micro\lab3\" "alarme.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CType.mcl" "__Lib_CString.mcl" "__Lib_CStdlib.mcl" "__Lib_CMath.mcl" "__Lib_MemManager.mcl" "__Lib_Conversions.mcl" "__Lib_Sprintf.mcl" "__Lib_PrintOut.mcl" "__Lib_Sprinti.mcl" "__Lib_Sprintl.mcl" "__Lib_Time.mcl" "__Lib_Trigonometry.mcl" "__Lib_Button.mcl" "__Lib_Keypad4x4.mcl" "__Lib_Manchester.mcl" "__Lib_OneWire.mcl" "__Lib_PS2.mcl" "__Lib_Sound.mcl" "__Lib_SoftI2C.mcl" "__Lib_SoftSPI.mcl" "__Lib_SoftUART.mcl" "__Lib_ADC_A_C.mcl" "__Lib_EEPROM_256.mcl" "__Lib_FLASH_w8_e64.mcl" "__Lib_I2C_c34.mcl" "__Lib_PWM_c21.mcl" "__Lib_SPI_c345.mcl" "__Lib_UART_c67.mcl" "__Lib_PortExpander.mcl" "__Lib_CANSPI.mcl" "__Lib_CF.mcl" "__Lib_CFFat16.mcl" "__Lib_GlcdFonts.mcl" "__Lib_Glcd.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl" "__Lib_Mmc.mcl" "__Lib_MmcFat16.mcl" "__Lib_MmcFat16Constants.mcl" "__Lib_RS485.mcl" "__Lib_S1D13700.mcl" "__Lib_T6963C.mcl" "__Lib_SPIGlcd.mcl" "__Lib_SPILcd.mcl" "__Lib_SPILcd8.mcl" "__Lib_SPIT6963C.mcl" "__Lib_EthEnc28j60.mcl" "__Lib_TFT.mcl" "__Lib_TFT_Defs.mcl" "__Lib_TFT_16bit.mcl" "__Lib_TFT_16bit_Defs.mcl" "__Lib_TouchPanel_TFT.mcl" "__Lib_EthEnc24j600.mcl" "__Lib_TouchPanel.mcl"	 
+0	1	mikroCPIC1618.exe -MSF -DBG -pP18F452 -RA -DL -O11111114 -fo8 -N"C:\Users\mplab.LCA-06\Downloads\Micro\lab3\alarme.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"C:\Users\mplab.LCA-06\Downloads\Micro\lab3\" -SP"C:\Users\hugocm93\Desktop\Micro\lab3\" "alarme.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CType.mcl" "__Lib_CString.mcl" "__Lib_CStdlib.mcl" "__Lib_CMath.mcl" "__Lib_MemManager.mcl" "__Lib_Conversions.mcl" "__Lib_Sprintf.mcl" "__Lib_PrintOut.mcl" "__Lib_Sprinti.mcl" "__Lib_Sprintl.mcl" "__Lib_Time.mcl" "__Lib_Trigonometry.mcl" "__Lib_Button.mcl" "__Lib_Keypad4x4.mcl" "__Lib_Manchester.mcl" "__Lib_OneWire.mcl" "__Lib_PS2.mcl" "__Lib_Sound.mcl" "__Lib_SoftI2C.mcl" "__Lib_SoftSPI.mcl" "__Lib_SoftUART.mcl" "__Lib_ADC_A_C.mcl" "__Lib_EEPROM_256.mcl" "__Lib_FLASH_w8_e64.mcl" "__Lib_I2C_c34.mcl" "__Lib_PWM_c21.mcl" "__Lib_SPI_c345.mcl" "__Lib_UART_c67.mcl" "__Lib_PortExpander.mcl" "__Lib_CANSPI.mcl" "__Lib_CF.mcl" "__Lib_CFFat16.mcl" "__Lib_GlcdFonts.mcl" "__Lib_Glcd.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl" "__Lib_Mmc.mcl" "__Lib_MmcFat16.mcl" "__Lib_MmcFat16Constants.mcl" "__Lib_RS485.mcl" "__Lib_S1D13700.mcl" "__Lib_T6963C.mcl" "__Lib_SPIGlcd.mcl" "__Lib_SPILcd.mcl" "__Lib_SPILcd8.mcl" "__Lib_SPIT6963C.mcl" "__Lib_EthEnc28j60.mcl" "__Lib_TFT.mcl" "__Lib_TFT_Defs.mcl" "__Lib_TFT_16bit.mcl" "__Lib_TFT_16bit_Defs.mcl" "__Lib_TouchPanel_TFT.mcl" "__Lib_EthEnc24j600.mcl" "__Lib_TouchPanel.mcl"	 
+warning: 0	1501	Specified search path does not exist: 'C:\Users\hugocm93\Desktop\Micro\lab3'	 
 hint: 0	1139	Available RAM: 1515 [bytes], Available ROM: 32768 [bytes]	 
 diagnostics: 0	122	Compilation Started	P18F452.c
 diagnostics: 1184	123	Compiled Successfully	P18F452.c
@@ -12,19 +13,19 @@ diagnostics: 1207	123	Compiled Successfully	__Lib_GlcdFonts.c
 diagnostics: 0	122	Compilation Started	__lib_mmcfat16.h
 diagnostics: 71	123	Compiled Successfully	__Lib_MmcFat16Constants.c
 diagnostics: 0	122	Compilation Started	__Lib_TFT_Defs.c
-diagnostics: 2121	123	Compiled Successfully	__Lib_TFT_Defs.c
+diagnostics: 1892	123	Compiled Successfully	__Lib_TFT_Defs.c
 diagnostics: 0	122	Compilation Started	__Lib_TFT_16bit_Defs.c
-diagnostics: 2006	123	Compiled Successfully	__Lib_TFT_16bit_Defs.c
+diagnostics: 1776	123	Compiled Successfully	__Lib_TFT_16bit_Defs.c
+diagnostics: 0	126	All files Preprocessed in 31 ms	 
 diagnostics: 0	122	Compilation Started	alarme.c
-hint: 271	1163	Variable 'number' has been declared, but not used	alarme.c
-diagnostics: 476	123	Compiled Successfully	alarme.c
-hint: 196	1164	Variable 'activated' has been eliminated by optimizer	alarme.c
-hint: 301	1164	Variable 'rowCode' has been eliminated by optimizer	alarme.c
-hint: 302	1164	Variable 'realCode' has been eliminated by optimizer	alarme.c
-diagnostics: 0	127	All files Compiled in 109 ms	 
-hint: 0	1144	Used RAM (bytes): 117 (8%)  Free RAM (bytes): 1398 (92%)	Used RAM (bytes): 117 (8%)  Free RAM (bytes): 1398 (92%)
-hint: 0	1144	Used ROM (bytes): 2581 (8%)  Free ROM (bytes): 30187 (92%)	Used ROM (bytes): 2581 (8%)  Free ROM (bytes): 30187 (92%)
+diagnostics: 458	123	Compiled Successfully	alarme.c
+hint: 185	1164	Variable 'activated' has been eliminated by optimizer	alarme.c
+hint: 281	1164	Variable 'rowCode' has been eliminated by optimizer	alarme.c
+hint: 282	1164	Variable 'realCode' has been eliminated by optimizer	alarme.c
+diagnostics: 0	127	All files Compiled in 47 ms	 
+hint: 0	1144	Used RAM (bytes): 277 (18%)  Free RAM (bytes): 1238 (82%)	Used RAM (bytes): 277 (18%)  Free RAM (bytes): 1238 (82%)
+hint: 0	1144	Used ROM (bytes): 6389 (19%)  Free ROM (bytes): 26379 (81%)	Used ROM (bytes): 6389 (19%)  Free ROM (bytes): 26379 (81%)
 diagnostics: 0	125	Project Linked Successfully	alarme.mcppi
-diagnostics: 0	128	Linked in 188 ms	 
-diagnostics: 0	129	Project 'alarme.mcppi' completed: 1063 ms	 
-diagnostics: 0	103	Finished successfully: 23 abr 2017, 21:28:52	alarme.mcppi
+diagnostics: 0	128	Linked in 172 ms	 
+diagnostics: 0	129	Project 'alarme.mcppi' completed: 890 ms	 
+diagnostics: 0	103	Finished successfully: 24 abr 2017, 09:40:15	alarme.mcppi

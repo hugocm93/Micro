@@ -1,4 +1,4 @@
-#line 1 "C:/Users/hugocm93/Desktop/Micro/lab3/alarme.c"
+#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab3/alarme.c"
 
 
 
@@ -37,21 +37,18 @@ volatile const char activationCode[] = "*2025*";
 volatile const char deActivationCode[] = "+1830+";
 volatile char rightKeysActivation[] = {0,0,0,0,0,0};
 volatile char rightKeysDeActivation[] = {0,0,0,0,0,0};
-volatile char nKeyPressed = 0;
+volatile int nKeyPressed = 0;
 volatile char isOn = 0;
 volatile float vSensor1 = 0;
 volatile float vSensor2 = 0;
-volatile char lastText[80] = "";
+
+volatile char aux[20] = "";
 
 
-volatile char test = 0;
-
-
-
-volatile char msg1[] = "Alerta de intruso. ";
-volatile char msg2[] = " sensores ativados";
-volatile char msg3[] = "Alerta de possivel intruso ou sensor ";
-volatile char msg4[] = " com defeito";
+volatile char msg1[] = "Intr. ";
+volatile char msg2[] = " sens. ativ";
+volatile char msg3[] = "Intr./sens. ";
+volatile char msg4[] = " c/ defeito";
 
 
 int keyHandler(int key, KeyType* type);
@@ -70,22 +67,21 @@ void interrupt(void)
 
  TMR2 =  ( 0xffff - 3200 ) ;
 
- INTCON.TMR2IF=0;
- INTCON.TMR2IE=1;
+ PIR1.TMR2IF=0;
+ PIE1.TMR2IE=1;
 
  T2CON.TMR2ON = 1;
 
 
  INTCON3.INT1IE = 0;
  INTCON3.INT1IF = 0;
-
  }
- else if(INTCON.TMR2IF)
+ else if(PIR1.TMR2IF)
  {
 
- INTCON.TMR2IF=0;
- INTCON.TMR2IE=0;
- T0CON.TMR2ON=0;
+ PIR1.TMR2IF=0;
+ PIE1.TMR2IE=0;
+ T2CON.TMR2ON=0;
 
 
  INTCON3.INT1IE = 1;
@@ -93,17 +89,10 @@ void interrupt(void)
  }
  else if(INTCON.TMR0IF)
  {
+ alarm();
 
-
-
- Lcd_Cmd(_LCD_CLEAR);
- IntToStr(test, lastText);
- Lcd_Out(1, 1, lastText);
- test++;
-
-
- TMR0H =  ( 0xffff - 20000 )  >> 8;
- TMR0L =  ( 0xffff - 20000 ) ;
+ TMR0H =  ( 0xffff - 10000 )  >> 8;
+ TMR0L =  ( 0xffff - 10000 ) ;
 
  INTCON.TMR0IF = 0;
  }
@@ -127,8 +116,8 @@ void main()
  T0CON.T0PS1 = 1;
  T0CON.T0PS0 = 1;
 
- TMR0H =  ( 0xffff - 20000 )  >> 8;
- TMR0L =  ( 0xffff - 20000 ) ;
+ TMR0H =  ( 0xffff - 10000 )  >> 8;
+ TMR0L =  ( 0xffff - 10000 ) ;
  INTCON.TMR0IF=0;
  INTCON.TMR0IE=1;
  T0CON.TMR0ON=1;
@@ -215,25 +204,21 @@ void alarm()
  if(activated)
  {
  char number[4];
- char str[60];
+ char str[60] = "";
  IntToStr(sensorCount, number);
+
+ Lcd_Cmd(_LCD_CLEAR);
 
  strcat(str, msg1);
  strcat(str, number);
- strcat(str, msg2);
-
- if(strcmp(lastText, str))
- {
- Lcd_Cmd(_LCD_CLEAR);
- strcpy(lastText, str);
-
  Lcd_Out(1,1,str);
- }
+
+ Lcd_Out(2,1,msg2);
  }
  else
  {
  char number[4];
- char str[60];
+ char str[60] = "";
 
  if(PORTC.RC4)
  strcpy(number, "1");
@@ -254,41 +239,36 @@ void alarm()
  strcpy(number, "6");
 
 
+ Lcd_Cmd(_LCD_CLEAR);
+
  strcat(str, msg3);
  strcat(str, number);
- strcat(str, msg4);
+ Lcd_Out(1,1, str);
 
- if(strcmp(lastText, str))
- {
- Lcd_Cmd(_LCD_CLEAR);
- strcpy(lastText, str);
-
- Lcd_Out(1,1,str);
- }
+ Lcd_Out(2,1, msg4);
  }
  }
  else
  {
- char number[4];
- char str[60];
+ char str1[15];
+ char str2[15];
 
- char str1[5];
- char str2[5];
- IntToStr(vSensor1, str1);
- IntToStr(vSensor2, str2);
+ if(vSensor1 < 1)
+ vSensor1 = 0;
+ if(vSensor2 < 1)
+ vSensor2 = 0;
 
- strcat(str, str1);
- strcat(str, "V ");
- strcat(str, str2);
- strcat(str, "V");
+ FloatToStr(vSensor1, str1);
+ FloatToStr(vSensor2, str2);
+ str1[3] = '\0';
+ str2[3] = '\0';
 
- if(strcmp(lastText, str))
- {
  Lcd_Cmd(_LCD_CLEAR);
- strcpy(lastText, str);
 
- Lcd_Out(1,1,str);
- }
+ Lcd_Out(1,1,str1);
+ Lcd_Out(1,4,"V");
+ Lcd_Out(2,1,str2);
+ Lcd_Out(2,4,"V");
  }
 }
 
@@ -364,15 +344,17 @@ void keypadHandler()
 
  keyPressed[1] = '\0';
 
+ Lcd_Out(1, 15, keyPressed);
+
  rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
  rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
 
- if(nKeyPressed == 6)
+ if(nKeyPressed == 5)
  {
  int i;
  char activationCounter = 0;
  char deActivationCounter = 0;
- for(i = 0; i < nKeyPressed; i++)
+ for(i = 0; i <= nKeyPressed; i++)
  {
  activationCounter += rightKeysActivation[i];
  deActivationCounter += rightKeysDeActivation[i];
@@ -389,7 +371,7 @@ void keypadHandler()
  }
  }
 
- nKeyPressed = nKeyPressed == 6 ? 0 : nKeyPressed++;
+ nKeyPressed = (nKeyPressed == 5) ? 0 : nKeyPressed + 1;
 }
 
 

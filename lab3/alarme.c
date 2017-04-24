@@ -1,5 +1,5 @@
-// (8MHz / 4 ) / 256 => 128us x 20000 = 2.56s
-#define COUNTER1 ( 0xffff - 20000 )
+// (8MHz / 4 ) / 256 => 128us x 10000 = 1.28s
+#define COUNTER1 ( 0xffff - 10000 )
 
 // (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
 #define COUNTER2 ( 0xffff - 3200 )
@@ -36,21 +36,18 @@ volatile const char activationCode[] = "*2025*";
 volatile const char deActivationCode[] = "+1830+";
 volatile char rightKeysActivation[] = {0,0,0,0,0,0};
 volatile char rightKeysDeActivation[] = {0,0,0,0,0,0};
-volatile char nKeyPressed = 0;
+volatile int nKeyPressed = 0;
 volatile char isOn = 0;
 volatile float vSensor1 = 0;
 volatile float vSensor2 = 0;
-volatile char lastText[80] = "";
 
-//Debugging
-volatile char test = 0;
-//End debugging
+volatile char aux[20] = "";
 
 // Messages
-volatile char msg1[] = "Alerta de intruso. ";
-volatile char msg2[] = " sensores ativados";
-volatile char msg3[] = "Alerta de possivel intruso ou sensor ";
-volatile char msg4[] = " com defeito";
+volatile char msg1[] = "Intr. ";
+volatile char msg2[] = " sens. ativ";
+volatile char msg3[] = "Intr./sens. ";
+volatile char msg4[] = " c/ defeito";
 
 // Keypad functions
 int keyHandler(int key, KeyType* type);
@@ -69,22 +66,21 @@ void interrupt(void)
         // Load Timer 2 counter
         TMR2 = COUNTER2;
         // Timer 2 interrupt
-        INTCON.TMR2IF=0;
-        INTCON.TMR2IE=1;
+        PIR1.TMR2IF=0;
+        PIE1.TMR2IE=1;
         // Timer 2 Configuration
-        T2CON.TMR2ON = 1; 
+        T2CON.TMR2ON = 1;
 
         // Stop interruption
         INTCON3.INT1IE = 0;
         INTCON3.INT1IF = 0;
-
     }
-    else if(INTCON.TMR2IF) // Related to bouncing
+    else if(PIR1.TMR2IF) // Related to bouncing
     {
         // End timer 2
-        INTCON.TMR2IF=0;
-        INTCON.TMR2IE=0;
-        T0CON.TMR2ON=0;         
+        PIR1.TMR2IF=0;
+        PIE1.TMR2IE=0;
+        T2CON.TMR2ON=0;
 
         // Resume interruption
         INTCON3.INT1IE = 1;
@@ -92,14 +88,7 @@ void interrupt(void)
     }
     else if(INTCON.TMR0IF)
     {
-        //alarm();
-
-        //Debugging
-        Lcd_Cmd(_LCD_CLEAR);
-        IntToStr(test, lastText);
-        Lcd_Out(1, 1, lastText);
-        test++;
-        // End debugging
+        alarm();
 
         TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
         TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
@@ -214,25 +203,21 @@ void alarm()
         if(activated)
         {
             char number[4];
-            char str[60];
+            char str[60] = "";
             IntToStr(sensorCount, number);
+
+            Lcd_Cmd(_LCD_CLEAR);
 
             strcat(str, msg1);
             strcat(str, number);
-            strcat(str, msg2);
+            Lcd_Out(1,1,str);
 
-            if(strcmp(lastText, str))
-            {
-                Lcd_Cmd(_LCD_CLEAR);
-                strcpy(lastText, str);
-
-                Lcd_Out(1,1,str);
-            }
+            Lcd_Out(2,1,msg2);
         }
         else
         {
             char number[4];
-            char str[60];
+            char str[60] = "";
 
             if(PORTC.RC4)
                 strcpy(number, "1");
@@ -253,41 +238,36 @@ void alarm()
                 strcpy(number, "6");
 
 
+            Lcd_Cmd(_LCD_CLEAR);
+
             strcat(str, msg3);
             strcat(str, number);
-            strcat(str, msg4);
+            Lcd_Out(1,1, str);
 
-            if(strcmp(lastText, str))
-            {
-                Lcd_Cmd(_LCD_CLEAR);
-                strcpy(lastText, str);
-
-                Lcd_Out(1,1,str);
-            }
+            Lcd_Out(2,1, msg4);
         }
     }
     else
     {
-        char number[4];
-        char str[60];
+        char str1[15];
+        char str2[15];
 
-        char str1[5];
-        char str2[5];
-        IntToStr(vSensor1, str1);
-        IntToStr(vSensor2, str2);
+        if(vSensor1 < 1)
+            vSensor1 = 0;
+        if(vSensor2 < 1)
+            vSensor2 = 0;
 
-        strcat(str, str1);
-        strcat(str, "V ");
-        strcat(str, str2);
-        strcat(str, "V");
+        FloatToStr(vSensor1, str1);
+        FloatToStr(vSensor2, str2);
+        str1[3] = '\0';
+        str2[3] = '\0';
 
-        if(strcmp(lastText, str))
-        {
-            Lcd_Cmd(_LCD_CLEAR);
-            strcpy(lastText, str);
+        Lcd_Cmd(_LCD_CLEAR);
 
-            Lcd_Out(1,1,str);
-        }
+        Lcd_Out(1,1,str1);
+        Lcd_Out(1,4,"V");
+        Lcd_Out(2,1,str2);
+        Lcd_Out(2,4,"V");
     }
 }
 
@@ -300,7 +280,7 @@ void keypadHandler()
     char keyPressed[2];
     char rowCode = 0;
     char realCode = 0;
-	char columnCode = 0;
+        char columnCode = 0;
 
     for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
     {
@@ -363,15 +343,17 @@ void keypadHandler()
 
     keyPressed[1] = '\0';
 
+    Lcd_Out(1, 15, keyPressed);
+
     rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
     rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
 
-    if(nKeyPressed == 6)
+    if(nKeyPressed == 5)
     {
         int i;
         char activationCounter = 0;
         char deActivationCounter = 0;
-        for(i = 0; i < nKeyPressed; i++)
+        for(i = 0; i <= nKeyPressed; i++)
         {
             activationCounter += rightKeysActivation[i];
             deActivationCounter += rightKeysDeActivation[i];
@@ -388,7 +370,7 @@ void keypadHandler()
         }
     }
 
-    nKeyPressed = nKeyPressed == 6 ? 0 : nKeyPressed++;
+    nKeyPressed = (nKeyPressed == 5) ? 0 : nKeyPressed + 1;
 }
 
 

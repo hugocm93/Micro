@@ -1,3 +1,4 @@
+    
 ______
 ____doifc
 ___boot_delay128k
@@ -263,6 +264,7 @@ atan2
 atof
 atoi
 atol
+aux
 awhuffacsymstart
 awhuffacsymstart
 awhuffdcsymstart
@@ -768,7 +770,6 @@ keypad_key_click
 keypad_key_press
 keypadhandler
 labs
-lasttext
 lata
 lata0
 lata0_bit
@@ -1829,7 +1830,6 @@ tblptru3
 tblptru3_bit
 tblptru4
 tblptru4_bit
-test
 tft_16bit_circle
 tft_16bit_color16bittorgb
 tft_16bit_defaultfont
@@ -1921,10 +1921,6 @@ tft_init_ili9340
 tft_init_ili9340_8bit
 tft_init_ili9340_8bit_custom
 tft_init_ili9340_custom
-tft_init_ili9341_16bit
-tft_init_ili9341_16bit_custom
-tft_init_ili9341_8bit
-tft_init_ili9341_8bit_custom
 tft_init_ili9342
 tft_init_ili9342_custom
 tft_init_ili9481
