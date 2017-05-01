@@ -4,6 +4,9 @@
 // (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
 #define COUNTER2 ( 0xffff - 3200 )
 
+// 0.78125 / 8 => 10.24s x ? = time
+#define COUNTER3 ( 0xffff - (unsigned int)(time/10.14) )
+
 // LCD module connections
 sbit LCD_EN at RE1_bit;
 sbit LCD_RS at RE2_bit;
@@ -36,7 +39,7 @@ int keyHandler(int key, KeyType* type);
 void keypadHandler();
 
 //Timer vars
-volatile int time = 0;
+volatile unsigned int time = 0;
 volatile char str[14];
 
 void loadTimer2();
@@ -79,6 +82,11 @@ void interrupt(void)
         TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
 
         INTCON.TMR0IF = 0;
+    }
+    else if(PIR1.TMR1IF)
+    {
+
+        PIR1.TMR1IF=0;
     }
     else if(INTCON.INT0IF)
     {
@@ -139,6 +147,21 @@ void main()
     INTCON.TMR0IE=1;
     T0CON.TMR0ON=1;
 
+    // Timer 1
+    T1CON.RD16 = 8;        // Read/Write in two 8 bits oper 
+    T1CON.T1OSCEN = 0;     // Disable internal Oscilator 
+    T1CON.TMR1CS = 1;      // External clock from RC0 
+    T1CON.T1SYNC = 1;      // Do not synchronize ext clock
+    // Prescaler = 11 => 1:8
+    T1CON.T1CKPS1 = 1;
+    T1CON.T1CKPS0 = 1;
+    // Start timer 1
+    TMR1H = COUNTER3 >> 8;  // RE-Load Timer 1 counter - 1st TMR1H
+    TMR1L = COUNTER3;       // RE-Load Timer 1 counter - 2nd TMR1L
+    PIR1.TMR1IF=0;
+    PIE1.TMR1IE=1;
+    T1CON.TMR1ON=1;
+
     // Timer 2 configuration
     // Prescaler = 11 => 1:16
     T2CON.T2CKPS1 = 1;
@@ -172,8 +195,8 @@ void main()
     TRISB.RB3 = 1;
 
     // Led
-    TRISC.RC0 = 0;
-    PORTC.RC0 = 0;
+    TRISC.RC1 = 0;
+    PORTC.RC1 = 0;
 
     // Switches
     INTCON.INT0IE = 1;
