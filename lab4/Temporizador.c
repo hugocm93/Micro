@@ -4,8 +4,8 @@
 // (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
 #define COUNTER2 ( 0xffff - 3200 )
 
-// 0.78125 / 8 => 10.24s x ? = time
-#define COUNTER3 ( 0xffff - (unsigned int)(time/10.14) )
+// (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
+#define COUNTER3 ( 0xffff - 3200 )
 
 // LCD module connections
 sbit LCD_EN at RE1_bit;
@@ -39,8 +39,9 @@ int keyHandler(int key, KeyType* type);
 void keypadHandler();
 
 //Timer vars
-volatile unsigned int time = 0;
+volatile float time = 0;
 volatile char str[14];
+volatile int nPressed = 0;
 
 void loadTimer2();
 
@@ -279,10 +280,20 @@ void keypadHandler()
 
     keyPressed[1] = '\0';
 
-    time *= 10;
-    time += result;
+    nPressed += 1;
 
-    IntToStr(time, str);
+    if(nPressed < 3)
+    {   
+        time *= 10;
+        time += result;
+    }
+    else
+    {
+        time += result/10.0;
+    }
+
+    Lcd_Cmd(_LCD_CLEAR);
+    FloatToStr(time, str);
     Lcd_Out(1, 1, str);
 }
 

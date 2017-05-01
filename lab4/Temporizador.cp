@@ -6,6 +6,9 @@
 
 
 
+
+
+
 sbit LCD_EN at RE1_bit;
 sbit LCD_RS at RE2_bit;
 sbit LCD_D0 at RD0_bit;
@@ -37,8 +40,9 @@ int keyHandler(int key, KeyType* type);
 void keypadHandler();
 
 
-volatile int time = 0;
+volatile float time = 0;
 volatile char str[14];
+volatile int nPressed = 0;
 
 void loadTimer2();
 
@@ -80,6 +84,11 @@ void interrupt(void)
  TMR0L =  ( 0xffff - 10000 ) ;
 
  INTCON.TMR0IF = 0;
+ }
+ else if(PIR1.TMR1IF)
+ {
+
+ PIR1.TMR1IF=0;
  }
  else if(INTCON.INT0IF)
  {
@@ -141,6 +150,21 @@ void main()
  T0CON.TMR0ON=1;
 
 
+ T1CON.RD16 = 8;
+ T1CON.T1OSCEN = 0;
+ T1CON.TMR1CS = 1;
+ T1CON.T1SYNC = 1;
+
+ T1CON.T1CKPS1 = 1;
+ T1CON.T1CKPS0 = 1;
+
+ TMR1H =  ( 0xffff - 3200 )  >> 8;
+ TMR1L =  ( 0xffff - 3200 ) ;
+ PIR1.TMR1IF=0;
+ PIE1.TMR1IE=1;
+ T1CON.TMR1ON=1;
+
+
 
  T2CON.T2CKPS1 = 1;
  T2CON.T2CKPS0 = 1;
@@ -173,8 +197,8 @@ void main()
  TRISB.RB3 = 1;
 
 
- TRISC.RC0 = 0;
- PORTC.RC0 = 0;
+ TRISC.RC1 = 0;
+ PORTC.RC1 = 0;
 
 
  INTCON.INT0IE = 1;
@@ -257,10 +281,20 @@ void keypadHandler()
 
  keyPressed[1] = '\0';
 
+ nPressed += 1;
+
+ if(nPressed < 3)
+ {
  time *= 10;
  time += result;
+ }
+ else
+ {
+ time += result/10.0;
+ }
 
- IntToStr(time, str);
+ Lcd_Cmd(_LCD_CLEAR);
+ FloatToStr(time, str);
  Lcd_Out(1, 1, str);
 }
 
