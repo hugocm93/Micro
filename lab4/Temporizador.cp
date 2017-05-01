@@ -43,6 +43,7 @@ void keypadHandler();
 volatile float time = 0;
 volatile char str[14];
 volatile int nPressed = 0;
+volatile int progMode = 1;
 
 void loadTimer2();
 
@@ -50,7 +51,10 @@ void interrupt(void)
 {
  if(INTCON3.INT1IF)
  {
+ if(progMode)
+ {
  keypadHandler();
+ }
 
  loadTimer2();
 
@@ -83,17 +87,35 @@ void interrupt(void)
  TMR0H =  ( 0xffff - 10000 )  >> 8;
  TMR0L =  ( 0xffff - 10000 ) ;
 
+ PORTC.RC0 = ~PORTC.RC0;
+
+ if(!progMode)
+ {
+ time -= 1.28;
+ FloatToStr(time, str);
+ Lcd_Out(1, 1, str);
+
+ IntToStr( 0xffff - TMR1L, str);
+ Lcd_Out(2, 1, str);
+ }
+
  INTCON.TMR0IF = 0;
  }
  else if(PIR1.TMR1IF)
  {
+ Lcd_Cmd(_LCD_CLEAR);
+ Lcd_Out(1, 1, "Time's up");
 
  PIR1.TMR1IF=0;
+ PIE1.TMR1IE=0;
+ T1CON.TMR1ON=0;
  }
  else if(INTCON.INT0IF)
  {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out(1, 1, "Prog");
+
+ progMode = 1;
 
  loadTimer2();
 
@@ -107,6 +129,15 @@ void interrupt(void)
  Lcd_Out(1, 1, "Disp");
 
  loadTimer2();
+
+ progMode = 0;
+
+
+ TMR1H =  ( 0xffff - (unsigned int)(time/10.14) )  >> 8;
+ TMR1L =  ( 0xffff - (unsigned int)(time/10.14) ) ;
+ PIR1.TMR1IF=0;
+ PIE1.TMR1IE=1;
+ T1CON.TMR1ON=1;
 
 
  INTCON3.INT2IE = 0;
@@ -150,6 +181,8 @@ void main()
  T0CON.TMR0ON=1;
 
 
+ TRISC.RC0 = 0;
+ PORTC.RC0 = 0;
  T1CON.RD16 = 8;
  T1CON.T1OSCEN = 0;
  T1CON.TMR1CS = 1;
@@ -157,12 +190,6 @@ void main()
 
  T1CON.T1CKPS1 = 1;
  T1CON.T1CKPS0 = 1;
-
- TMR1H =  ( 0xffff - 3200 )  >> 8;
- TMR1L =  ( 0xffff - 3200 ) ;
- PIR1.TMR1IF=0;
- PIE1.TMR1IE=1;
- T1CON.TMR1ON=1;
 
 
 
@@ -215,7 +242,6 @@ void keypadHandler()
  char i;
  KeyType type;
  int result;
- char keyPressed[2];
  char rowCode = 0;
  char realCode = 0;
  char columnCode = 0;
@@ -233,53 +259,6 @@ void keypadHandler()
 
  realCode = rowCode | (columnCode << 4);
  result = keyHandler(realCode, &type);
-
- if(type == NUM)
- {
- if(result == 0)
- keyPressed[0] = '0';
-
- if(result == 1)
- keyPressed[0] = '1';
-
- if(result == 2)
- keyPressed[0] = '2';
-
- if(result == 3)
- keyPressed[0] = '3';
-
- if(result == 4)
- keyPressed[0] = '4';
-
- if(result == 5)
- keyPressed[0] = '5';
-
- if(result == 6)
- keyPressed[0] = '6';
-
- if(result == 7)
- keyPressed[0] = '7';
-
- if(result == 8)
- keyPressed[0] = '8';
-
- if(result == 9)
- keyPressed[0] = '9';
- }
-
- if(type == SUM)
- keyPressed[0] = '+';
-
- if(type == SUB)
- keyPressed[0] = '-';
-
- if(type == MULT)
- keyPressed[0] = '*';
-
- if(type == DIVI)
- keyPressed[0] = '/';
-
- keyPressed[1] = '\0';
 
  nPressed += 1;
 

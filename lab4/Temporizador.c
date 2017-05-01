@@ -4,8 +4,8 @@
 // (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
 #define COUNTER2 ( 0xffff - 3200 )
 
-// (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
-#define COUNTER3 ( 0xffff - 3200 )
+// 0.78125 / 8 => 10.24s x ? = time
+#define COUNTER3 ( 0xffff - (unsigned int)(time/10.14) )
 
 // LCD module connections
 sbit LCD_EN at RE1_bit;
@@ -42,6 +42,7 @@ void keypadHandler();
 volatile float time = 0;
 volatile char str[14];
 volatile int nPressed = 0;
+volatile int progMode = 1;
 
 void loadTimer2();
 
@@ -49,7 +50,10 @@ void interrupt(void)
 {
     if(INTCON3.INT1IF)
     {
-        keypadHandler();
+        if(progMode)
+        {
+            keypadHandler();
+        }
 
         loadTimer2();
 
@@ -76,23 +80,41 @@ void interrupt(void)
         INTCON3.INT2IE = 1;
         INTCON3.INT2IF = 0;
     }
-    else if(INTCON.TMR0IF)
+    else if(INTCON.TMR0IF) //Display 7seg and timer increment
     {
 
         TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
         TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
 
+        PORTC.RC0 = ~PORTC.RC0; 
+
+        if(!progMode)
+        {
+            time -= 1.28;
+            FloatToStr(time, str);
+            Lcd_Out(1, 1, str);
+
+            IntToStr( 0xffff  - TMR1L, str);
+            Lcd_Out(2, 1, str);
+        }
+
         INTCON.TMR0IF = 0;
     }
-    else if(PIR1.TMR1IF)
+    else if(PIR1.TMR1IF) //Total timer
     {
+        Lcd_Cmd(_LCD_CLEAR);
+        Lcd_Out(1, 1, "Time's up");
 
         PIR1.TMR1IF=0;
+        PIE1.TMR1IE=0;
+        T1CON.TMR1ON=0;
     }
     else if(INTCON.INT0IF)
     {
         Lcd_Cmd(_LCD_CLEAR);
         Lcd_Out(1, 1, "Prog");
+
+        progMode = 1;
 
         loadTimer2();
 
@@ -106,6 +128,15 @@ void interrupt(void)
         Lcd_Out(1, 1, "Disp");
 
         loadTimer2();
+
+        progMode = 0;
+
+        // Start timer 1
+        TMR1H = COUNTER3 >> 8;  // RE-Load Timer 1 counter - 1st TMR1H
+        TMR1L = COUNTER3;       // RE-Load Timer 1 counter - 2nd TMR1L
+        PIR1.TMR1IF=0;
+        PIE1.TMR1IE=1;
+        T1CON.TMR1ON=1;
 
         // Stop interruption
         INTCON3.INT2IE = 0;
@@ -149,6 +180,8 @@ void main()
     T0CON.TMR0ON=1;
 
     // Timer 1
+    TRISC.RC0 = 0;
+    PORTC.RC0 = 0;
     T1CON.RD16 = 8;        // Read/Write in two 8 bits oper 
     T1CON.T1OSCEN = 0;     // Disable internal Oscilator 
     T1CON.TMR1CS = 1;      // External clock from RC0 
@@ -156,12 +189,6 @@ void main()
     // Prescaler = 11 => 1:8
     T1CON.T1CKPS1 = 1;
     T1CON.T1CKPS0 = 1;
-    // Start timer 1
-    TMR1H = COUNTER3 >> 8;  // RE-Load Timer 1 counter - 1st TMR1H
-    TMR1L = COUNTER3;       // RE-Load Timer 1 counter - 2nd TMR1L
-    PIR1.TMR1IF=0;
-    PIE1.TMR1IE=1;
-    T1CON.TMR1ON=1;
 
     // Timer 2 configuration
     // Prescaler = 11 => 1:16
@@ -214,7 +241,6 @@ void keypadHandler()
     char i;
     KeyType type;
     int result;
-    char keyPressed[2];
     char rowCode = 0;
     char realCode = 0;
         char columnCode = 0;
@@ -232,53 +258,6 @@ void keypadHandler()
 
     realCode = rowCode | (columnCode << 4);
     result = keyHandler(realCode, &type);
-
-    if(type == NUM)
-    {
-        if(result == 0)
-            keyPressed[0] = '0';
-
-        if(result == 1)
-            keyPressed[0] = '1';
-
-        if(result == 2)
-            keyPressed[0] = '2';
-
-        if(result == 3)
-            keyPressed[0] = '3';
-
-        if(result == 4)
-            keyPressed[0] = '4';
-
-        if(result == 5)
-            keyPressed[0] = '5';
-
-        if(result == 6)
-            keyPressed[0] = '6';
-
-        if(result == 7)
-            keyPressed[0] = '7';
-
-        if(result == 8)
-            keyPressed[0] = '8';
-
-        if(result == 9)
-            keyPressed[0] = '9';
-    }
-
-    if(type == SUM)
-        keyPressed[0] = '+';
-
-    if(type == SUB)
-        keyPressed[0] = '-';
-
-    if(type == MULT)
-        keyPressed[0] = '*';
-
-    if(type == DIVI)
-        keyPressed[0] = '/';
-
-    keyPressed[1] = '\0';
 
     nPressed += 1;
 
