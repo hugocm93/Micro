@@ -84,18 +84,18 @@ void interrupt(void)
  else if(INTCON.TMR0IF)
  {
 
- TMR0H =  ( 0xffff - 10000 )  >> 8;
- TMR0L =  ( 0xffff - 10000 ) ;
+ TMR0H =  ( 0xffff - 782 )  >> 8;
+ TMR0L =  ( 0xffff - 782 ) ;
 
  PORTC.RC0 = ~PORTC.RC0;
 
  if(!progMode)
  {
- time -= 1.28;
+ time -= 0.1;
  FloatToStr(time, str);
  Lcd_Out(1, 1, str);
 
- IntToStr( 0xffff - TMR1L, str);
+ IntToStr(TMR1L, str);
  Lcd_Out(2, 1, str);
  }
 
@@ -105,6 +105,8 @@ void interrupt(void)
  {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out(1, 1, "Time's up");
+
+ progMode = 1;
 
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=0;
@@ -133,8 +135,8 @@ void interrupt(void)
  progMode = 0;
 
 
- TMR1H =  ( 0xffff - (unsigned int)(time/10.14) )  >> 8;
- TMR1L =  ( 0xffff - (unsigned int)(time/10.14) ) ;
+ TMR1H =  ( 0xffff - (unsigned int)(time/1.6) )  >> 8;
+ TMR1L =  ( 0xffff - (unsigned int)(time/1.6) ) ;
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=1;
  T1CON.TMR1ON=1;
@@ -174,8 +176,8 @@ void main()
  T0CON.T0PS1 = 1;
  T0CON.T0PS0 = 1;
 
- TMR0H =  ( 0xffff - 10000 )  >> 8;
- TMR0L =  ( 0xffff - 10000 ) ;
+ TMR0H =  ( 0xffff - 782 )  >> 8;
+ TMR0L =  ( 0xffff - 782 ) ;
  INTCON.TMR0IF=0;
  INTCON.TMR0IE=1;
  T0CON.TMR0ON=1;
@@ -183,7 +185,7 @@ void main()
 
  TRISC.RC0 = 0;
  PORTC.RC0 = 0;
- T1CON.RD16 = 8;
+ T1CON.RD16 = 1;
  T1CON.T1OSCEN = 0;
  T1CON.TMR1CS = 1;
  T1CON.T1SYNC = 1;

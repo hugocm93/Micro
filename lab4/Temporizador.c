@@ -1,11 +1,11 @@
-// (8MHz / 4 ) / 256 => 128us x 10000 = 1.28s
-#define COUNTER1 ( 0xffff - 10000 )
+// (8MHz / 4 ) / 256 => 128us x 782 = 0.1s
+#define COUNTER1 ( 0xffff - 782 )
 
 // (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
 #define COUNTER2 ( 0xffff - 3200 )
 
-// 0.78125 / 8 => 10.24s x ? = time
-#define COUNTER3 ( 0xffff - (unsigned int)(time/10.14) )
+// (10 / 2) / 8 => 1.6s x ? = time
+#define COUNTER3 ( 0xffff - (unsigned int)(time/1.6) )
 
 // LCD module connections
 sbit LCD_EN at RE1_bit;
@@ -90,11 +90,11 @@ void interrupt(void)
 
         if(!progMode)
         {
-            time -= 1.28;
+            time -= 0.1;
             FloatToStr(time, str);
             Lcd_Out(1, 1, str);
 
-            IntToStr( 0xffff  - TMR1L, str);
+            IntToStr(TMR1L, str);
             Lcd_Out(2, 1, str);
         }
 
@@ -104,6 +104,8 @@ void interrupt(void)
     {
         Lcd_Cmd(_LCD_CLEAR);
         Lcd_Out(1, 1, "Time's up");
+
+        progMode = 1;
 
         PIR1.TMR1IF=0;
         PIE1.TMR1IE=0;
@@ -182,7 +184,7 @@ void main()
     // Timer 1
     TRISC.RC0 = 0;
     PORTC.RC0 = 0;
-    T1CON.RD16 = 8;        // Read/Write in two 8 bits oper 
+    T1CON.RD16 = 1;        // Read/Write in two 8 bits oper 
     T1CON.T1OSCEN = 0;     // Disable internal Oscilator 
     T1CON.TMR1CS = 1;      // External clock from RC0 
     T1CON.T1SYNC = 1;      // Do not synchronize ext clock
