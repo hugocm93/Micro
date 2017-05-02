@@ -1,4 +1,4 @@
-#line 1 "C:/Users/hugocm93/Desktop/Micro/lab4/Temporizador.c"
+#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab4/Temporizador.c"
 
 
 
@@ -62,7 +62,7 @@ void interrupt(void)
  INTCON3.INT1IE = 0;
  INTCON3.INT1IF = 0;
  }
- else if(PIR1.TMR2IF)
+ if(PIR1.TMR2IF)
  {
 
  PIR1.TMR2IF=0;
@@ -81,7 +81,7 @@ void interrupt(void)
  INTCON3.INT2IE = 1;
  INTCON3.INT2IF = 0;
  }
- else if(INTCON.TMR0IF)
+ if(INTCON.TMR0IF)
  {
 
  TMR0H =  ( 0xffff - 782 )  >> 8;
@@ -95,13 +95,13 @@ void interrupt(void)
  FloatToStr(time, str);
  Lcd_Out(1, 1, str);
 
- IntToStr(TMR1L, str);
+ LongToStr((TMR1H << 8) + TMR1L, str);
  Lcd_Out(2, 1, str);
  }
 
  INTCON.TMR0IF = 0;
  }
- else if(PIR1.TMR1IF)
+ if(PIR1.TMR1IF)
  {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out(1, 1, "Time's up");
@@ -112,7 +112,7 @@ void interrupt(void)
  PIE1.TMR1IE=0;
  T1CON.TMR1ON=0;
  }
- else if(INTCON.INT0IF)
+ if(INTCON.INT0IF)
  {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out(1, 1, "Prog");
@@ -125,7 +125,7 @@ void interrupt(void)
  INTCON.INT0IE = 0;
  INTCON.INT0IF = 0;
  }
- else if(INTCON3.INT2IF)
+ if(INTCON3.INT2IF)
  {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out(1, 1, "Disp");

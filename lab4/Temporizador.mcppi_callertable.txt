@@ -10,7 +10,7 @@ interrupt
 			RES032
 			SETFOV32
 			SETFUN32
-		int2double
+		Int2Double
 			NRM3232
 				RES032
 				SETFUN32
@@ -38,7 +38,7 @@ interrupt
 				RES032
 				SETFOV32
 				SETFUN32
-			Div_8X8_U
+			Div_8x8_U
 		Lcd_Out
 			Lcd_Cmd
 				Delay_1us
@@ -65,7 +65,7 @@ interrupt
 			RES032
 			SETFOV32
 			SETFUN32
-		Div_8X8_U
+		Div_8x8_U
 	Lcd_Out
 		Lcd_Cmd
 			Delay_1us
@@ -76,9 +76,9 @@ interrupt
 				Delay_1us
 				Delay_5500us
 				Delay_50us
-	IntToStr
-		WordToStr
-			Div_16X16_U
+	LongToStr
+		LongWordToStr
+			Div_32x32_U
 	Lcd_Cmd
 		Delay_1us
 		Delay_5500us
@@ -88,5 +88,5 @@ interrupt
 		RES032
 		SETFOV32
 		SETFUN32
-	double2word
+	Double2Word
 		SETIOV3224

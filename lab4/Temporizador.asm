@@ -21,11 +21,10 @@ L_interrupt1:
 ;Temporizador.c,62 :: 		INTCON3.INT1IF = 0;
 	BCF         INTCON3+0, 0 
 ;Temporizador.c,63 :: 		}
-	GOTO        L_interrupt2
 L_interrupt0:
-;Temporizador.c,64 :: 		else if(PIR1.TMR2IF) // Related to bouncing
+;Temporizador.c,64 :: 		if(PIR1.TMR2IF) // Related to bouncing
 	BTFSS       PIR1+0, 1 
-	GOTO        L_interrupt3
+	GOTO        L_interrupt2
 ;Temporizador.c,67 :: 		PIR1.TMR2IF=0;
 	BCF         PIR1+0, 1 
 ;Temporizador.c,68 :: 		PIE1.TMR2IE=0;
@@ -45,11 +44,10 @@ L_interrupt0:
 ;Temporizador.c,81 :: 		INTCON3.INT2IF = 0;
 	BCF         INTCON3+0, 1 
 ;Temporizador.c,82 :: 		}
-	GOTO        L_interrupt4
-L_interrupt3:
-;Temporizador.c,83 :: 		else if(INTCON.TMR0IF) //Display 7seg and timer increment
+L_interrupt2:
+;Temporizador.c,83 :: 		if(INTCON.TMR0IF) //Display 7seg and timer increment
 	BTFSS       INTCON+0, 2 
-	GOTO        L_interrupt5
+	GOTO        L_interrupt3
 ;Temporizador.c,86 :: 		TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
 	MOVLW       252
 	MOVWF       TMR0H+0 
@@ -62,7 +60,7 @@ L_interrupt3:
 	MOVF        _progMode+0, 0 
 	IORWF       _progMode+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L_interrupt6
+	GOTO        L_interrupt4
 ;Temporizador.c,93 :: 		time -= 0.1;
 	MOVLW       205
 	MOVWF       R4 
@@ -113,16 +111,27 @@ L_interrupt3:
 	MOVLW       hi_addr(_str+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;Temporizador.c,97 :: 		IntToStr(TMR1L, str);
-	MOVF        TMR1L+0, 0 
-	MOVWF       FARG_IntToStr_input+0 
+;Temporizador.c,97 :: 		LongToStr((TMR1H << 8) + TMR1L, str);
+	MOVF        TMR1H+0, 0 
+	MOVWF       FARG_LongToStr_input+1 
+	CLRF        FARG_LongToStr_input+0 
+	CLRF        FARG_LongToStr_input+2 
+	CLRF        FARG_LongToStr_input+3 
 	MOVLW       0
-	MOVWF       FARG_IntToStr_input+1 
+	MOVWF       FARG_LongToStr_input+2 
+	MOVWF       FARG_LongToStr_input+3 
+	MOVF        TMR1L+0, 0 
+	ADDWF       FARG_LongToStr_input+0, 1 
+	MOVLW       0
+	ADDWFC      FARG_LongToStr_input+1, 1 
+	MOVLW       0
+	MOVWF       FARG_LongToStr_input+2 
+	MOVWF       FARG_LongToStr_input+3 
 	MOVLW       _str+0
-	MOVWF       FARG_IntToStr_output+0 
+	MOVWF       FARG_LongToStr_output+0 
 	MOVLW       hi_addr(_str+0)
-	MOVWF       FARG_IntToStr_output+1 
-	CALL        _IntToStr+0, 0
+	MOVWF       FARG_LongToStr_output+1 
+	CALL        _LongToStr+0, 0
 ;Temporizador.c,98 :: 		Lcd_Out(2, 1, str);
 	MOVLW       2
 	MOVWF       FARG_Lcd_Out_row+0 
@@ -134,15 +143,14 @@ L_interrupt3:
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
 ;Temporizador.c,99 :: 		}
-L_interrupt6:
+L_interrupt4:
 ;Temporizador.c,101 :: 		INTCON.TMR0IF = 0;
 	BCF         INTCON+0, 2 
 ;Temporizador.c,102 :: 		}
-	GOTO        L_interrupt7
-L_interrupt5:
-;Temporizador.c,103 :: 		else if(PIR1.TMR1IF) //Total timer
+L_interrupt3:
+;Temporizador.c,103 :: 		if(PIR1.TMR1IF) //Total timer
 	BTFSS       PIR1+0, 0 
-	GOTO        L_interrupt8
+	GOTO        L_interrupt5
 ;Temporizador.c,105 :: 		Lcd_Cmd(_LCD_CLEAR);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
@@ -169,11 +177,10 @@ L_interrupt5:
 ;Temporizador.c,112 :: 		T1CON.TMR1ON=0;
 	BCF         T1CON+0, 0 
 ;Temporizador.c,113 :: 		}
-	GOTO        L_interrupt9
-L_interrupt8:
-;Temporizador.c,114 :: 		else if(INTCON.INT0IF)
+L_interrupt5:
+;Temporizador.c,114 :: 		if(INTCON.INT0IF)
 	BTFSS       INTCON+0, 1 
-	GOTO        L_interrupt10
+	GOTO        L_interrupt6
 ;Temporizador.c,116 :: 		Lcd_Cmd(_LCD_CLEAR);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
@@ -200,11 +207,10 @@ L_interrupt8:
 ;Temporizador.c,125 :: 		INTCON.INT0IF = 0;
 	BCF         INTCON+0, 1 
 ;Temporizador.c,126 :: 		}
-	GOTO        L_interrupt11
-L_interrupt10:
-;Temporizador.c,127 :: 		else if(INTCON3.INT2IF)
+L_interrupt6:
+;Temporizador.c,127 :: 		if(INTCON3.INT2IF)
 	BTFSS       INTCON3+0, 1 
-	GOTO        L_interrupt12
+	GOTO        L_interrupt7
 ;Temporizador.c,129 :: 		Lcd_Cmd(_LCD_CLEAR);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
@@ -242,7 +248,7 @@ L_interrupt10:
 	MOVF        _time+3, 0 
 	MOVWF       R3 
 	CALL        _Div_32x32_FP+0, 0
-	CALL        _double2word+0, 0
+	CALL        _Double2Word+0, 0
 	MOVF        R0, 0 
 	SUBLW       255
 	MOVWF       R3 
@@ -273,7 +279,7 @@ L_interrupt10:
 	MOVF        _time+3, 0 
 	MOVWF       R3 
 	CALL        _Div_32x32_FP+0, 0
-	CALL        _double2word+0, 0
+	CALL        _Double2Word+0, 0
 	MOVF        R0, 0 
 	SUBLW       255
 	MOVWF       TMR1L+0 
@@ -288,15 +294,10 @@ L_interrupt10:
 ;Temporizador.c,145 :: 		INTCON3.INT2IF = 0;
 	BCF         INTCON3+0, 1 
 ;Temporizador.c,146 :: 		}
-L_interrupt12:
-L_interrupt11:
-L_interrupt9:
 L_interrupt7:
-L_interrupt4:
-L_interrupt2:
 ;Temporizador.c,148 :: 		}
 L_end_interrupt:
-L__interrupt37:
+L__interrupt32:
 	RETFIE      1
 ; end of _interrupt
 
@@ -433,24 +434,24 @@ _keypadHandler:
 	CLRF        keypadHandler_i_L0+0 
 	MOVLW       15
 	MOVWF       keypadHandler_columnCode_L0+0 
-L_keypadHandler13:
+L_keypadHandler8:
 	MOVF        keypadHandler_columnCode_L0+0, 0 
 	XORLW       15
 	BTFSS       STATUS+0, 2 
-	GOTO        L_keypadHandler14
+	GOTO        L_keypadHandler9
 ;Temporizador.c,253 :: 		PORTB = ~(1 << i) << 4;
 	MOVF        keypadHandler_i_L0+0, 0 
 	MOVWF       R1 
 	MOVLW       1
 	MOVWF       R0 
 	MOVF        R1, 0 
-L__keypadHandler41:
-	BZ          L__keypadHandler42
+L__keypadHandler36:
+	BZ          L__keypadHandler37
 	RLCF        R0, 1 
 	BCF         R0, 0 
 	ADDLW       255
-	GOTO        L__keypadHandler41
-L__keypadHandler42:
+	GOTO        L__keypadHandler36
+L__keypadHandler37:
 	COMF        R0, 0 
 	MOVWF       R2 
 	MOVF        R2, 0 
@@ -505,21 +506,21 @@ L__keypadHandler42:
 	MOVLW       0
 	MOVWF       R1 
 	MOVF        R2, 0 
-L__keypadHandler43:
-	BZ          L__keypadHandler44
+L__keypadHandler38:
+	BZ          L__keypadHandler39
 	RLCF        R0, 1 
 	BCF         R0, 0 
 	RLCF        R1, 1 
 	ADDLW       255
-	GOTO        L__keypadHandler43
-L__keypadHandler44:
+	GOTO        L__keypadHandler38
+L__keypadHandler39:
 	MOVF        R0, 0 
 	IORWF       keypadHandler_columnCode_L0+0, 1 
 ;Temporizador.c,250 :: 		for(i = 0, columnCode = 0xf; columnCode == 0xf; i++)
 	INCF        keypadHandler_i_L0+0, 1 
 ;Temporizador.c,257 :: 		}
-	GOTO        L_keypadHandler13
-L_keypadHandler14:
+	GOTO        L_keypadHandler8
+L_keypadHandler9:
 ;Temporizador.c,258 :: 		rowCode = PORTB >> 4;
 	MOVLW       4
 	MOVWF       R0 
@@ -528,13 +529,13 @@ L_keypadHandler14:
 	MOVLW       0
 	MOVWF       FARG_keyHandler_key+1 
 	MOVF        R0, 0 
-L__keypadHandler45:
-	BZ          L__keypadHandler46
+L__keypadHandler40:
+	BZ          L__keypadHandler41
 	RRCF        FARG_keyHandler_key+0, 1 
 	BCF         FARG_keyHandler_key+0, 7 
 	ADDLW       255
-	GOTO        L__keypadHandler45
-L__keypadHandler46:
+	GOTO        L__keypadHandler40
+L__keypadHandler41:
 ;Temporizador.c,259 :: 		PORTB = 0;
 	CLRF        PORTB+0 
 ;Temporizador.c,261 :: 		realCode = rowCode | (columnCode << 4);
@@ -573,12 +574,12 @@ L__keypadHandler46:
 	MOVLW       128
 	SUBWF       R0, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__keypadHandler47
+	GOTO        L__keypadHandler42
 	MOVLW       3
 	SUBWF       _nPressed+0, 0 
-L__keypadHandler47:
+L__keypadHandler42:
 	BTFSC       STATUS+0, 0 
-	GOTO        L_keypadHandler16
+	GOTO        L_keypadHandler11
 ;Temporizador.c,268 :: 		time *= 10;
 	MOVF        _time+0, 0 
 	MOVWF       R0 
@@ -610,7 +611,7 @@ L__keypadHandler47:
 	MOVWF       R0 
 	MOVF        keypadHandler_result_L0+1, 0 
 	MOVWF       R1 
-	CALL        _int2double+0, 0
+	CALL        _Int2Double+0, 0
 	MOVF        _time+0, 0 
 	MOVWF       R4 
 	MOVF        _time+1, 0 
@@ -629,14 +630,14 @@ L__keypadHandler47:
 	MOVF        R3, 0 
 	MOVWF       _time+3 
 ;Temporizador.c,270 :: 		}
-	GOTO        L_keypadHandler17
-L_keypadHandler16:
+	GOTO        L_keypadHandler12
+L_keypadHandler11:
 ;Temporizador.c,273 :: 		time += result/10.0;
 	MOVF        keypadHandler_result_L0+0, 0 
 	MOVWF       R0 
 	MOVF        keypadHandler_result_L0+1, 0 
 	MOVWF       R1 
-	CALL        _int2double+0, 0
+	CALL        _Int2Double+0, 0
 	MOVLW       0
 	MOVWF       R4 
 	MOVLW       0
@@ -664,7 +665,7 @@ L_keypadHandler16:
 	MOVF        R3, 0 
 	MOVWF       _time+3 
 ;Temporizador.c,274 :: 		}
-L_keypadHandler17:
+L_keypadHandler12:
 ;Temporizador.c,276 :: 		Lcd_Cmd(_LCD_CLEAR);
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
@@ -707,18 +708,18 @@ _keyHandler:
 	MOVLW       255
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,285 :: 		switch(key)
-	GOTO        L_keyHandler18
+	GOTO        L_keyHandler13
 ;Temporizador.c,287 :: 		case 231:
-L_keyHandler20:
+L_keyHandler15:
 ;Temporizador.c,288 :: 		*type = ON_CLEAR;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       5
 	MOVWF       POSTINC1+0 
 ;Temporizador.c,289 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,291 :: 		case 215:
-L_keyHandler21:
+L_keyHandler16:
 ;Temporizador.c,292 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -728,26 +729,26 @@ L_keyHandler21:
 	CLRF        keyHandler_result_L0+0 
 	CLRF        keyHandler_result_L0+1 
 ;Temporizador.c,294 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,296 :: 		case 183:
-L_keyHandler22:
+L_keyHandler17:
 ;Temporizador.c,297 :: 		*type = EQUALS;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	CLRF        POSTINC1+0 
 ;Temporizador.c,298 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,300 :: 		case 119:
-L_keyHandler23:
+L_keyHandler18:
 ;Temporizador.c,301 :: 		*type = SUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       1
 	MOVWF       POSTINC1+0 
 ;Temporizador.c,302 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,304 :: 		case 235:
-L_keyHandler24:
+L_keyHandler19:
 ;Temporizador.c,305 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -759,9 +760,9 @@ L_keyHandler24:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,307 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,309 :: 		case 219:
-L_keyHandler25:
+L_keyHandler20:
 ;Temporizador.c,310 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -773,9 +774,9 @@ L_keyHandler25:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,312 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,314 :: 		case 187:
-L_keyHandler26:
+L_keyHandler21:
 ;Temporizador.c,315 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -787,18 +788,18 @@ L_keyHandler26:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,317 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,319 :: 		case 123:
-L_keyHandler27:
+L_keyHandler22:
 ;Temporizador.c,320 :: 		*type = SUB;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       2
 	MOVWF       POSTINC1+0 
 ;Temporizador.c,321 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,323 :: 		case 237:
-L_keyHandler28:
+L_keyHandler23:
 ;Temporizador.c,324 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -810,9 +811,9 @@ L_keyHandler28:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,326 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,328 :: 		case 221:
-L_keyHandler29:
+L_keyHandler24:
 ;Temporizador.c,329 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -824,9 +825,9 @@ L_keyHandler29:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,331 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,333 :: 		case 189:
-L_keyHandler30:
+L_keyHandler25:
 ;Temporizador.c,334 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -838,18 +839,18 @@ L_keyHandler30:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,336 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,338 :: 		case 125:
-L_keyHandler31:
+L_keyHandler26:
 ;Temporizador.c,339 :: 		*type = MULT;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       3
 	MOVWF       POSTINC1+0 
 ;Temporizador.c,340 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,342 :: 		case 238:
-L_keyHandler32:
+L_keyHandler27:
 ;Temporizador.c,343 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -861,9 +862,9 @@ L_keyHandler32:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,345 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,347 :: 		case 222:
-L_keyHandler33:
+L_keyHandler28:
 ;Temporizador.c,348 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -875,9 +876,9 @@ L_keyHandler33:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,350 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,352 :: 		case 190:
-L_keyHandler34:
+L_keyHandler29:
 ;Temporizador.c,353 :: 		*type = NUM;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
@@ -889,23 +890,68 @@ L_keyHandler34:
 	MOVLW       0
 	MOVWF       keyHandler_result_L0+1 
 ;Temporizador.c,355 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,357 :: 		case 126:
-L_keyHandler35:
+L_keyHandler30:
 ;Temporizador.c,358 :: 		*type = DIVI;
 	MOVFF       FARG_keyHandler_type+0, FSR1
 	MOVFF       FARG_keyHandler_type+1, FSR1H
 	MOVLW       4
 	MOVWF       POSTINC1+0 
 ;Temporizador.c,359 :: 		break;
-	GOTO        L_keyHandler19
+	GOTO        L_keyHandler14
 ;Temporizador.c,360 :: 		}
-L_keyHandler18:
+L_keyHandler13:
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler44
+	MOVLW       231
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler44:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler15
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler45
+	MOVLW       215
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler45:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler16
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler46
+	MOVLW       183
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler46:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler17
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler47
+	MOVLW       119
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler47:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler18
+	MOVLW       0
+	XORWF       FARG_keyHandler_key+1, 0 
+	BTFSS       STATUS+0, 2 
+	GOTO        L__keyHandler48
+	MOVLW       235
+	XORWF       FARG_keyHandler_key+0, 0 
+L__keyHandler48:
+	BTFSC       STATUS+0, 2 
+	GOTO        L_keyHandler19
 	MOVLW       0
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler49
-	MOVLW       231
+	MOVLW       219
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler49:
 	BTFSC       STATUS+0, 2 
@@ -914,7 +960,7 @@ L__keyHandler49:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler50
-	MOVLW       215
+	MOVLW       187
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler50:
 	BTFSC       STATUS+0, 2 
@@ -923,7 +969,7 @@ L__keyHandler50:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler51
-	MOVLW       183
+	MOVLW       123
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler51:
 	BTFSC       STATUS+0, 2 
@@ -932,7 +978,7 @@ L__keyHandler51:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler52
-	MOVLW       119
+	MOVLW       237
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler52:
 	BTFSC       STATUS+0, 2 
@@ -941,7 +987,7 @@ L__keyHandler52:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler53
-	MOVLW       235
+	MOVLW       221
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler53:
 	BTFSC       STATUS+0, 2 
@@ -950,7 +996,7 @@ L__keyHandler53:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler54
-	MOVLW       219
+	MOVLW       189
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler54:
 	BTFSC       STATUS+0, 2 
@@ -959,7 +1005,7 @@ L__keyHandler54:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler55
-	MOVLW       187
+	MOVLW       125
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler55:
 	BTFSC       STATUS+0, 2 
@@ -968,7 +1014,7 @@ L__keyHandler55:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler56
-	MOVLW       123
+	MOVLW       238
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler56:
 	BTFSC       STATUS+0, 2 
@@ -977,7 +1023,7 @@ L__keyHandler56:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler57
-	MOVLW       237
+	MOVLW       222
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler57:
 	BTFSC       STATUS+0, 2 
@@ -986,7 +1032,7 @@ L__keyHandler57:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler58
-	MOVLW       221
+	MOVLW       190
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler58:
 	BTFSC       STATUS+0, 2 
@@ -995,57 +1041,12 @@ L__keyHandler58:
 	XORWF       FARG_keyHandler_key+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__keyHandler59
-	MOVLW       189
+	MOVLW       126
 	XORWF       FARG_keyHandler_key+0, 0 
 L__keyHandler59:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_keyHandler30
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler60
-	MOVLW       125
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler60:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler31
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler61
-	MOVLW       238
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler61:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler32
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler62
-	MOVLW       222
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler62:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler33
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler63
-	MOVLW       190
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler63:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler34
-	MOVLW       0
-	XORWF       FARG_keyHandler_key+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__keyHandler64
-	MOVLW       126
-	XORWF       FARG_keyHandler_key+0, 0 
-L__keyHandler64:
-	BTFSC       STATUS+0, 2 
-	GOTO        L_keyHandler35
-L_keyHandler19:
+L_keyHandler14:
 ;Temporizador.c,362 :: 		return result;
 	MOVF        keyHandler_result_L0+0, 0 
 	MOVWF       R0 
