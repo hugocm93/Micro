@@ -1971,6 +1971,7 @@ time
 time_datetoepoch
 time_epochtodate
 time_jd1970
+timecounter
 tmr0h
 tmr0ie
 tmr0ie_bit

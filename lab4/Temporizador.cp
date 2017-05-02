@@ -41,6 +41,7 @@ void keypadHandler();
 
 
 volatile float time = 0;
+volatile float timeCounter = 0;
 volatile char str[14];
 volatile int nPressed = 0;
 volatile int progMode = 1;
@@ -84,19 +85,20 @@ void interrupt(void)
  if(INTCON.TMR0IF)
  {
 
- TMR0H =  ( 0xffff - 782 )  >> 8;
- TMR0L =  ( 0xffff - 782 ) ;
+ TMR0H =  ( 0xffff - 1000 )  >> 8;
+ TMR0L =  ( 0xffff - 1000 ) ;
 
  PORTC.RC0 = ~PORTC.RC0;
 
- if(!progMode)
+ timeCounter = timeCounter < 0.1 ? timeCounter + 0.001 : 0;
+ if(!progMode && (timeCounter == 0))
  {
  time -= 0.1;
- FloatToStr(time, str);
+ FloatToStr(time - timeCounter, str);
  Lcd_Out(1, 1, str);
 
- LongToStr((TMR1H << 8) + TMR1L, str);
- Lcd_Out(2, 1, str);
+
+
  }
 
  INTCON.TMR0IF = 0;
@@ -135,8 +137,8 @@ void interrupt(void)
  progMode = 0;
 
 
- TMR1H =  ( 0xffff - (unsigned int)(time/1.6) )  >> 8;
- TMR1L =  ( 0xffff - (unsigned int)(time/1.6) ) ;
+ TMR1H =  ( 0xffff - (unsigned int)(time/0.032) )  >> 8;
+ TMR1L =  ( 0xffff - (unsigned int)(time/0.032) ) ;
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=1;
  T1CON.TMR1ON=1;
@@ -172,12 +174,12 @@ void main()
  T0CON.T0CS = 0;
  T0CON.PSA = 0;
 
- T0CON.T0PS2 = 1;
- T0CON.T0PS1 = 1;
- T0CON.T0PS0 = 1;
+ T0CON.T0PS2 = 0;
+ T0CON.T0PS1 = 0;
+ T0CON.T0PS0 = 0;
 
- TMR0H =  ( 0xffff - 782 )  >> 8;
- TMR0L =  ( 0xffff - 782 ) ;
+ TMR0H =  ( 0xffff - 1000 )  >> 8;
+ TMR0L =  ( 0xffff - 1000 ) ;
  INTCON.TMR0IF=0;
  INTCON.TMR0IE=1;
  T0CON.TMR0ON=1;
@@ -271,7 +273,7 @@ void keypadHandler()
  }
  else
  {
- time += result/10.0;
+ time += result * 0.1;
  }
 
  Lcd_Cmd(_LCD_CLEAR);

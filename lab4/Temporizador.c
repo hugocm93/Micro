@@ -1,11 +1,11 @@
-// (8MHz / 4 ) / 256 => 128us x 782 = 0.1s
-#define COUNTER1 ( 0xffff - 782 )
+// (8MHz / 4 ) / 2 => 1us x 1000 = 0.001s
+#define COUNTER1 ( 0xffff - 1000 )
 
 // (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
 #define COUNTER2 ( 0xffff - 3200 )
 
-// (10 / 2) / 8 => 1.6s x ? = time
-#define COUNTER3 ( 0xffff - (unsigned int)(time/1.6) )
+// (1000 / 2) / 8 => 0.016s x ? = time
+#define COUNTER3 ( 0xffff - (unsigned int)(time/0.032) )
 
 // LCD module connections
 sbit LCD_EN at RE1_bit;
@@ -40,6 +40,7 @@ void keypadHandler();
 
 //Timer vars
 volatile float time = 0;
+volatile float timeCounter = 0;
 volatile char str[14];
 volatile int nPressed = 0;
 volatile int progMode = 1;
@@ -88,14 +89,15 @@ void interrupt(void)
 
         PORTC.RC0 = ~PORTC.RC0; 
 
-        if(!progMode)
+        timeCounter = timeCounter < 0.1 ? timeCounter + 0.001 : 0;
+        if(!progMode && (timeCounter == 0))
         {
             time -= 0.1;
-            FloatToStr(time, str);
+            FloatToStr(time - timeCounter, str);
             Lcd_Out(1, 1, str);
 
-            LongToStr((TMR1H << 8) + TMR1L, str);
-            Lcd_Out(2, 1, str);
+//            LongToStr((TMR1H << 8) + TMR1L, str);
+//            Lcd_Out(2, 1, str);
         }
 
         INTCON.TMR0IF = 0;
@@ -170,10 +172,10 @@ void main()
     T0CON.T08BIT = 0;       // 16 bits
     T0CON.T0CS = 0;         // Internal clock => Crystal/4
     T0CON.PSA = 0;          // Prescaler ON
-    // Prescaler = 111 => 1:256
-    T0CON.T0PS2 = 1;
-    T0CON.T0PS1 = 1;
-    T0CON.T0PS0 = 1;
+    // Prescaler = 000 => 1:2
+    T0CON.T0PS2 = 0;
+    T0CON.T0PS1 = 0;
+    T0CON.T0PS0 = 0;
     // Start timer 0
     TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
     TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
@@ -270,7 +272,7 @@ void keypadHandler()
     }
     else
     {
-        time += result/10.0;
+        time += result * 0.1;
     }
 
     Lcd_Cmd(_LCD_CLEAR);
