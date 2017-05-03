@@ -75,7 +75,7 @@ void interrupt(void)
         INTCON3.INT1IE = 0;
         INTCON3.INT1IF = 0;
     }
-    else if(PIR1.TMR2IF) // Related to bouncing
+    if(PIR1.TMR2IF) // Related to bouncing
     {
         // End timer 2
         PIR1.TMR2IF=0;
@@ -86,7 +86,7 @@ void interrupt(void)
         INTCON3.INT1IE = 1;
         INTCON3.INT1IF = 0;
     }
-    else if(INTCON.TMR0IF)
+    if(INTCON.TMR0IF)
     {
         alarm();
 
