@@ -17,8 +17,8 @@ volatile int progMode = 1;
 
 
 unsigned int display();
-volatile int nDigit = 3;
-volatile int pot = 1000;
+volatile int nDigit = 0;
+volatile int pot = 100;
 
 void loadTimer2();
 
@@ -72,30 +72,27 @@ void interrupt(void)
  }
  if(PIR2.TMR3IF)
  {
- TMR3H =  ( 0xffff - 60000 )  >> 8;
- TMR3L =  ( 0xffff - 60000 ) ;
+ TMR3H =  ( 0xffff - 1000 )  >> 8;
+ TMR3L =  ( 0xffff - 1000 ) ;
 
- nDigit = nDigit == -2 ? 3 : nDigit;
+ nDigit = nDigit == 3 ? 0 : nDigit;
 
- pot = pot == 1000 ? 1 : pot*10;
+ pot = pot == 100 ? 1 : pot*10;
 
+ PORTA.RA0 = 0;
  PORTA.RA1 = 0;
- PORTA.RA2 = 0;
  PORTC.RC2 = 0;
- PORTC.RC3 = 0;
 
  PORTD = display();
 
  if(nDigit==0)
- PORTA.RA1 = 1;
+ PORTA.RA0 = 1;
  if(nDigit==1)
- PORTA.RA2 = 1;
+ PORTA.RA1 = 1;
  if(nDigit==2)
  PORTC.RC2 = 1;
- if(nDigit==3)
- PORTC.RC3 = 1;
 
- nDigit--;
+ nDigit++;
 
  PIR2.TMR3IF = 0;
  }
@@ -141,8 +138,8 @@ void interrupt(void)
  T1CON.TMR1ON=1;
 
 
- TMR3H =  ( 0xffff - 60000 )  >> 8;
- TMR3L =  ( 0xffff - 60000 ) ;
+ TMR3H =  ( 0xffff - 1000 )  >> 8;
+ TMR3L =  ( 0xffff - 1000 ) ;
  PIR2.TMR3IF = 0;
  PIE2.TMR3IE = 1;
  T3CON.TMR3ON = 1;
@@ -266,15 +263,13 @@ void main()
  PORTD.RD6 = 0;
  PORTD.RD7 = 0;
 
+ TRISA.RA0 = 0;
  TRISA.RA1 = 0;
- TRISA.RA2 = 0;
  TRISC.RC2 = 0;
- TRISC.RC3 = 0;
 
+ PORTA.RA0 = 0;
  PORTA.RA1 = 0;
- PORTA.RA2 = 0;
  PORTC.RC2 = 0;
- PORTC.RC3 = 0;
 }
 
 
@@ -401,7 +396,7 @@ int keyHandler (int key, KeyType* type)
 
 unsigned int display ()
 {
- int number = ((int)time/pot) % 10;
+ int number = ((int)(time - timeCounter)/pot) % 10;
  switch(number)
  {
  case 0: return 0x3F;

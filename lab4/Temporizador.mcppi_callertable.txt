@@ -29,6 +29,14 @@ interrupt
 		SETFOV32
 	Mul_16x16_U
 	display
+		Sub_32x32_FP
+			Add_32x32_FP
+				NRM4032
+					SETFUN32
+					FIXSIGN32
+					SETFOV32
+					RES032
+				SETFOV32
 		Double2Int
 			SETIOV3224
 		Div_16x16_S

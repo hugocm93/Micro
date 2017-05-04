@@ -7,8 +7,8 @@
 // (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
 #define COUNTER2 ( 0xffff - 3200 )
 
-// (8MHz / 4 ) / 2 => 1us x 60000 = 0.060s
-#define COUNTER3 ( 0xffff - 60000 )
+// (8MHz / 4 ) / 2 => 1us x 1000 = 0.001s
+#define COUNTER3 ( 0xffff - 1000 )
 
 typedef enum keyType{
         EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
@@ -27,8 +27,8 @@ volatile int progMode = 1;
 
 // 7 segment display functions
 unsigned int display();
-volatile int nDigit = 3;
-volatile int pot = 1000;
+volatile int nDigit = 0;
+volatile int pot = 100;
 
 void loadTimer2();
 
@@ -85,27 +85,24 @@ void interrupt(void)
         TMR3H = COUNTER3 >> 8;  // RE-Load Timer 1 counter - 1st TMR1H
         TMR3L = COUNTER3;       // RE-Load Timer 1 counter - 2nd TMR1L
 
-        nDigit = nDigit == -2 ? 3 : nDigit;
+        nDigit = nDigit == 3 ? 0 : nDigit;
 
-        pot = pot == 1000 ? 1 : pot*10;
+        pot = pot == 100 ? 1 : pot*10;
 
+        PORTA.RA0 = 0;
         PORTA.RA1 = 0;
-        PORTA.RA2 = 0;
         PORTC.RC2 = 0;
-        PORTC.RC3 = 0;
 
         PORTD = display();
 
         if(nDigit==0)
-            PORTA.RA1 = 1;
+            PORTA.RA0 = 1;
         if(nDigit==1)
-            PORTA.RA2 = 1;
+            PORTA.RA1 = 1;
         if(nDigit==2)
             PORTC.RC2 = 1;
-        if(nDigit==3)
-            PORTC.RC3 = 1;
 
-        nDigit--;
+        nDigit++;
 
         PIR2.TMR3IF = 0;
     }
@@ -276,15 +273,13 @@ void main()
     PORTD.RD6 = 0;
     PORTD.RD7 = 0;
     //7 seg controle
-    TRISA.RA1 = 0; // digital output
-    TRISA.RA2 = 0;
+    TRISA.RA0 = 0; // digital output
+    TRISA.RA1 = 0;
     TRISC.RC2 = 0;
-    TRISC.RC3 = 0;
 
+    PORTA.RA0 = 0;
     PORTA.RA1 = 0;
-    PORTA.RA2 = 0;
     PORTC.RC2 = 0;
-    PORTC.RC3 = 0;
 }
 
 
@@ -411,7 +406,7 @@ int keyHandler (int key, KeyType* type)
 
 unsigned int display ()
 {
-    int number = ((int)time/pot) % 10;
+    int number = ((int)(time - timeCounter)/pot) % 10;
     switch(number)
     {
           case 0: return 0x3F;
