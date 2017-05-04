@@ -1,14 +1,5 @@
 #line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab4/Temporizador.c"
-
-
-
-
-
-
-
-
-
-
+#line 14 "C:/Users/mplab.LCA-06/Downloads/Micro/lab4/Temporizador.c"
 sbit LCD_EN at RE1_bit;
 sbit LCD_RS at RE2_bit;
 sbit LCD_D0 at RD0_bit;
@@ -84,13 +75,23 @@ void interrupt(void)
  }
  if(INTCON.TMR0IF)
  {
-
- TMR0H =  ( 0xffff - 1000 )  >> 8;
- TMR0L =  ( 0xffff - 1000 ) ;
+ TMR0H =  ( 0xffff - 1250 )  >> 8;
+ TMR0L =  ( 0xffff - 1250 ) ;
 
  PORTC.RC0 = ~PORTC.RC0;
-#line 102 "C:/Users/mplab.LCA-06/Downloads/Micro/lab4/Temporizador.c"
+ timeCounter += 0.01;
+
  INTCON.TMR0IF = 0;
+ }
+ if(PIR2.TMR3IF)
+ {
+ TMR3H =  ( 0xffff - 60000 )  >> 8;
+ TMR3L =  ( 0xffff - 60000 ) ;
+
+ FloatToStr((time - timeCounter), str);
+ Lcd_Out(1, 1, str);
+
+ PIR2.TMR3IF = 0;
  }
  if(PIR1.TMR1IF)
  {
@@ -98,6 +99,10 @@ void interrupt(void)
  Lcd_Out(1, 1, "Time's up");
 
  progMode = 1;
+
+ PIR2.TMR3IF = 0;
+ PIE2.TMR3IE = 0;
+ T3CON.TMR3ON = 0;
 
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=0;
@@ -126,11 +131,18 @@ void interrupt(void)
  progMode = 0;
 
 
- TMR1H =  ( 0xffff - (unsigned int)(time/0.016) )  >> 8;
- TMR1L =  ( 0xffff - (unsigned int)(time/0.016) ) ;
+ TMR1H =  ( 0xffff - (unsigned int)(time/0.16) )  >> 8;
+ TMR1L =  ( 0xffff - (unsigned int)(time/0.16) ) ;
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=1;
  T1CON.TMR1ON=1;
+
+
+ TMR3H =  ( 0xffff - 60000 )  >> 8;
+ TMR3L =  ( 0xffff - 60000 ) ;
+ PIR2.TMR3IF = 0;
+ PIE2.TMR3IE = 1;
+ T3CON.TMR3ON = 1;
 
 
  INTCON3.INT2IE = 0;
@@ -164,11 +176,11 @@ void main()
  T0CON.PSA = 0;
 
  T0CON.T0PS2 = 0;
- T0CON.T0PS1 = 0;
- T0CON.T0PS0 = 0;
+ T0CON.T0PS1 = 1;
+ T0CON.T0PS0 = 1;
 
- TMR0H =  ( 0xffff - 1000 )  >> 8;
- TMR0L =  ( 0xffff - 1000 ) ;
+ TMR0H =  ( 0xffff - 1250 )  >> 8;
+ TMR0L =  ( 0xffff - 1250 ) ;
  INTCON.TMR0IF=0;
  INTCON.TMR0IE=1;
  T0CON.TMR0ON=1;
@@ -188,6 +200,13 @@ void main()
 
  T2CON.T2CKPS1 = 1;
  T2CON.T2CKPS0 = 1;
+
+
+ T3CON.RD16 = 1;
+ T3CON.T3CCP2 = 1;
+ T3CON.T3CKPS1 = 0;
+ T3CON.T3CKPS0 = 1;
+ T3CON.TMR3CS = 0;
 
 
  INTCON.GIE=1;
