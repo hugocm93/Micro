@@ -79,7 +79,11 @@ void interrupt(void)
  TMR0L =  ( 0xffff - 1250 ) ;
 
  PORTC.RC0 = ~PORTC.RC0;
+
+ if(!progMode)
+ {
  timeCounter += 0.01;
+ }
 
  INTCON.TMR0IF = 0;
  }
@@ -125,6 +129,9 @@ void interrupt(void)
  {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out(1, 1, "Disp");
+
+ FloatToStr((time - timeCounter), str);
+ Lcd_Out(2, 1, str);
 
  loadTimer2();
 
@@ -281,7 +288,7 @@ void keypadHandler()
  }
  else
  {
- time += result * 0.1;
+ time += (result * 0.1);
  }
 
  Lcd_Cmd(_LCD_CLEAR);

@@ -16,15 +16,15 @@ diagnostics: 0	122	Compilation Started	__Lib_TFT_Defs.c
 diagnostics: 1892	123	Compiled Successfully	__Lib_TFT_Defs.c
 diagnostics: 0	122	Compilation Started	__Lib_TFT_16bit_Defs.c
 diagnostics: 1776	123	Compiled Successfully	__Lib_TFT_16bit_Defs.c
-diagnostics: 0	126	All files Preprocessed in 31 ms	 
+diagnostics: 0	126	All files Preprocessed in 16 ms	 
 diagnostics: 0	122	Compilation Started	Temporizador.c
-diagnostics: 385	123	Compiled Successfully	Temporizador.c
-hint: 268	1164	Variable 'rowCode' has been eliminated by optimizer	Temporizador.c
-hint: 269	1164	Variable 'realCode' has been eliminated by optimizer	Temporizador.c
+diagnostics: 392	123	Compiled Successfully	Temporizador.c
+hint: 275	1164	Variable 'rowCode' has been eliminated by optimizer	Temporizador.c
+hint: 276	1164	Variable 'realCode' has been eliminated by optimizer	Temporizador.c
 diagnostics: 0	127	All files Compiled in 47 ms	 
 hint: 0	1144	Used RAM (bytes): 80 (5%)  Free RAM (bytes): 1435 (95%)	Used RAM (bytes): 80 (5%)  Free RAM (bytes): 1435 (95%)
-hint: 0	1144	Used ROM (bytes): 6316 (19%)  Free ROM (bytes): 26452 (81%)	Used ROM (bytes): 6316 (19%)  Free ROM (bytes): 26452 (81%)
+hint: 0	1144	Used ROM (bytes): 6404 (20%)  Free ROM (bytes): 26364 (80%)	Used ROM (bytes): 6404 (20%)  Free ROM (bytes): 26364 (80%)
 diagnostics: 0	125	Project Linked Successfully	Temporizador.mcppi
 diagnostics: 0	128	Linked in 187 ms	 
 diagnostics: 0	129	Project 'Temporizador.mcppi' completed: 936 ms	 
-diagnostics: 0	103	Finished successfully: 04 mai 2017, 12:04:54	Temporizador.mcppi
+diagnostics: 0	103	Finished successfully: 04 mai 2017, 12:42:01	Temporizador.mcppi
