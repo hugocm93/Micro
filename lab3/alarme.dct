@@ -264,7 +264,6 @@ atan2
 atof
 atoi
 atol
-aux
 awhuffacsymstart
 awhuffacsymstart
 awhuffdcsymstart
@@ -1029,6 +1028,7 @@ ow_reset
 ow_write
 p
 p_bit
+password
 pbcurrenthuffsymboltable
 pbcurrenthuffsymboltable
 pbcurrenthuffsymlentable

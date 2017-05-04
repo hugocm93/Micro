@@ -42,7 +42,7 @@ volatile char isOn = 0;
 volatile float vSensor1 = 0;
 volatile float vSensor2 = 0;
 
-volatile char aux[20] = "";
+volatile char password[20] = "";
 
 
 volatile char msg1[] = "Intr. ";
@@ -65,34 +65,32 @@ void interrupt(void)
  keypadHandler();
 
 
- TMR2 =  ( 0xffff - 3200 ) ;
-
- PIR1.TMR2IF=0;
- PIE1.TMR2IE=1;
-
- T2CON.TMR2ON = 1;
+ TMR3H =  ( 0xffff - 60000 )  >> 8;
+ TMR3L =  ( 0xffff - 60000 ) ;
+ PIR2.TMR3IF = 0;
+ PIE2.TMR3IE = 1;
+ T3CON.TMR3ON = 1;
 
 
  INTCON3.INT1IE = 0;
  INTCON3.INT1IF = 0;
  }
- else if(PIR1.TMR2IF)
+ if(PIR2.TMR3IF)
  {
-
- PIR1.TMR2IF=0;
- PIE1.TMR2IE=0;
- T2CON.TMR2ON=0;
+ PIR2.TMR3IF = 0;
+ PIE2.TMR3IE = 0;
+ T3CON.TMR3ON = 0;
 
 
  INTCON3.INT1IE = 1;
  INTCON3.INT1IF = 0;
  }
- else if(INTCON.TMR0IF)
+ if(INTCON.TMR0IF)
  {
- alarm();
+ TMR0H =  ( 0xffff - 1000 )  >> 8;
+ TMR0L =  ( 0xffff - 1000 ) ;
 
- TMR0H =  ( 0xffff - 10000 )  >> 8;
- TMR0L =  ( 0xffff - 10000 ) ;
+ alarm();
 
  INTCON.TMR0IF = 0;
  }
@@ -116,16 +114,18 @@ void main()
  T0CON.T0PS1 = 1;
  T0CON.T0PS0 = 1;
 
- TMR0H =  ( 0xffff - 10000 )  >> 8;
- TMR0L =  ( 0xffff - 10000 ) ;
+ TMR0H =  ( 0xffff - 1000 )  >> 8;
+ TMR0L =  ( 0xffff - 1000 ) ;
  INTCON.TMR0IF=0;
  INTCON.TMR0IE=1;
  T0CON.TMR0ON=1;
 
 
-
- T2CON.T2CKPS1 = 1;
- T2CON.T2CKPS0 = 1;
+ T3CON.RD16 = 1;
+ T3CON.T3CCP2 = 1;
+ T3CON.T3CKPS1 = 0;
+ T3CON.T3CKPS0 = 1;
+ T3CON.TMR3CS = 0;
 
 
  INTCON.GIE=1;
@@ -269,6 +269,7 @@ void alarm()
  Lcd_Cmd(_LCD_CLEAR);
 
  Lcd_Out(1,1,str1);
+ Lcd_Out(1,10,password);
 
  Lcd_Out(2,1,str2);
 
@@ -347,7 +348,8 @@ void keypadHandler()
 
  keyPressed[1] = '\0';
 
- Lcd_Out(1, 15, keyPressed);
+ password[nKeyPressed] = keyPressed[0];
+ keyPressed[nKeyPressed+1] = '\0';
 
  rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
  rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
@@ -372,6 +374,7 @@ void keypadHandler()
  {
  isOn = 0;
  }
+
  }
 
  nKeyPressed = (nKeyPressed == 5) ? 0 : nKeyPressed + 1;

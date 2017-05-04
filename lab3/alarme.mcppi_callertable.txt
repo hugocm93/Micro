@@ -6,16 +6,6 @@ main
 interrupt
 	keypadHandler
 		keyHandler
-		Lcd_Out
-			Lcd_Cmd
-				Delay_1us
-				Delay_5500us
-				Delay_50us
-			Lcd_Chr_CP
-				Lcd_Cmd
-					Delay_1us
-					Delay_5500us
-					Delay_50us
 	alarm
 		ADC_Read
 			Delay_22us
