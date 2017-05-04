@@ -10,29 +10,6 @@
 // (8MHz / 4 ) / 2 => 1us x 60000 = 0.060s
 #define COUNTER3 ( 0xffff - 60000 )
 
-// LCD module connections
-sbit LCD_EN at RE1_bit;
-sbit LCD_RS at RE2_bit;
-sbit LCD_D0 at RD0_bit;
-sbit LCD_D1 at RD1_bit;
-sbit LCD_D2 at RD2_bit;
-sbit LCD_D3 at RD3_bit;
-sbit LCD_D4 at RD4_bit;
-sbit LCD_D5 at RD5_bit;
-sbit LCD_D6 at RD6_bit;
-sbit LCD_D7 at RD7_bit;
-
-sbit LCD_EN_Direction at TRISE1_bit;
-sbit LCD_RS_Direction at TRISE2_bit;
-sbit LCD_D0_Direction at TRISD0_bit;
-sbit LCD_D1_Direction at TRISD1_bit;
-sbit LCD_D2_Direction at TRISD2_bit;
-sbit LCD_D3_Direction at TRISD3_bit;
-sbit LCD_D4_Direction at TRISD4_bit;
-sbit LCD_D5_Direction at TRISD5_bit;
-sbit LCD_D6_Direction at TRISD6_bit;
-sbit LCD_D7_Direction at TRISD7_bit;
-
 typedef enum keyType{
         EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
 }KeyType;
@@ -47,6 +24,11 @@ volatile float timeCounter = 0;
 volatile char str[14];
 volatile int nPressed = 0;
 volatile int progMode = 1;
+
+// 7 segment display functions
+unsigned int display();
+volatile int nDigit = 3;
+volatile int pot = 1000;
 
 void loadTimer2();
 
@@ -103,15 +85,32 @@ void interrupt(void)
         TMR3H = COUNTER3 >> 8;  // RE-Load Timer 1 counter - 1st TMR1H
         TMR3L = COUNTER3;       // RE-Load Timer 1 counter - 2nd TMR1L
 
-        FloatToStr((time - timeCounter), str);
-        Lcd_Out(1, 1, str);
+        nDigit = nDigit == -2 ? 3 : nDigit;
+
+        pot = pot == 1000 ? 1 : pot*10;
+
+        PORTA.RA1 = 0;
+        PORTA.RA2 = 0;
+        PORTC.RC2 = 0;
+        PORTC.RC3 = 0;
+
+        PORTD = display();
+
+        if(nDigit==0)
+            PORTA.RA1 = 1;
+        if(nDigit==1)
+            PORTA.RA2 = 1;
+        if(nDigit==2)
+            PORTC.RC2 = 1;
+        if(nDigit==3)
+            PORTC.RC3 = 1;
+
+        nDigit--;
 
         PIR2.TMR3IF = 0;
     }
     if(PIR1.TMR1IF) //Total timer
     {
-        Lcd_Cmd(_LCD_CLEAR);
-        Lcd_Out(1, 1, "Time's up");
         PORTC.RC1 = 1;
         progMode = 1;
 
@@ -125,8 +124,6 @@ void interrupt(void)
     }
     if(INTCON.INT0IF)
     {
-        Lcd_Cmd(_LCD_CLEAR);
-        Lcd_Out(1, 1, "Prog");
         PORTC.RC1 = 0;
         time = 0;
         timeCounter = 0;
@@ -142,12 +139,6 @@ void interrupt(void)
     }
     if(INTCON3.INT2IF)
     {
-        Lcd_Cmd(_LCD_CLEAR);
-        Lcd_Out(1, 1, "Disp");
-
-        FloatToStr((time - timeCounter), str);
-        Lcd_Out(2, 1, str); 
-
         loadTimer2();
 
         progMode = 0;
@@ -187,10 +178,7 @@ void loadTimer2()
 void main()
 {
     // Timer ON//Pins as digital I/O
-    ADCON1 = 0x04;
-
-    //LCD
-    Lcd_Init();
+    ADCON1 = 0x06;
 
     // Timer 0 Configuration
     T0CON.T08BIT = 0;       // 16 bits
@@ -268,6 +256,35 @@ void main()
     INTCON3.INT2IE = 1;
     INTCON3.INT2IF = 0;
     TRISB.RB2 = 1;
+
+    //7 segments
+    TRISD.RD0 = 0; // digital output
+    TRISD.RD1 = 0;
+    TRISD.RD2 = 0;
+    TRISD.RD3 = 0;
+    TRISD.RD4 = 0;
+    TRISD.RD5 = 0;
+    TRISD.RD6 = 0;
+    TRISD.RD7 = 0;
+
+    PORTD.RD0 = 0;
+    PORTD.RD1 = 0;
+    PORTD.RD2 = 0;
+    PORTD.RD3 = 0;
+    PORTD.RD4 = 0;
+    PORTD.RD5 = 0;
+    PORTD.RD6 = 0;
+    PORTD.RD7 = 0;
+    //7 seg controle
+    TRISA.RA1 = 0; // digital output
+    TRISA.RA2 = 0;
+    TRISC.RC2 = 0;
+    TRISC.RC3 = 0;
+
+    PORTA.RA1 = 0;
+    PORTA.RA2 = 0;
+    PORTC.RC2 = 0;
+    PORTC.RC3 = 0;
 }
 
 
@@ -305,10 +322,6 @@ void keypadHandler()
     {
         time += (result * 0.1);
     }
-
-    Lcd_Cmd(_LCD_CLEAR);
-    FloatToStr(time, str);
-    Lcd_Out(1, 1, str);
 }
 
 
@@ -393,4 +406,23 @@ int keyHandler (int key, KeyType* type)
     }
 
     return result;
+}
+
+
+unsigned int display ()
+{
+    int number = ((int)time/pot) % 10;
+    switch(number)
+    {
+          case 0: return 0x3F;
+          case 1: return 0x06;
+          case 2: return 0x5B;
+          case 3: return 0x4F;
+          case 4: return 0x66;
+          case 5: return 0x6D;
+          case 6: return 0x7D;
+          case 7: return 0x07;
+          case 8: return 0x7F;
+          case 9: return 0x6F;
+    }
 }

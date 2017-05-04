@@ -1,8 +1,5 @@
 main
 	__CC2DW
-	Lcd_Init
-		Delay_5500us
-		Delay_1us
 interrupt
 	keypadHandler
 		keyHandler
@@ -22,28 +19,6 @@ interrupt
 				SETFOV32
 				RES032
 			SETFOV32
-		Lcd_Cmd
-			Delay_1us
-			Delay_5500us
-			Delay_50us
-		FloatToStr
-			strcpy
-			Compare_Double
-			Mul_32x32_FP
-				RES032
-				SETFOV32
-				SETFUN32
-			Div_8x8_U
-		Lcd_Out
-			Lcd_Cmd
-				Delay_1us
-				Delay_5500us
-				Delay_50us
-			Lcd_Chr_CP
-				Lcd_Cmd
-					Delay_1us
-					Delay_5500us
-					Delay_50us
 	loadTimer2
 	Add_32x32_FP
 		NRM4032
@@ -52,36 +27,12 @@ interrupt
 			SETFOV32
 			RES032
 		SETFOV32
-	Sub_32x32_FP
-		Add_32x32_FP
-			NRM4032
-				SETFUN32
-				FIXSIGN32
-				SETFOV32
-				RES032
-			SETFOV32
-	FloatToStr
-		strcpy
-		Compare_Double
-		Mul_32x32_FP
-			RES032
-			SETFOV32
-			SETFUN32
-		Div_8x8_U
-	Lcd_Out
-		Lcd_Cmd
-			Delay_1us
-			Delay_5500us
-			Delay_50us
-		Lcd_Chr_CP
-			Lcd_Cmd
-				Delay_1us
-				Delay_5500us
-				Delay_50us
-	Lcd_Cmd
-		Delay_1us
-		Delay_5500us
-		Delay_50us
+	Mul_16x16_U
+	display
+		Double2Int
+			SETIOV3224
+		Div_16x16_S
+			Div_16x16_S_L
 	Div_32x32_FP
 		SETFDZ32
 		RES032
