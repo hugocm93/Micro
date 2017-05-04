@@ -101,7 +101,7 @@ void interrupt(void)
  {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out(1, 1, "Time's up");
-
+ PORTC.RC1 = 1;
  progMode = 1;
 
  PIR2.TMR3IF = 0;
@@ -116,6 +116,10 @@ void interrupt(void)
  {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Out(1, 1, "Prog");
+ PORTC.RC1 = 0;
+ time = 0;
+ timeCounter = 0;
+ nPressed = 0;
 
  progMode = 1;
 
