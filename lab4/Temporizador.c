@@ -4,8 +4,8 @@
 // (100 / 2) / 8 => 0.16s x ? = time
 #define COUNTER1 ( 0xffff - (unsigned int)(time/0.16) )
 
-// (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
-#define COUNTER2 ( 0xffff - 3200 )
+// (8MHz / 4 ) / 16 => 8us x 7500 = 0.06s
+#define COUNTER2 ( 0xffff - 7500 )
 
 // (8MHz / 4 ) / 2 => 1us x 1000 = 0.001s
 #define COUNTER3 ( 0xffff - 1000 )
@@ -89,21 +89,21 @@ void interrupt(void)
 
         pot = pot == 100 ? 1 : pot*10;
 
-        PORTA.RA0 = 0;
-        PORTA.RA1 = 0;
-        PORTC.RC2 = 0;
+        PORTA.RA2 = 0;
+        PORTA.RA3 = 0;
+        PORTA.RA4 = 0;
 
         PORTD = display();
 
         if(nDigit==0)
-            PORTA.RA0 = 1;
+            PORTA.RA4 = 1;
         if(nDigit==1)
         {
             PORTD.RD7 = 1;
-            PORTA.RA1 = 1;
+            PORTA.RA3 = 1;
         }
         if(nDigit==2)
-            PORTC.RC2 = 1;
+            PORTA.RA2 = 1;
 
         nDigit++;
 
@@ -118,9 +118,9 @@ void interrupt(void)
         PIE2.TMR3IE = 0;
         T3CON.TMR3ON = 0;
 
-        PORTA.RA0 = 0;
-        PORTA.RA1 = 0;
-        PORTC.RC2 = 0;
+        PORTA.RA2 = 0;
+        PORTA.RA3 = 0;
+        PORTA.RA4 = 0;
 
         PIR1.TMR1IF=0;
         PIE1.TMR1IE=0;
@@ -244,8 +244,8 @@ void main()
 
     // Keypad cols
     // digital input
-    TRISA.RA2 = 1;
-    TRISA.RA4 = 1;
+    TRISA.RA0 = 1;
+    TRISA.RA1 = 1;
     TRISA.RA5 = 1;
     TRISB.RB3 = 1;
 
@@ -280,13 +280,13 @@ void main()
     PORTD.RD6 = 0;
     PORTD.RD7 = 0;
     //7 seg controle
-    TRISA.RA0 = 0; // digital output
-    TRISA.RA1 = 0;
-    TRISC.RC2 = 0;
+    TRISA.RA2 = 0; // digital output
+    TRISA.RA3 = 0;
+    TRISA.RA4 = 0;
 
-    PORTA.RA0 = 0;
-    PORTA.RA1 = 0;
-    PORTC.RC2 = 0;
+    PORTA.RA2 = 0;
+    PORTA.RA3 = 0;
+    PORTA.RA4 = 0;
 }
 
 
@@ -303,7 +303,7 @@ void keypadHandler()
     {
 
         PORTB = ~(1 << i) << 4;
-        columnCode = PORTA.RA2 | (PORTA.RA4 << 1) |
+        columnCode = PORTA.RA0 | (PORTA.RA1 << 1) |
                      (PORTA.RA5 << 2) | (PORTB.RB3) << 3;
 
     }

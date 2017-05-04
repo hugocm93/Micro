@@ -159,12 +159,12 @@ L_interrupt9:
 	MOVWF       _pot+0 
 	MOVF        FLOC__interrupt+1, 0 
 	MOVWF       _pot+1 
-;Temporizador.c,92 :: 		PORTA.RA0 = 0;
-	BCF         PORTA+0, 0 
-;Temporizador.c,93 :: 		PORTA.RA1 = 0;
-	BCF         PORTA+0, 1 
-;Temporizador.c,94 :: 		PORTC.RC2 = 0;
-	BCF         PORTC+0, 2 
+;Temporizador.c,92 :: 		PORTA.RA2 = 0;
+	BCF         PORTA+0, 2 
+;Temporizador.c,93 :: 		PORTA.RA3 = 0;
+	BCF         PORTA+0, 3 
+;Temporizador.c,94 :: 		PORTA.RA4 = 0;
+	BCF         PORTA+0, 4 
 ;Temporizador.c,96 :: 		PORTD = display();
 	CALL        _display+0, 0
 	MOVF        R0, 0 
@@ -179,8 +179,8 @@ L_interrupt9:
 L__interrupt55:
 	BTFSS       STATUS+0, 2 
 	GOTO        L_interrupt10
-;Temporizador.c,99 :: 		PORTA.RA0 = 1;
-	BSF         PORTA+0, 0 
+;Temporizador.c,99 :: 		PORTA.RA4 = 1;
+	BSF         PORTA+0, 4 
 L_interrupt10:
 ;Temporizador.c,100 :: 		if(nDigit==1)
 	MOVLW       0
@@ -194,8 +194,8 @@ L__interrupt56:
 	GOTO        L_interrupt11
 ;Temporizador.c,102 :: 		PORTD.RD7 = 1;
 	BSF         PORTD+0, 7 
-;Temporizador.c,103 :: 		PORTA.RA1 = 1;
-	BSF         PORTA+0, 1 
+;Temporizador.c,103 :: 		PORTA.RA3 = 1;
+	BSF         PORTA+0, 3 
 ;Temporizador.c,104 :: 		}
 L_interrupt11:
 ;Temporizador.c,105 :: 		if(nDigit==2)
@@ -208,8 +208,8 @@ L_interrupt11:
 L__interrupt57:
 	BTFSS       STATUS+0, 2 
 	GOTO        L_interrupt12
-;Temporizador.c,106 :: 		PORTC.RC2 = 1;
-	BSF         PORTC+0, 2 
+;Temporizador.c,106 :: 		PORTA.RA2 = 1;
+	BSF         PORTA+0, 2 
 L_interrupt12:
 ;Temporizador.c,108 :: 		nDigit++;
 	MOVLW       1
@@ -242,12 +242,12 @@ L_interrupt5:
 	BCF         PIE2+0, 1 
 ;Temporizador.c,119 :: 		T3CON.TMR3ON = 0;
 	BCF         T3CON+0, 0 
-;Temporizador.c,121 :: 		PORTA.RA0 = 0;
-	BCF         PORTA+0, 0 
-;Temporizador.c,122 :: 		PORTA.RA1 = 0;
-	BCF         PORTA+0, 1 
-;Temporizador.c,123 :: 		PORTC.RC2 = 0;
-	BCF         PORTC+0, 2 
+;Temporizador.c,121 :: 		PORTA.RA2 = 0;
+	BCF         PORTA+0, 2 
+;Temporizador.c,122 :: 		PORTA.RA3 = 0;
+	BCF         PORTA+0, 3 
+;Temporizador.c,123 :: 		PORTA.RA4 = 0;
+	BCF         PORTA+0, 4 
 ;Temporizador.c,125 :: 		PIR1.TMR1IF=0;
 	BCF         PIR1+0, 0 
 ;Temporizador.c,126 :: 		PIE1.TMR1IE=0;
@@ -382,7 +382,7 @@ _loadTimer2:
 
 ;Temporizador.c,171 :: 		void loadTimer2()
 ;Temporizador.c,174 :: 		TMR2 = COUNTER2;
-	MOVLW       127
+	MOVLW       179
 	MOVWF       TMR2+0 
 ;Temporizador.c,176 :: 		PIR1.TMR2IF=0;
 	BCF         PIR1+0, 1 
@@ -479,10 +479,10 @@ _main:
 	BCF         PORTB+0, 6 
 ;Temporizador.c,243 :: 		PORTB.RB7 = 0;
 	BCF         PORTB+0, 7 
-;Temporizador.c,247 :: 		TRISA.RA2 = 1;
-	BSF         TRISA+0, 2 
-;Temporizador.c,248 :: 		TRISA.RA4 = 1;
-	BSF         TRISA+0, 4 
+;Temporizador.c,247 :: 		TRISA.RA0 = 1;
+	BSF         TRISA+0, 0 
+;Temporizador.c,248 :: 		TRISA.RA1 = 1;
+	BSF         TRISA+0, 1 
 ;Temporizador.c,249 :: 		TRISA.RA5 = 1;
 	BSF         TRISA+0, 5 
 ;Temporizador.c,250 :: 		TRISB.RB3 = 1;
@@ -535,18 +535,18 @@ _main:
 	BCF         PORTD+0, 6 
 ;Temporizador.c,281 :: 		PORTD.RD7 = 0;
 	BCF         PORTD+0, 7 
-;Temporizador.c,283 :: 		TRISA.RA0 = 0; // digital output
-	BCF         TRISA+0, 0 
-;Temporizador.c,284 :: 		TRISA.RA1 = 0;
-	BCF         TRISA+0, 1 
-;Temporizador.c,285 :: 		TRISC.RC2 = 0;
-	BCF         TRISC+0, 2 
-;Temporizador.c,287 :: 		PORTA.RA0 = 0;
-	BCF         PORTA+0, 0 
-;Temporizador.c,288 :: 		PORTA.RA1 = 0;
-	BCF         PORTA+0, 1 
-;Temporizador.c,289 :: 		PORTC.RC2 = 0;
-	BCF         PORTC+0, 2 
+;Temporizador.c,283 :: 		TRISA.RA2 = 0; // digital output
+	BCF         TRISA+0, 2 
+;Temporizador.c,284 :: 		TRISA.RA3 = 0;
+	BCF         TRISA+0, 3 
+;Temporizador.c,285 :: 		TRISA.RA4 = 0;
+	BCF         TRISA+0, 4 
+;Temporizador.c,287 :: 		PORTA.RA2 = 0;
+	BCF         PORTA+0, 2 
+;Temporizador.c,288 :: 		PORTA.RA3 = 0;
+	BCF         PORTA+0, 3 
+;Temporizador.c,289 :: 		PORTA.RA4 = 0;
+	BCF         PORTA+0, 4 
 ;Temporizador.c,290 :: 		}
 L_end_main:
 	GOTO        $+0
@@ -595,16 +595,16 @@ L__keypadHandler62:
 	BCF         R0, 0 
 	MOVF        R0, 0 
 	MOVWF       PORTB+0 
-;Temporizador.c,306 :: 		columnCode = PORTA.RA2 | (PORTA.RA4 << 1) |
+;Temporizador.c,306 :: 		columnCode = PORTA.RA0 | (PORTA.RA1 << 1) |
 	CLRF        R2 
-	BTFSC       PORTA+0, 4 
+	BTFSC       PORTA+0, 1 
 	INCF        R2, 1 
 	MOVF        R2, 0 
 	MOVWF       R0 
 	RLCF        R0, 1 
 	BCF         R0, 0 
 	MOVLW       0
-	BTFSC       PORTA+0, 2 
+	BTFSC       PORTA+0, 0 
 	MOVLW       1
 	MOVWF       keypadHandler_columnCode_L0+0 
 	MOVF        R0, 0 

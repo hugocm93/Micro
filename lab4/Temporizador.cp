@@ -79,21 +79,21 @@ void interrupt(void)
 
  pot = pot == 100 ? 1 : pot*10;
 
- PORTA.RA0 = 0;
- PORTA.RA1 = 0;
- PORTC.RC2 = 0;
+ PORTA.RA2 = 0;
+ PORTA.RA3 = 0;
+ PORTA.RA4 = 0;
 
  PORTD = display();
 
  if(nDigit==0)
- PORTA.RA0 = 1;
+ PORTA.RA4 = 1;
  if(nDigit==1)
  {
  PORTD.RD7 = 1;
- PORTA.RA1 = 1;
+ PORTA.RA3 = 1;
  }
  if(nDigit==2)
- PORTC.RC2 = 1;
+ PORTA.RA2 = 1;
 
  nDigit++;
 
@@ -108,9 +108,9 @@ void interrupt(void)
  PIE2.TMR3IE = 0;
  T3CON.TMR3ON = 0;
 
- PORTA.RA0 = 0;
- PORTA.RA1 = 0;
- PORTC.RC2 = 0;
+ PORTA.RA2 = 0;
+ PORTA.RA3 = 0;
+ PORTA.RA4 = 0;
 
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=0;
@@ -161,7 +161,7 @@ void interrupt(void)
 void loadTimer2()
 {
 
- TMR2 =  ( 0xffff - 3200 ) ;
+ TMR2 =  ( 0xffff - 7500 ) ;
 
  PIR1.TMR2IF=0;
  PIE1.TMR2IE=1;
@@ -234,8 +234,8 @@ void main()
 
 
 
- TRISA.RA2 = 1;
- TRISA.RA4 = 1;
+ TRISA.RA0 = 1;
+ TRISA.RA1 = 1;
  TRISA.RA5 = 1;
  TRISB.RB3 = 1;
 
@@ -270,13 +270,13 @@ void main()
  PORTD.RD6 = 0;
  PORTD.RD7 = 0;
 
- TRISA.RA0 = 0;
- TRISA.RA1 = 0;
- TRISC.RC2 = 0;
+ TRISA.RA2 = 0;
+ TRISA.RA3 = 0;
+ TRISA.RA4 = 0;
 
- PORTA.RA0 = 0;
- PORTA.RA1 = 0;
- PORTC.RC2 = 0;
+ PORTA.RA2 = 0;
+ PORTA.RA3 = 0;
+ PORTA.RA4 = 0;
 }
 
 
@@ -293,7 +293,7 @@ void keypadHandler()
  {
 
  PORTB = ~(1 << i) << 4;
- columnCode = PORTA.RA2 | (PORTA.RA4 << 1) |
+ columnCode = PORTA.RA0 | (PORTA.RA1 << 1) |
  (PORTA.RA5 << 2) | (PORTB.RB3) << 3;
 
  }
