@@ -98,7 +98,10 @@ void interrupt(void)
         if(nDigit==0)
             PORTA.RA0 = 1;
         if(nDigit==1)
+        {
+            PORTD.RD7 = 1;
             PORTA.RA1 = 1;
+        }
         if(nDigit==2)
             PORTC.RC2 = 1;
 
