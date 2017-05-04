@@ -45,31 +45,10 @@ interrupt
 					Delay_5500us
 					Delay_50us
 	loadTimer2
-	Compare_Double
-	Add_32x32_FP
-		NRM4032
-			SETFUN32
-			FIXSIGN32
-			SETFOV32
-			RES032
-		SETFOV32
-	Equals_Double
-	Sub_32x32_FP
-		Add_32x32_FP
-			NRM4032
-				SETFUN32
-				FIXSIGN32
-				SETFOV32
-				RES032
-			SETFOV32
-	FloatToStr
-		strcpy
-		Compare_Double
-		Mul_32x32_FP
-			RES032
-			SETFOV32
-			SETFUN32
-		Div_8x8_U
+	Lcd_Cmd
+		Delay_1us
+		Delay_5500us
+		Delay_50us
 	Lcd_Out
 		Lcd_Cmd
 			Delay_1us
@@ -80,10 +59,6 @@ interrupt
 				Delay_1us
 				Delay_5500us
 				Delay_50us
-	Lcd_Cmd
-		Delay_1us
-		Delay_5500us
-		Delay_50us
 	Div_32x32_FP
 		SETFDZ32
 		RES032

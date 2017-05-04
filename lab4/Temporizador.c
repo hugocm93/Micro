@@ -1,11 +1,11 @@
 // (8MHz / 4 ) / 2 => 1us x 1000 = 0.001s
-#define COUNTER1 ( 0xffff - 1000 )
+#define COUNTER0 ( 0xffff - 1000 )
+
+// (1000 / 2) / 8 => 0.016s x ? = time
+#define COUNTER1 ( 0xffff - (unsigned int)(time/0.016) )
 
 // (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
 #define COUNTER2 ( 0xffff - 3200 )
-
-// (1000 / 2) / 8 => 0.016s x ? = time
-#define COUNTER3 ( 0xffff - (unsigned int)(time/0.032) )
 
 // LCD module connections
 sbit LCD_EN at RE1_bit;
@@ -84,21 +84,20 @@ void interrupt(void)
     if(INTCON.TMR0IF) //Display 7seg and timer increment
     {
 
-        TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
-        TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
+        TMR0H = COUNTER0 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
+        TMR0L = COUNTER0;       // RE-Load Timer 0 counter - 2nd TMR0L
 
         PORTC.RC0 = ~PORTC.RC0; 
 
-        timeCounter = timeCounter < 0.1 ? timeCounter + 0.001 : 0;
-        if(!progMode && (timeCounter == 0))
-        {
-            time -= 0.1;
-            FloatToStr(time - timeCounter, str);
-            Lcd_Out(1, 1, str);
+	//timeCounter += 0.001;
+        //if(!progMode && (((unsigned int)(timeCounter*100) % 10) == 0))
+        //{
+        //    FloatToStr((time - timeCounter), str);
+        //    Lcd_Out(1, 1, str);
 
-//            LongToStr((TMR1H << 8) + TMR1L, str);
-//            Lcd_Out(2, 1, str);
-        }
+        //    LongToStr((TMR1H << 8) + TMR1L, str);
+        //    Lcd_Out(2, 1, str);
+        //}
 
         INTCON.TMR0IF = 0;
     }
@@ -136,8 +135,8 @@ void interrupt(void)
         progMode = 0;
 
         // Start timer 1
-        TMR1H = COUNTER3 >> 8;  // RE-Load Timer 1 counter - 1st TMR1H
-        TMR1L = COUNTER3;       // RE-Load Timer 1 counter - 2nd TMR1L
+        TMR1H = COUNTER1 >> 8;  // RE-Load Timer 1 counter - 1st TMR1H
+        TMR1L = COUNTER1;       // RE-Load Timer 1 counter - 2nd TMR1L
         PIR1.TMR1IF=0;
         PIE1.TMR1IE=1;
         T1CON.TMR1ON=1;
@@ -177,8 +176,8 @@ void main()
     T0CON.T0PS1 = 0;
     T0CON.T0PS0 = 0;
     // Start timer 0
-    TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
-    TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
+    TMR0H = COUNTER0 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
+    TMR0L = COUNTER0;       // RE-Load Timer 0 counter - 2nd TMR0L
     INTCON.TMR0IF=0;
     INTCON.TMR0IE=1;
     T0CON.TMR0ON=1;

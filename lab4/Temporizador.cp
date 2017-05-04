@@ -89,18 +89,7 @@ void interrupt(void)
  TMR0L =  ( 0xffff - 1000 ) ;
 
  PORTC.RC0 = ~PORTC.RC0;
-
- timeCounter = timeCounter < 0.1 ? timeCounter + 0.001 : 0;
- if(!progMode && (timeCounter == 0))
- {
- time -= 0.1;
- FloatToStr(time - timeCounter, str);
- Lcd_Out(1, 1, str);
-
-
-
- }
-
+#line 102 "C:/Users/mplab.LCA-06/Downloads/Micro/lab4/Temporizador.c"
  INTCON.TMR0IF = 0;
  }
  if(PIR1.TMR1IF)
@@ -137,8 +126,8 @@ void interrupt(void)
  progMode = 0;
 
 
- TMR1H =  ( 0xffff - (unsigned int)(time/0.032) )  >> 8;
- TMR1L =  ( 0xffff - (unsigned int)(time/0.032) ) ;
+ TMR1H =  ( 0xffff - (unsigned int)(time/0.016) )  >> 8;
+ TMR1L =  ( 0xffff - (unsigned int)(time/0.016) ) ;
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=1;
  T1CON.TMR1ON=1;
