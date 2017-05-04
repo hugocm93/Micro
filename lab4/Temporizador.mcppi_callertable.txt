@@ -37,6 +37,10 @@ interrupt
 					SETFOV32
 					RES032
 				SETFOV32
+		Mul_32x32_FP
+			RES032
+			SETFOV32
+			SETFUN32
 		Double2Int
 			SETIOV3224
 		Div_16x16_S

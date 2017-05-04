@@ -115,6 +115,10 @@ void interrupt(void)
         PIE2.TMR3IE = 0;
         T3CON.TMR3ON = 0;
 
+        PORTA.RA0 = 0;
+        PORTA.RA1 = 0;
+        PORTC.RC2 = 0;
+
         PIR1.TMR1IF=0;
         PIE1.TMR1IE=0;
         T1CON.TMR1ON=0;
@@ -316,6 +320,7 @@ void keypadHandler()
     else
     {
         time += (result * 0.1);
+        time += 0.001;
     }
 }
 
@@ -406,7 +411,7 @@ int keyHandler (int key, KeyType* type)
 
 unsigned int display ()
 {
-    int number = ((int)(time - timeCounter)/pot) % 10;
+    int number = ((int)((time - timeCounter)*10)/pot) % 10;
     switch(number)
     {
           case 0: return 0x3F;
