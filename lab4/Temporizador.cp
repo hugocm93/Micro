@@ -1,36 +1,5 @@
-#line 1 "C:/Users/hugocm93/Desktop/Micro/lab4/Temporizador.c"
-
-
-
-
-
-
-
-
-
-
-sbit LCD_EN at RE1_bit;
-sbit LCD_RS at RE2_bit;
-sbit LCD_D0 at RD0_bit;
-sbit LCD_D1 at RD1_bit;
-sbit LCD_D2 at RD2_bit;
-sbit LCD_D3 at RD3_bit;
-sbit LCD_D4 at RD4_bit;
-sbit LCD_D5 at RD5_bit;
-sbit LCD_D6 at RD6_bit;
-sbit LCD_D7 at RD7_bit;
-
-sbit LCD_EN_Direction at TRISE1_bit;
-sbit LCD_RS_Direction at TRISE2_bit;
-sbit LCD_D0_Direction at TRISD0_bit;
-sbit LCD_D1_Direction at TRISD1_bit;
-sbit LCD_D2_Direction at TRISD2_bit;
-sbit LCD_D3_Direction at TRISD3_bit;
-sbit LCD_D4_Direction at TRISD4_bit;
-sbit LCD_D5_Direction at TRISD5_bit;
-sbit LCD_D6_Direction at TRISD6_bit;
-sbit LCD_D7_Direction at TRISD7_bit;
-
+#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab4/Temporizador.c"
+#line 13 "C:/Users/mplab.LCA-06/Downloads/Micro/lab4/Temporizador.c"
 typedef enum keyType{
  EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
 }KeyType;
@@ -41,9 +10,15 @@ void keypadHandler();
 
 
 volatile float time = 0;
+volatile float timeCounter = 0;
 volatile char str[14];
 volatile int nPressed = 0;
 volatile int progMode = 1;
+
+
+unsigned int display();
+volatile int nDigit = 0;
+volatile int pot = 100;
 
 void loadTimer2();
 
@@ -62,7 +37,7 @@ void interrupt(void)
  INTCON3.INT1IE = 0;
  INTCON3.INT1IF = 0;
  }
- else if(PIR1.TMR2IF)
+ if(PIR1.TMR2IF)
  {
 
  PIR1.TMR2IF=0;
@@ -81,41 +56,72 @@ void interrupt(void)
  INTCON3.INT2IE = 1;
  INTCON3.INT2IF = 0;
  }
- else if(INTCON.TMR0IF)
+ if(INTCON.TMR0IF)
  {
-
- TMR0H =  ( 0xffff - 782 )  >> 8;
- TMR0L =  ( 0xffff - 782 ) ;
+ TMR0H =  ( 0xffff - 1250 )  >> 8;
+ TMR0L =  ( 0xffff - 1250 ) ;
 
  PORTC.RC0 = ~PORTC.RC0;
 
  if(!progMode)
  {
- time -= 0.1;
- FloatToStr(time, str);
- Lcd_Out(1, 1, str);
-
- IntToStr(TMR1L, str);
- Lcd_Out(2, 1, str);
+ timeCounter += 0.01;
  }
 
  INTCON.TMR0IF = 0;
  }
- else if(PIR1.TMR1IF)
+ if(PIR2.TMR3IF)
  {
- Lcd_Cmd(_LCD_CLEAR);
- Lcd_Out(1, 1, "Time's up");
+ TMR3H =  ( 0xffff - 1000 )  >> 8;
+ TMR3L =  ( 0xffff - 1000 ) ;
 
+ nDigit = nDigit == 3 ? 0 : nDigit;
+
+ pot = pot == 100 ? 1 : pot*10;
+
+ PORTA.RA2 = 0;
+ PORTA.RA3 = 0;
+ PORTA.RA4 = 0;
+
+ PORTD = display();
+
+ if(nDigit==0)
+ PORTA.RA4 = 1;
+ if(nDigit==1)
+ {
+ PORTD.RD7 = 1;
+ PORTA.RA3 = 1;
+ }
+ if(nDigit==2)
+ PORTA.RA2 = 1;
+
+ nDigit++;
+
+ PIR2.TMR3IF = 0;
+ }
+ if(PIR1.TMR1IF)
+ {
+ PORTC.RC1 = 1;
  progMode = 1;
+
+ PIR2.TMR3IF = 0;
+ PIE2.TMR3IE = 0;
+ T3CON.TMR3ON = 0;
+
+ PORTA.RA2 = 0;
+ PORTA.RA3 = 0;
+ PORTA.RA4 = 0;
 
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=0;
  T1CON.TMR1ON=0;
  }
- else if(INTCON.INT0IF)
+ if(INTCON.INT0IF)
  {
- Lcd_Cmd(_LCD_CLEAR);
- Lcd_Out(1, 1, "Prog");
+ PORTC.RC1 = 0;
+ time = 0;
+ timeCounter = 0;
+ nPressed = 0;
 
  progMode = 1;
 
@@ -125,21 +131,25 @@ void interrupt(void)
  INTCON.INT0IE = 0;
  INTCON.INT0IF = 0;
  }
- else if(INTCON3.INT2IF)
+ if(INTCON3.INT2IF)
  {
- Lcd_Cmd(_LCD_CLEAR);
- Lcd_Out(1, 1, "Disp");
-
  loadTimer2();
 
  progMode = 0;
 
 
- TMR1H =  ( 0xffff - (unsigned int)(time/1.6) )  >> 8;
- TMR1L =  ( 0xffff - (unsigned int)(time/1.6) ) ;
+ TMR1H =  ( 0xffff - (unsigned int)(time/0.16) )  >> 8;
+ TMR1L =  ( 0xffff - (unsigned int)(time/0.16) ) ;
  PIR1.TMR1IF=0;
  PIE1.TMR1IE=1;
  T1CON.TMR1ON=1;
+
+
+ TMR3H =  ( 0xffff - 1000 )  >> 8;
+ TMR3L =  ( 0xffff - 1000 ) ;
+ PIR2.TMR3IF = 0;
+ PIE2.TMR3IE = 1;
+ T3CON.TMR3ON = 1;
 
 
  INTCON3.INT2IE = 0;
@@ -151,7 +161,7 @@ void interrupt(void)
 void loadTimer2()
 {
 
- TMR2 =  ( 0xffff - 3200 ) ;
+ TMR2 =  ( 0xffff - 7500 ) ;
 
  PIR1.TMR2IF=0;
  PIE1.TMR2IE=1;
@@ -162,22 +172,19 @@ void loadTimer2()
 void main()
 {
 
- ADCON1 = 0x04;
-
-
- Lcd_Init();
+ ADCON1 = 0x06;
 
 
  T0CON.T08BIT = 0;
  T0CON.T0CS = 0;
  T0CON.PSA = 0;
 
- T0CON.T0PS2 = 1;
+ T0CON.T0PS2 = 0;
  T0CON.T0PS1 = 1;
  T0CON.T0PS0 = 1;
 
- TMR0H =  ( 0xffff - 782 )  >> 8;
- TMR0L =  ( 0xffff - 782 ) ;
+ TMR0H =  ( 0xffff - 1250 )  >> 8;
+ TMR0L =  ( 0xffff - 1250 ) ;
  INTCON.TMR0IF=0;
  INTCON.TMR0IE=1;
  T0CON.TMR0ON=1;
@@ -197,6 +204,13 @@ void main()
 
  T2CON.T2CKPS1 = 1;
  T2CON.T2CKPS0 = 1;
+
+
+ T3CON.RD16 = 1;
+ T3CON.T3CCP2 = 1;
+ T3CON.T3CKPS1 = 0;
+ T3CON.T3CKPS0 = 1;
+ T3CON.TMR3CS = 0;
 
 
  INTCON.GIE=1;
@@ -220,8 +234,8 @@ void main()
 
 
 
- TRISA.RA2 = 1;
- TRISA.RA4 = 1;
+ TRISA.RA0 = 1;
+ TRISA.RA1 = 1;
  TRISA.RA5 = 1;
  TRISB.RB3 = 1;
 
@@ -236,6 +250,33 @@ void main()
  INTCON3.INT2IE = 1;
  INTCON3.INT2IF = 0;
  TRISB.RB2 = 1;
+
+
+ TRISD.RD0 = 0;
+ TRISD.RD1 = 0;
+ TRISD.RD2 = 0;
+ TRISD.RD3 = 0;
+ TRISD.RD4 = 0;
+ TRISD.RD5 = 0;
+ TRISD.RD6 = 0;
+ TRISD.RD7 = 0;
+
+ PORTD.RD0 = 0;
+ PORTD.RD1 = 0;
+ PORTD.RD2 = 0;
+ PORTD.RD3 = 0;
+ PORTD.RD4 = 0;
+ PORTD.RD5 = 0;
+ PORTD.RD6 = 0;
+ PORTD.RD7 = 0;
+
+ TRISA.RA2 = 0;
+ TRISA.RA3 = 0;
+ TRISA.RA4 = 0;
+
+ PORTA.RA2 = 0;
+ PORTA.RA3 = 0;
+ PORTA.RA4 = 0;
 }
 
 
@@ -252,7 +293,7 @@ void keypadHandler()
  {
 
  PORTB = ~(1 << i) << 4;
- columnCode = PORTA.RA2 | (PORTA.RA4 << 1) |
+ columnCode = PORTA.RA0 | (PORTA.RA1 << 1) |
  (PORTA.RA5 << 2) | (PORTB.RB3) << 3;
 
  }
@@ -271,12 +312,9 @@ void keypadHandler()
  }
  else
  {
- time += result/10.0;
+ time += (result * 0.1);
+ time += 0.001;
  }
-
- Lcd_Cmd(_LCD_CLEAR);
- FloatToStr(time, str);
- Lcd_Out(1, 1, str);
 }
 
 
@@ -361,4 +399,23 @@ int keyHandler (int key, KeyType* type)
  }
 
  return result;
+}
+
+
+unsigned int display ()
+{
+ int number = ((int)((time - timeCounter)*10)/pot) % 10;
+ switch(number)
+ {
+ case 0: return 0x3F;
+ case 1: return 0x06;
+ case 2: return 0x5B;
+ case 3: return 0x4F;
+ case 4: return 0x66;
+ case 5: return 0x6D;
+ case 6: return 0x7D;
+ case 7: return 0x07;
+ case 8: return 0x7F;
+ case 9: return 0x6F;
+ }
 }

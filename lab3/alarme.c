@@ -1,8 +1,8 @@
-// (8MHz / 4 ) / 256 => 128us x 10000 = 1.28s
-#define COUNTER1 ( 0xffff - 10000 )
+// (8MHz / 4 ) / 256 => 128us x 1000 = 0.128s
+#define COUNTER1 ( 0xffff - 1000 )
 
-// (8MHz / 4 ) / 16 => 8us x 3200 = 0.0256s
-#define COUNTER2 ( 0xffff - 3200 )
+// (8MHz / 4 ) / 2 => 1us x 60000 = 0.06s
+#define COUNTER3 ( 0xffff - 60000 )
 
 // LCD module connections
 sbit LCD_EN at RE1_bit;
@@ -41,7 +41,7 @@ volatile char isOn = 0;
 volatile float vSensor1 = 0;
 volatile float vSensor2 = 0;
 
-volatile char aux[20] = "";
+volatile char password[20] = "";
 
 // Messages
 volatile char msg1[] = "Intr. ";
@@ -63,35 +63,33 @@ void interrupt(void)
     {
         keypadHandler();
 
-        // Load Timer 2 counter
-        TMR2 = COUNTER2;
-        // Timer 2 interrupt
-        PIR1.TMR2IF=0;
-        PIE1.TMR2IE=1;
-        // Timer 2 Configuration
-        T2CON.TMR2ON = 1;
+        //Start timer 3
+        TMR3H = COUNTER3 >> 8;  // RE-Load Timer 1 counter - 1st TMR1H
+        TMR3L = COUNTER3;       // RE-Load Timer 1 counter - 2nd TMR1L
+        PIR2.TMR3IF = 0;
+        PIE2.TMR3IE = 1;
+        T3CON.TMR3ON = 1;
 
         // Stop interruption
         INTCON3.INT1IE = 0;
         INTCON3.INT1IF = 0;
     }
-    else if(PIR1.TMR2IF) // Related to bouncing
+    if(PIR2.TMR3IF) // Related to bouncing
     {
-        // End timer 2
-        PIR1.TMR2IF=0;
-        PIE1.TMR2IE=0;
-        T2CON.TMR2ON=0;
+        PIR2.TMR3IF = 0;
+        PIE2.TMR3IE = 0;
+        T3CON.TMR3ON = 0;
 
         // Resume interruption
         INTCON3.INT1IE = 1;
         INTCON3.INT1IF = 0;
     }
-    else if(INTCON.TMR0IF)
+    if(INTCON.TMR0IF)
     {
-        alarm();
-
         TMR0H = COUNTER1 >> 8;  // RE-Load Timer 0 counter - 1st TMR0H
         TMR0L = COUNTER1;       // RE-Load Timer 0 counter - 2nd TMR0L
+
+        alarm();
 
         INTCON.TMR0IF = 0;
     }
@@ -121,10 +119,12 @@ void main()
     INTCON.TMR0IE=1;
     T0CON.TMR0ON=1;         
 
-    // Timer 2 configuration
-    // Prescaler = 11 => 1:16
-    T2CON.T2CKPS1 = 1;
-    T2CON.T2CKPS0 = 1;
+    // Timer 3 Configuration
+    T3CON.RD16 = 1;
+    T3CON.T3CCP2 = 1;
+    T3CON.T3CKPS1 = 0;
+    T3CON.T3CKPS0 = 1;
+    T3CON.TMR3CS = 0;
 
     // External interrupt
     INTCON.GIE=1;
@@ -268,6 +268,7 @@ void alarm()
         Lcd_Cmd(_LCD_CLEAR);
 
         Lcd_Out(1,1,str1);
+        Lcd_Out(1,10,password);
         //Lcd_Out(1,4,"V");
         Lcd_Out(2,1,str2);
         //Lcd_Out(2,4,"V");
@@ -346,7 +347,8 @@ void keypadHandler()
 
     keyPressed[1] = '\0';
 
-    Lcd_Out(1, 15, keyPressed);
+    password[nKeyPressed] = keyPressed[0];
+    keyPressed[nKeyPressed+1] = '\0';
 
     rightKeysActivation[nKeyPressed] = (activationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
     rightKeysDeActivation[nKeyPressed] = (DeActivationCode[nKeyPressed] != keyPressed[0]) == 0 ? 1 : 0;
@@ -371,6 +373,7 @@ void keypadHandler()
         {
             isOn = 0;
         }
+
     }
 
     nKeyPressed = (nKeyPressed == 5) ? 0 : nKeyPressed + 1;
