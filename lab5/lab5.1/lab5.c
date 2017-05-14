@@ -1,5 +1,4 @@
 //(8Mhz/4)/256 => 128us x 2*3907 = 1.0s
-
 #define COUNTER (0xffff - 2*3907)
 
 sbit lcd_rs at re1_bit;
