@@ -6,14 +6,14 @@
 // (8MHz / 4 ) / 2 => 1us x 60000 = 0.06s
 #define COUNTER3 ( 0xffff - 60000 )
 
-sbit lcd_rs at re1_bit;
-sbit lcd_en at re2_bit;
+sbit lcd_rs at re2_bit;
+sbit lcd_en at re1_bit;
 sbit lcd_d4 at rd4_bit;
 sbit lcd_d5 at rd5_bit;
 sbit lcd_d6 at rd6_bit;
 sbit lcd_d7 at rd7_bit;
-sbit lcd_rs_direction at trise1_bit;
-sbit lcd_en_direction at trise2_bit;
+sbit lcd_rs_direction at trise2_bit;
+sbit lcd_en_direction at trise1_bit;
 sbit lcd_d4_direction at trisd4_bit;
 sbit lcd_d5_direction at trisd5_bit;
 sbit lcd_d6_direction at trisd6_bit;
@@ -27,6 +27,12 @@ volatile float freq = 0;
 volatile char str[20];
 volatile int tempSetPoint = 0;
 volatile int setPoint = 0;
+volatile int u0 = 128;
+volatile int error = 0;
+volatile int duty = 0;
+volatile int P = 0, I = 0;
+
+const int kp = 100, ki = 1;
 
 typedef enum keyType{
         EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
@@ -47,19 +53,9 @@ void interrupt(void)
         freq = pulse_count/WINDOW;
         pulse_count = 0;
 
-        lcd_cmd(_LCD_CLEAR);
-        FloatToStr(freq, str);
-        lcd_out(1,1,str);
-        lcd_out(1,13,"Hz");
-
-        IntToStr(setPoint, str);
-        lcd_out(2,1,"SetPoint: ");
-        lcd_out(2,11,str);
-
-        // Atualiza duty de acorco com leitura analogica
-        percent = ADC_Read(0)/1023.0; 
-        duty = percent*255;
-        PWM1_Set_Duty(duty);
+        error = freq/64 - setPoint;
+        I += error;
+        duty = u0 + kp*error + ki*I;
 
         intcon.tmr0if = 0;
     }
@@ -110,7 +106,7 @@ void main()
     trisa.an0 = 1;
 
     //Inicializando pwm
-    PWM1_Init(5000); 
+    PWM1_Init(2000); 
     PWM1_Start(); 
 
     //Interrupcao 0
@@ -170,6 +166,25 @@ void main()
     trisa.ra4 = 1;
     trisa.ra5 = 1;
     trisb.rb3 = 1;
+
+    while(1)
+    {
+        lcd_cmd(_LCD_CLEAR);
+        FloatToStr(freq/64, str);
+        lcd_out(1,1,str);
+        lcd_out(1,13,"RPM");
+
+        IntToStr(setPoint, str);
+        lcd_out(2,1,"SetPoint: ");
+        lcd_out(2,11,str);
+
+        // Atualiza duty de acorco com leitura analogica
+        percent = ADC_Read(0)/1023.0; 
+        duty = percent*255;
+        PWM1_Set_Duty(duty);
+        
+        Delay_ms(800);
+    }
 }
 
 void keypadHandler()

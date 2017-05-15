@@ -5,17 +5,6 @@ main
 		Delay_1us
 	PWM1_Init
 	PWM1_Start
-interrupt
-	int2double
-		NRM3232
-			RES032
-			SETFUN32
-			FIXSIGN32
-	Div_32x32_FP
-		SETFDZ32
-		RES032
-		SETFOV32
-		SETFUN32
 	Lcd_Cmd
 		Delay_1us
 		Delay_5500us
@@ -27,7 +16,7 @@ interrupt
 			RES032
 			SETFOV32
 			SETFUN32
-		Div_8X8_U
+		Div_8x8_U
 	Lcd_Out
 		Lcd_Cmd
 			Delay_1us
@@ -40,22 +29,38 @@ interrupt
 				Delay_50us
 	IntToStr
 		WordToStr
-			Div_16X16_U
+			Div_16x16_U
 	ADC_Read
 		Delay_22us
-	word2double
+	Word2Double
 		NRM3232
 			RES032
 			SETFUN32
 			FIXSIGN32
+	Div_32x32_FP
+		SETFDZ32
+		RES032
+		SETFOV32
+		SETFUN32
 	Mul_32x32_FP
 		RES032
 		SETFOV32
 		SETFUN32
-	double2byte
+	Double2Byte
 		SETIOV3224
 	PWM1_Set_Duty
-		Mul_16X16_U
+		Mul_16x16_U
+interrupt
+	Int2Double
+		NRM3232
+			RES032
+			SETFUN32
+			FIXSIGN32
+	Div_32x32_FP
+		SETFDZ32
+		RES032
+		SETFOV32
+		SETFUN32
 	keypadHandler
 		keyHandler
-		Mul_16X16_U
+		Mul_16x16_U

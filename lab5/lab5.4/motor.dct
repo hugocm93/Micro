@@ -1,3 +1,4 @@
+    
 ______
 ____doifc
 ___boot_delay128k
@@ -1907,10 +1908,6 @@ tft_init_ili9340
 tft_init_ili9340_8bit
 tft_init_ili9340_8bit_custom
 tft_init_ili9340_custom
-tft_init_ili9341_16bit
-tft_init_ili9341_16bit_custom
-tft_init_ili9341_8bit
-tft_init_ili9341_8bit_custom
 tft_init_ili9342
 tft_init_ili9342_custom
 tft_init_ili9481
