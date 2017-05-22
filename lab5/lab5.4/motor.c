@@ -1,7 +1,7 @@
-#define WINDOW 0.5
+#define WINDOW 0.1
 
-//(8Mhz/4)/256 => 128us x 7814/2 = WINDOW
-#define COUNTER (0xffff - 7814/2)
+//(8Mhz/4)/256 => 128us x 782 = WINDOW
+#define COUNTER (0xffff - 782)
 
 // (8MHz / 4 ) / 2 => 1us x 60000 = 0.06s
 #define COUNTER3 ( 0xffff - 60000 )
@@ -20,19 +20,17 @@ sbit lcd_d6_direction at trisd6_bit;
 sbit lcd_d7_direction at trisd7_bit;
 
 //motor vars
-volatile float percent = 0;
-volatile unsigned short duty = 0;
+volatile int duty = 0;
 volatile int pulse_count = 0;
 volatile float freq = 0;
 volatile char str[20];
 volatile int tempSetPoint = 0;
 volatile int setPoint = 0;
 volatile int u0 = 128;
-volatile int error = 0;
-volatile int duty = 0;
-volatile int P = 0, I = 0;
+volatile float error = 0;
+volatile float I = 0;
 
-const int kp = 100, ki = 1;
+const float kp = 0.01, ki = 0.01;
 
 typedef enum keyType{
         EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
@@ -53,9 +51,29 @@ void interrupt(void)
         freq = pulse_count/WINDOW;
         pulse_count = 0;
 
-        error = freq/64 - setPoint;
+        error = setPoint - (freq*60)/64.0;
         I += error;
         duty = u0 + kp*error + ki*I;
+        if(duty < 0)
+            duty = 0;
+        else if(duty > 255)
+            duty = 255;
+
+        // Atualiza duty de acorco com leitura analogica
+        PWM1_Set_Duty(duty);
+
+        lcd_cmd(_LCD_CLEAR);
+        FloatToStr((freq*60)/64, str);
+        lcd_out(1,1,str);
+        IntToStr(duty, str);
+        lcd_out(1,10,str);
+    //    lcd_out(1,13,"RPM");
+
+        IntToStr(setPoint, str);
+        //lcd_out(2,1,"SetPoint: ");
+        lcd_out(2,11,str);
+        FloatToStr(error, str);
+        lcd_out(2,1,str);
 
         intcon.tmr0if = 0;
     }
@@ -106,7 +124,7 @@ void main()
     trisa.an0 = 1;
 
     //Inicializando pwm
-    PWM1_Init(2000); 
+    PWM1_Init(5000); 
     PWM1_Start(); 
 
     //Interrupcao 0
@@ -166,25 +184,6 @@ void main()
     trisa.ra4 = 1;
     trisa.ra5 = 1;
     trisb.rb3 = 1;
-
-    while(1)
-    {
-        lcd_cmd(_LCD_CLEAR);
-        FloatToStr(freq/64, str);
-        lcd_out(1,1,str);
-        lcd_out(1,13,"RPM");
-
-        IntToStr(setPoint, str);
-        lcd_out(2,1,"SetPoint: ");
-        lcd_out(2,11,str);
-
-        // Atualiza duty de acorco com leitura analogica
-        percent = ADC_Read(0)/1023.0; 
-        duty = percent*255;
-        PWM1_Set_Duty(duty);
-        
-        Delay_ms(800);
-    }
 }
 
 void keypadHandler()

@@ -542,6 +542,7 @@ eepgd_bit
 eeprom_read
 eeprom_write
 equals_double
+error
 exp
 expander_init
 expander_init_advanced
@@ -660,6 +661,7 @@ go_done_bit
 go_not_done
 go_not_done_bit
 halfbits
+i
 i2c_dat
 i2c_dat_bit
 i2c_data
@@ -766,6 +768,8 @@ keypad_init
 keypad_key_click
 keypad_key_press
 keypadhandler
+ki
+kp
 labs
 lata
 lata0
@@ -1047,7 +1051,6 @@ peie_giel
 peie_giel_bit
 pen
 pen_bit
-percent
 pgc
 pgc_bit
 pgd
@@ -2138,6 +2141,7 @@ txip
 txip_bit
 txreg
 txsta
+u0
 ua
 ua_bit
 uart_data_ready

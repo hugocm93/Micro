@@ -21,13 +21,17 @@ sbit lcd_d6_direction at trisd6_bit;
 sbit lcd_d7_direction at trisd7_bit;
 
 
-volatile float percent = 0;
-volatile unsigned short duty = 0;
+volatile int duty = 0;
 volatile int pulse_count = 0;
 volatile float freq = 0;
 volatile char str[20];
 volatile int tempSetPoint = 0;
 volatile int setPoint = 0;
+volatile int u0 = 128;
+volatile float error = 0;
+volatile float I = 0;
+
+const float kp = 0.01, ki = 0.01;
 
 typedef enum keyType{
  EQUALS, SUM, SUB, MULT, DIVI, ON_CLEAR, NUM, EMPTY
@@ -42,11 +46,35 @@ void interrupt(void)
  if (intcon.tmr0if)
  {
 
- tmr0h =  (0xffff - 7814/2)  >> 8;
- tmr0l =  (0xffff - 7814/2) ;
+ tmr0h =  (0xffff - 782)  >> 8;
+ tmr0l =  (0xffff - 782) ;
 
- freq = pulse_count/ 0.5 ;
+ freq = pulse_count/ 0.1 ;
  pulse_count = 0;
+
+ error = setPoint - (freq*60)/64.0;
+ I += error;
+ duty = u0 + kp*error + ki*I;
+ if(duty < 0)
+ duty = 0;
+ else if(duty > 255)
+ duty = 255;
+
+
+ PWM1_Set_Duty(duty);
+
+ lcd_cmd(_LCD_CLEAR);
+ FloatToStr((freq*60)/64, str);
+ lcd_out(1,1,str);
+ IntToStr(duty, str);
+ lcd_out(1,10,str);
+
+
+ IntToStr(setPoint, str);
+
+ lcd_out(2,11,str);
+ FloatToStr(error, str);
+ lcd_out(2,1,str);
 
  intcon.tmr0if = 0;
  }
@@ -97,7 +125,7 @@ void main()
  trisa.an0 = 1;
 
 
- PWM1_Init(2000);
+ PWM1_Init(5000);
  PWM1_Start();
 
 
@@ -117,8 +145,8 @@ void main()
  t0con.t0ps1 = 1;
  t0con.t0ps0 = 1;
 
- tmr0h =  (0xffff - 7814/2)  >> 8;
- tmr0l =  (0xffff - 7814/2) ;
+ tmr0h =  (0xffff - 782)  >> 8;
+ tmr0l =  (0xffff - 782) ;
 
  intcon.tmr0if=0;
  intcon.tmr0ie=1;
@@ -157,25 +185,6 @@ void main()
  trisa.ra4 = 1;
  trisa.ra5 = 1;
  trisb.rb3 = 1;
-
- while(1)
- {
- lcd_cmd(_LCD_CLEAR);
- FloatToStr(freq, str);
- lcd_out(1,1,str);
- lcd_out(1,13,"Hz");
-
- IntToStr(setPoint, str);
- lcd_out(2,1,"SetPoint: ");
- lcd_out(2,11,str);
-
-
- percent = ADC_Read(0)/1023.0;
- duty = percent*255;
- PWM1_Set_Duty(duty);
-
- Delay_ms(800);
- }
 }
 
 void keypadHandler()
