@@ -3,6 +3,9 @@
 //(8Mhz/4)/256 => 128us x 782 = WINDOW
 #define COUNTER (0xffff - 782)
 
+//(8Mhz/4)/256 => 128us x 782 = WINDOW
+#define COUNTER2 (0xffff - 782)
+
 // (8MHz / 4 ) / 2 => 1us x 60000 = 0.06s
 #define COUNTER3 ( 0xffff - 60000 )
 
@@ -40,6 +43,21 @@ typedef enum keyType{
 int keyHandler(int key, KeyType* type);
 void keypadHandler();
 
+void printInfo()
+{
+    lcd_cmd(_LCD_CLEAR);
+    FloatToStr((freq*60)/64, str);
+    lcd_out(1,1,str);
+
+    IntToStr(duty, str);
+    lcd_out(1,10,str);
+    lcd_out(1,13,"RPM");
+
+    IntToStr(setPoint, str);
+    lcd_out(2,1,"SetPoint: ");
+    lcd_out(2,11,str);
+}
+
 void interrupt(void)
 {
     if (intcon.tmr0if)
@@ -62,18 +80,7 @@ void interrupt(void)
         // Atualiza duty de acorco com leitura analogica
         PWM1_Set_Duty(duty);
 
-        lcd_cmd(_LCD_CLEAR);
-        FloatToStr((freq*60)/64, str);
-        lcd_out(1,1,str);
-        IntToStr(duty, str);
-        lcd_out(1,10,str);
-    //    lcd_out(1,13,"RPM");
-
-        IntToStr(setPoint, str);
-        //lcd_out(2,1,"SetPoint: ");
-        lcd_out(2,11,str);
-        FloatToStr(error, str);
-        lcd_out(2,1,str);
+        printInfo();
 
         intcon.tmr0if = 0;
     }

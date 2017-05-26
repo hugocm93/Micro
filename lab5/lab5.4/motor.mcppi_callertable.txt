@@ -39,31 +39,41 @@ interrupt
 		SETIOV3224
 	PWM1_Set_Duty
 		Mul_16x16_U
-	Lcd_Cmd
-		Delay_1us
-		Delay_5500us
-		Delay_50us
-	FloatToStr
-		strcpy
-		Compare_Double
-		Mul_32x32_FP
-			RES032
-			SETFOV32
-			SETFUN32
-		Div_8x8_U
-	Lcd_Out
+	printInfo
 		Lcd_Cmd
 			Delay_1us
 			Delay_5500us
 			Delay_50us
-		Lcd_Chr_CP
+		Mul_32x32_FP
+			RES032
+			SETFOV32
+			SETFUN32
+		Div_32x32_FP
+			SETFDZ32
+			RES032
+			SETFOV32
+			SETFUN32
+		FloatToStr
+			strcpy
+			Compare_Double
+			Mul_32x32_FP
+				RES032
+				SETFOV32
+				SETFUN32
+			Div_8x8_U
+		Lcd_Out
 			Lcd_Cmd
 				Delay_1us
 				Delay_5500us
 				Delay_50us
-	IntToStr
-		WordToStr
-			Div_16x16_U
+			Lcd_Chr_CP
+				Lcd_Cmd
+					Delay_1us
+					Delay_5500us
+					Delay_50us
+		IntToStr
+			WordToStr
+				Div_16x16_U
 	keypadHandler
 		keyHandler
 		Mul_16x16_U

@@ -1,12 +1,5 @@
 #line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/lab5/lab5.4/motor.c"
-
-
-
-
-
-
-
-
+#line 12 "C:/Users/mplab.LCA-06/Downloads/Micro/lab5/lab5.4/motor.c"
 sbit lcd_rs at re2_bit;
 sbit lcd_en at re1_bit;
 sbit lcd_d4 at rd4_bit;
@@ -31,6 +24,7 @@ volatile int u0 = 128;
 volatile float error = 0;
 volatile float I = 0;
 
+
 const float kp = 0.01, ki = 0.01;
 
 typedef enum keyType{
@@ -40,6 +34,21 @@ typedef enum keyType{
 
 int keyHandler(int key, KeyType* type);
 void keypadHandler();
+
+void printInfo()
+{
+ lcd_cmd(_LCD_CLEAR);
+ FloatToStr((freq*60)/64, str);
+ lcd_out(1,1,str);
+
+ IntToStr(duty, str);
+ lcd_out(1,10,str);
+ lcd_out(1,13,"RPM");
+
+ IntToStr(setPoint, str);
+ lcd_out(2,1,"SetPoint: ");
+ lcd_out(2,11,str);
+}
 
 void interrupt(void)
 {
@@ -63,18 +72,7 @@ void interrupt(void)
 
  PWM1_Set_Duty(duty);
 
- lcd_cmd(_LCD_CLEAR);
- FloatToStr((freq*60)/64, str);
- lcd_out(1,1,str);
- IntToStr(duty, str);
- lcd_out(1,10,str);
-
-
- IntToStr(setPoint, str);
-
- lcd_out(2,11,str);
- FloatToStr(error, str);
- lcd_out(2,1,str);
+ printInfo();
 
  intcon.tmr0if = 0;
  }
