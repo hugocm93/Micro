@@ -5,7 +5,18 @@
 #define ELBOW 2
 #define GRIPPER 3
 
+#define BASE_MIN 0
+#define BASE_MAX 180
+#define SHOULDER_MIN 45
+#define SHOULDER_MAX 135
+#define ELBOW_MIN -45
+#define ELBOW_MAX 180
+#define GRIPPER_MIN 56
+#define GRIPPER_MAX 80
+
 int parser(char* input, char* commands, int* params, int max);
+
+float mapInverse(float angle, float min, float max);
 
 void main() 
 {
@@ -20,16 +31,23 @@ void main()
     portd = 0;
 
     ServoInit(); //Inicializa Servo
+    Delay_ms(200);
     UART1_Init(57600);
     Delay_ms(200);
-    UART1_Write_Text("Start\r\n");
+    UART1_Write_Text("Start:\r\n");
 
     ServoAttach(BASE, &PORTD, BASE);
     ServoAttach(SHOULDER, &PORTD, SHOULDER);
     ServoAttach(ELBOW, &PORTD, ELBOW);
     ServoAttach(GRIPPER, &PORTD, GRIPPER);
 
-    while(1)
+    ServoWrite(BASE, mapInverse(58, BASE_MIN, BASE_MAX));
+    ServoWrite(SHOULDER, mapInverse(72, SHOULDER_MIN, SHOULDER_MAX));
+    ServoWrite(ELBOW, mapInverse(-20, ELBOW_MIN, ELBOW_MAX));
+    ServoWrite(GRIPPER, mapInverse(56, GRIPPER_MIN, GRIPPER_MAX));
+
+    //TODO
+    while(0)
     {
         if(UART1_Data_Ready())
         {
@@ -98,4 +116,10 @@ int parser(char* input, char* commands, int* params, int max)
     }
 
     return i;
+}
+
+
+float mapInverse(float angle, float min, float max)
+{
+    return ((angle - min)/(max - min)) * 180; 
 }

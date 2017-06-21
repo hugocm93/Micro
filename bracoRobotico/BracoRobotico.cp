@@ -21,8 +21,10 @@ void ServoInit();
 void ServoAttach( char servo, char out, char pin );
 
 void ServoWrite(char srv_id, float angle);
-#line 8 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
+#line 17 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
 int parser(char* input, char* commands, int* params, int max);
+
+float mapInverse(float angle, float min, float max);
 
 void main()
 {
@@ -37,16 +39,23 @@ void main()
  portd = 0;
 
  ServoInit();
+ Delay_ms(200);
  UART1_Init(57600);
  Delay_ms(200);
- UART1_Write_Text("Start\r\n");
+ UART1_Write_Text("Start:\r\n");
 
  ServoAttach( 0 , &PORTD,  0 );
  ServoAttach( 1 , &PORTD,  1 );
  ServoAttach( 2 , &PORTD,  2 );
  ServoAttach( 3 , &PORTD,  3 );
 
- while(1)
+ ServoWrite( 0 , mapInverse(58,  0 ,  180 ));
+ ServoWrite( 1 , mapInverse(72,  45 ,  135 ));
+ ServoWrite( 2 , mapInverse(-20,  -45 ,  180 ));
+ ServoWrite( 3 , mapInverse(56,  56 ,  80 ));
+
+
+ while(0)
  {
  if(UART1_Data_Ready())
  {
@@ -115,4 +124,10 @@ int parser(char* input, char* commands, int* params, int max)
  }
 
  return i;
+}
+
+
+float mapInverse(float angle, float min, float max)
+{
+ return ((angle - min)/(max - min)) * 180;
 }

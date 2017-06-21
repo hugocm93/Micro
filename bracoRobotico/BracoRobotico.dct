@@ -924,6 +924,7 @@ man_receive_init
 man_send
 man_send_init
 man_synchro
+mapinverse
 max
 max_files
 mearm_begin

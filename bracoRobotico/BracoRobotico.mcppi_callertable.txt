@@ -7,25 +7,24 @@ main
 		UART1_Write
 	ServoAttach
 		Mul_16x16_U
-	UART1_Data_Ready
-	UART1_Read_Text
-		UART1_Data_Ready
-		UART1_Read
-	parser
-		strtok
-			strspn
-				strchr
-			strcspn
-				strchr
-		atoi
-			isdigit
-			Mul_16x16_U
-	Byte2Double
-		NRM4032
-			SETFUN32
-			FIXSIGN32
-			SETFOV32
+	mapInverse
+		Sub_32x32_FP
+			Add_32x32_FP
+				NRM4032
+					SETFUN32
+					FIXSIGN32
+					SETFOV32
+					RES032
+				SETFOV32
+		Div_32x32_FP
+			SETFDZ32
 			RES032
+			SETFOV32
+			SETFUN32
+		Mul_32x32_FP
+			RES032
+			SETFOV32
+			SETFUN32
 	ServoWrite
 		ang2pwm
 			Div_32x32_FP
