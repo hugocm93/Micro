@@ -625,7 +625,6 @@ gain
 gain
 gain
 gain
-gain
 gcen
 gcen_bit
 get_fosc_khz
@@ -679,19 +678,6 @@ go_done_bit
 go_not_done
 go_not_done_bit
 halfbits
-hx711_get_units
-hx711_get_value
-hx711_init
-hx711_offset
-hx711_power_down
-hx711_power_up
-hx711_read
-hx711_read_average
-hx711_ready
-hx711_reset_measure
-hx711_set_gain
-hx711_set_offset
-hx711_set_scale
 i2c_dat
 i2c_dat_bit
 i2c_data
@@ -885,6 +871,7 @@ ldiv
 left_to_right
 left_to_right_16bit
 lf
+limitangle
 log
 log10
 longint2double
@@ -924,7 +911,6 @@ man_receive_init
 man_send
 man_send_init
 man_synchro
-mapinverse
 max
 max_files
 mearm_begin
@@ -1051,7 +1037,6 @@ nrm4032
 obf_trise_bit
 oerr
 oerr_bit
-offset
 osc2
 osc2_bit
 osccon
@@ -1394,7 +1379,6 @@ s1d13700_write_parameter
 s1d13700_write_text
 s1d13700_write_text_adv
 s1d13700_write_text_return_pos
-scale
 sck
 sck_bit
 scl
@@ -1413,6 +1397,7 @@ sen_bit
 servo_interrupt
 servoattach
 servoinit
+servos
 servowrite
 setfdz32
 setfov32

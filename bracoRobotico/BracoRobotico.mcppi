@@ -26,9 +26,8 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=2
+Count=1
 File0=BracoRobotico.c
-File1=servo.c
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -36,11 +35,14 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=4
-Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
-Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path2=C:\Users\mplab.LCA-06\Downloads\Micro\bracoRobotico\
-Path3=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\HX711 Library\Uses\
+Count=7
+Path0=C:\Program Files\mikroC PRO for PIC\defs\
+Path1=C:\Program Files\mikroC PRO for PIC\uses\P18\
+Path2=C:\Users\aula\Downloads\Micro\bracoRobotico\
+Path3=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
+Path4=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
+Path5=C:\Users\mplab.LCA-06\Downloads\Micro\bracoRobotico\
+Path6=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\HX711 Library\Uses\
 [HEADER_PATH]
 Count=0
 [HEADERS]

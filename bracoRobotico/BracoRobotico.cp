@@ -1,5 +1,5 @@
-#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
-#line 1 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/servo.h"
+#line 1 "C:/Users/aula/Downloads/Micro/bracoRobotico/BracoRobotico.c"
+#line 1 "c:/users/aula/downloads/micro/bracorobotico/servo.h"
 
 
 
@@ -21,10 +21,21 @@ void ServoInit();
 void ServoAttach( char servo, char out, char pin );
 
 void ServoWrite(char srv_id, float angle);
-#line 17 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
+#line 18 "C:/Users/aula/Downloads/Micro/bracoRobotico/BracoRobotico.c"
+typedef struct servo
+{
+ float min;
+ float max;
+}Servo;
+
+volatile Servo servos[4] = {{ 0 ,  180 },
+ { 45 ,  135 },
+ { -45 ,  180 },
+ { 56 ,  80 }};
+
 int parser(char* input, char* commands, int* params, int max);
 
-float mapInverse(float angle, float min, float max);
+float limitAngle(float angle, int servoId);
 
 void main()
 {
@@ -49,13 +60,12 @@ void main()
  ServoAttach( 2 , &PORTD,  2 );
  ServoAttach( 3 , &PORTD,  3 );
 
- ServoWrite( 0 , mapInverse(58,  0 ,  180 ));
- ServoWrite( 1 , mapInverse(72,  45 ,  135 ));
- ServoWrite( 2 , mapInverse(-20,  -45 ,  180 ));
- ServoWrite( 3 , mapInverse(56,  56 ,  80 ));
+ ServoWrite( 0 , limitAngle(58,  0 ));
+ ServoWrite( 1 , limitAngle(72,  1 ));
+ ServoWrite( 2 , limitAngle(-20,  2 ));
+ ServoWrite( 3 , limitAngle(56,  3 ));
 
-
- while(0)
+ while(1)
  {
  if(UART1_Data_Ready())
  {
@@ -72,36 +82,36 @@ void main()
  {
  case 'b':
  case 'B':
- ServoWrite( 0 , params[i]);
+ ServoWrite( 0 , limitAngle(params[i],  0 ));
  UART1_Write_Text("write base\r\n");
  break;
 
  case 'o':
  case 'O':
- ServoWrite( 1 , params[i]);
+ ServoWrite( 1 , limitAngle(params[i],  1 ));
  UART1_Write_Text("write shoulder\r\n");
  break;
 
  case 'c':
  case 'C':
- ServoWrite( 2 , params[i]);
+ ServoWrite( 2 , limitAngle(params[i],  2 ));
  UART1_Write_Text("write elbow\r\n");
  break;
 
  case 'p':
  case 'P':
- ServoWrite( 0 , params[i]);
- ServoWrite( 1 , params[i]);
- ServoWrite( 2 , params[i]);
+ ServoWrite( 0 , limitAngle(params[i],  0 ));
+ ServoWrite( 1 , limitAngle(params[i],  1 ));
+ ServoWrite( 2 , limitAngle(params[i],  2 ));
  UART1_Write_Text("write all\r\n");
  break;
 
  case 'g':
  case 'G':
  if(params[i])
- ServoWrite( 3 , 80);
+ ServoWrite( 3 , servos[ 3 ].max);
  else
- ServoWrite( 3 , 56);
+ ServoWrite( 3 , servos[ 3 ].min);
 
  UART1_Write_Text("write gripper\r\n");
  break;
@@ -127,7 +137,11 @@ int parser(char* input, char* commands, int* params, int max)
 }
 
 
-float mapInverse(float angle, float min, float max)
+float limitAngle(float angle, int id)
 {
- return ((angle - min)/(max - min)) * 180;
+ if(angle > servos[id].max)
+ return servos[id].max;
+ else if(angle < servos[id].min)
+ return servos[id].min;
+ return angle;
 }
