@@ -19,28 +19,48 @@
 #define TRUE 1
 #define INPUT_SIZE MAX_COMMANDS*5 
 #define ATTEMPTS 255
+#define NUMBER_OF_STEPS 10
+#define POSITIONS 3
 
+// Controle de min e max
 typedef struct servo
 { 
     float min;
     float max;
 }Servo;
-
 volatile Servo servos[4] = {{BASE_MIN, BASE_MAX},
                             {SHOULDER_MIN, SHOULDER_MAX},
                             {ELBOW_MIN, ELBOW_MAX},
                             {GRIPPER_MIN, GRIPPER_MAX}};
 
+//Posicoes pre-definidas
+int position = 0;
+int stepSize = 0;
+float anglesMatrix[POSITIONS][3] = {{
+                                        (BASE_MAX-BASE_MIN)/2.0 + BASE_MIN,
+                                        (SHOULDER_MAX-SHOULDER_MIN)/2.0 + SHOULDER_MIN,
+                                        (ELBOW_MAX-ELBOW_MIN)/2.0 + ELBOW_MIN
+                                    },
+                                    {
+                                        BASE_MIN,
+                                        SHOULDER_MIN,
+                                        ELBOW_MIN
+                                    },
+                                    {
+                                        BASE_MAX,
+                                        SHOULDER_MAX,
+                                        ELBOW_MAX
+                                    }};
+
+//Metodos auxiliares
 int parser(char* input, char* commands, float* params);
-
 float limitAngle(float angle, int servoId);
-
 void writeFloat(float f);
-
 void writeStr(char* str);
 
 void main() 
 {
+    // Vars do serial
     char uart_rd;
     char input[INPUT_SIZE];
     char delimiter[] = "end";
@@ -50,29 +70,28 @@ void main()
     float params[MAX_COMMANDS];
     int i, numberOfCommandsRead = 0;
 
+    // Configuracao de portas
     ADCON1 = 0x06;
     trisd = 0;
     portd = 0;
 
+    //Servo
     ServoInit(); 
     Delay_ms(200);
-    UART1_Init(57600);
-    Delay_ms(200);
-    writeStr("Start:");
-
     ServoAttach(BASE, &PORTD, BASE);
     ServoAttach(SHOULDER, &PORTD, SHOULDER);
     ServoAttach(ELBOW, &PORTD, ELBOW);
     ServoAttach(GRIPPER, &PORTD, GRIPPER);
 
     //Quando o programa iniciar, mover para a Posição 0.
-    //O que eh a posicao zero??
+    ServoWrite(BASE, limitAngle(anglesMatrix[0][BASE], BASE));
+    ServoWrite(SHOULDER, limitAngle(anglesMatrix[0][SHOULDER], SHOULDER));
+    ServoWrite(ELBOW, limitAngle(anglesMatrix[0][ELBOW], ELBOW));
 
-    ServoWrite(BASE, limitAngle(58, BASE));
-    ServoWrite(SHOULDER, limitAngle(72, SHOULDER));
-    ServoWrite(ELBOW, limitAngle(50, ELBOW));
-    ServoWrite(GRIPPER, limitAngle(56, GRIPPER));
-
+    //Serial
+    UART1_Init(57600);
+    Delay_ms(200);
+    writeStr("Start:");
     while(TRUE)
     {
         if(!UART1_Data_Ready())
@@ -103,10 +122,13 @@ void main()
                     break;
 
                 case 'p': case 'P':
-                    ServoWrite(BASE, limitAngle(params[i], BASE));
-                    ServoWrite(SHOULDER, limitAngle(params[i], SHOULDER));
-                    ServoWrite(ELBOW, limitAngle(params[i], ELBOW));
-                    writeStr("write to all");
+                {
+                    int pos = (int)params[i] >= 0 && (int)params[i] < POSITIONS ? (int)params[i] : 0;
+                    ServoWrite(BASE, limitAngle(anglesMatrix[pos][BASE], BASE));
+                    ServoWrite(SHOULDER, limitAngle(anglesMatrix[pos][SHOULDER], SHOULDER));
+                    ServoWrite(ELBOW, limitAngle(anglesMatrix[pos][ELBOW], ELBOW));
+                    writeStr("write position");
+                }
                     break;
 
                 case 'g': case 'G':

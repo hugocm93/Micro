@@ -21,28 +21,45 @@ void ServoInit();
 void ServoAttach( char servo, char out, char pin );
 
 void ServoWrite(char srv_id, float angle);
-#line 23 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/BracoRobotico.c"
+#line 26 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/BracoRobotico.c"
 typedef struct servo
 {
  float min;
  float max;
 }Servo;
-
 volatile Servo servos[4] = {{ 0 ,  180 },
  { 45 ,  135 },
  { 45 ,  180 },
  { 56 ,  80 }};
 
+
+int position = 0;
+int stepSize = 0;
+float anglesMatrix[ 3 ][3] = {{
+ ( 180 - 0 )/2.0 +  0 ,
+ ( 135 - 45 )/2.0 +  45 ,
+ ( 180 - 45 )/2.0 +  45 
+ },
+ {
+  0 ,
+  45 ,
+  45 
+ },
+ {
+  180 ,
+  135 ,
+  180 
+ }};
+
+
 int parser(char* input, char* commands, float* params);
-
 float limitAngle(float angle, int servoId);
-
 void writeFloat(float f);
-
 void writeStr(char* str);
 
 void main()
 {
+
  char uart_rd;
  char input[ 10 *5 ];
  char delimiter[] = "end";
@@ -52,29 +69,28 @@ void main()
  float params[ 10 ];
  int i, numberOfCommandsRead = 0;
 
+
  ADCON1 = 0x06;
  trisd = 0;
  portd = 0;
 
+
  ServoInit();
  Delay_ms(200);
- UART1_Init(57600);
- Delay_ms(200);
- writeStr("Start:");
-
  ServoAttach( 0 , &PORTD,  0 );
  ServoAttach( 1 , &PORTD,  1 );
  ServoAttach( 2 , &PORTD,  2 );
  ServoAttach( 3 , &PORTD,  3 );
 
 
+ ServoWrite( 0 , limitAngle(anglesMatrix[0][ 0 ],  0 ));
+ ServoWrite( 1 , limitAngle(anglesMatrix[0][ 1 ],  1 ));
+ ServoWrite( 2 , limitAngle(anglesMatrix[0][ 2 ],  2 ));
 
 
- ServoWrite( 0 , limitAngle(58,  0 ));
- ServoWrite( 1 , limitAngle(72,  1 ));
- ServoWrite( 2 , limitAngle(50,  2 ));
- ServoWrite( 3 , limitAngle(56,  3 ));
-
+ UART1_Init(57600);
+ Delay_ms(200);
+ writeStr("Start:");
  while( 1 )
  {
  if(!UART1_Data_Ready())
@@ -105,10 +121,16 @@ void main()
  break;
 
  case 'p': case 'P':
- ServoWrite( 0 , limitAngle(params[i],  0 ));
- ServoWrite( 1 , limitAngle(params[i],  1 ));
- ServoWrite( 2 , limitAngle(params[i],  2 ));
- writeStr("write to all");
+ {
+ int pos = (int)params[i] >= 0 && (int)params[i] <  3  ? (int)params[i] : 0;
+ ServoWrite( 0 , limitAngle(anglesMatrix[pos][ 0 ],  0 ));
+ ServoWrite( 1 , limitAngle(anglesMatrix[pos][ 1 ],  1 ));
+ ServoWrite( 2 , limitAngle(anglesMatrix[pos][ 2 ],  2 ));
+ writeStr("write position");
+ writeFloat(anglesMatrix[pos][ 0 ]);
+ writeFloat(anglesMatrix[pos][ 1 ]);
+ writeFloat(anglesMatrix[pos][ 2 ]);
+ }
  break;
 
  case 'g': case 'G':

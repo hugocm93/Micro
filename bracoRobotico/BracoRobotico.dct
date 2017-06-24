@@ -265,6 +265,7 @@ an6_bit
 an7
 an7_bit
 ang2pwm
+anglesmatrix
 apppwm
 armservos
 asin
@@ -1101,6 +1102,7 @@ portb
 portc
 portd
 porte
+position
 postdec0
 postdec1
 postdec2
@@ -1699,6 +1701,7 @@ sspov
 sspov_bit
 sspstat
 status
+stepsize
 stkful
 stkful_bit
 stkovf
