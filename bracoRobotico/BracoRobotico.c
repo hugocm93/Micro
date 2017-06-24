@@ -34,8 +34,14 @@ volatile Servo servos[4] = {{BASE_MIN, BASE_MAX},
                             {GRIPPER_MIN, GRIPPER_MAX}};
 
 //Posicoes pre-definidas
-int position = 0;
-int stepSize = 0;
+typedef struct angleIterator
+{
+    float beginAngle;
+    float stepSize;
+}AngleIterator;
+AngleIterator it[3] = {{(BASE_MAX-BASE_MIN)/2.0 + BASE_MIN, 0},
+                       {(SHOULDER_MAX-SHOULDER_MIN)/2.0 + SHOULDER_MIN, 0},
+                       {(ELBOW_MAX-ELBOW_MIN)/2.0 + ELBOW_MIN, 0}};
 float anglesMatrix[POSITIONS][3] = {{
                                         (BASE_MAX-BASE_MIN)/2.0 + BASE_MIN,
                                         (SHOULDER_MAX-SHOULDER_MIN)/2.0 + SHOULDER_MIN,
@@ -57,6 +63,7 @@ int parser(char* input, char* commands, float* params);
 float limitAngle(float angle, int servoId);
 void writeFloat(float f);
 void writeStr(char* str);
+void setServosPosition(int position);
 
 void main() 
 {
@@ -83,7 +90,7 @@ void main()
     ServoAttach(ELBOW, &PORTD, ELBOW);
     ServoAttach(GRIPPER, &PORTD, GRIPPER);
 
-    //Quando o programa iniciar, mover para a Posição 0.
+    //Quando o programa iniciar, mover para a Posição 0, sem iteracao
     ServoWrite(BASE, limitAngle(anglesMatrix[0][BASE], BASE));
     ServoWrite(SHOULDER, limitAngle(anglesMatrix[0][SHOULDER], SHOULDER));
     ServoWrite(ELBOW, limitAngle(anglesMatrix[0][ELBOW], ELBOW));
@@ -124,10 +131,9 @@ void main()
                 case 'p': case 'P':
                 {
                     int pos = (int)params[i] >= 0 && (int)params[i] < POSITIONS ? (int)params[i] : 0;
-                    ServoWrite(BASE, limitAngle(anglesMatrix[pos][BASE], BASE));
-                    ServoWrite(SHOULDER, limitAngle(anglesMatrix[pos][SHOULDER], SHOULDER));
-                    ServoWrite(ELBOW, limitAngle(anglesMatrix[pos][ELBOW], ELBOW));
-                    writeStr("write position");
+                    writeStr("begin moving to position");
+                    setServosPosition(pos);
+                    writeStr("end moving to position");
                 }
                     break;
 
@@ -188,4 +194,26 @@ void writeStr(char* str)
     UART1_Write_Text("\r\n");
     UART1_Write_Text(str);
     UART1_Write_Text("\r\n");
+}
+
+void setServosPosition(int pos)
+{
+    int i;
+
+    it[BASE].stepSize = (anglesMatrix[pos][BASE] - it[BASE].beginAngle) / NUMBER_OF_STEPS; 
+    it[SHOULDER].stepSize = (anglesMatrix[pos][SHOULDER] - it[SHOULDER].beginAngle) / NUMBER_OF_STEPS; 
+    it[ELBOW].stepSize = (anglesMatrix[pos][ELBOW] - it[ELBOW].beginAngle) / NUMBER_OF_STEPS; 
+
+    for(i = 1; i <= NUMBER_OF_STEPS; i++)
+    {
+        ServoWrite(BASE, limitAngle(it[BASE].beginAngle + i*it[BASE].stepSize, BASE));
+        ServoWrite(SHOULDER, limitAngle(it[SHOULDER].beginAngle + i*it[SHOULDER].stepSize, SHOULDER));
+        ServoWrite(ELBOW, limitAngle(it[ELBOW].beginAngle + i*it[ELBOW].stepSize, ELBOW));
+
+        Delay_ms(200);
+    }
+
+    it[BASE].beginAngle = it[BASE].beginAngle + NUMBER_OF_STEPS*it[BASE].stepSize;
+    it[SHOULDER].beginAngle = it[SHOULDER].beginAngle + NUMBER_OF_STEPS*it[SHOULDER].stepSize;
+    it[ELBOW].beginAngle = it[ELBOW].beginAngle + NUMBER_OF_STEPS*it[ELBOW].stepSize;
 }

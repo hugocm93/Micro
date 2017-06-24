@@ -781,6 +781,7 @@ ispunct
 isspace
 isupper
 isxdigit
+it
 jpegdecoder
 jpegdecoder_16bit
 keypad_init
@@ -1102,7 +1103,6 @@ portb
 portc
 portd
 porte
-position
 postdec0
 postdec1
 postdec2
@@ -1405,6 +1405,7 @@ setfov32
 setfun32
 setiov3224
 setjmp
+setservosposition
 setup_servo
 shorttohex
 shorttostr
@@ -1701,7 +1702,6 @@ sspov
 sspov_bit
 sspstat
 status
-stepsize
 stkful
 stkful_bit
 stkovf

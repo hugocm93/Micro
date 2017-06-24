@@ -33,8 +33,14 @@ volatile Servo servos[4] = {{ 0 ,  180 },
  { 56 ,  80 }};
 
 
-int position = 0;
-int stepSize = 0;
+typedef struct angleIterator
+{
+ float beginAngle;
+ float stepSize;
+}AngleIterator;
+AngleIterator it[3] = {{( 180 - 0 )/2.0 +  0 , 0},
+ {( 135 - 45 )/2.0 +  45 , 0},
+ {( 180 - 45 )/2.0 +  45 , 0}};
 float anglesMatrix[ 3 ][3] = {{
  ( 180 - 0 )/2.0 +  0 ,
  ( 135 - 45 )/2.0 +  45 ,
@@ -56,6 +62,7 @@ int parser(char* input, char* commands, float* params);
 float limitAngle(float angle, int servoId);
 void writeFloat(float f);
 void writeStr(char* str);
+void setServosPosition(int position);
 
 void main()
 {
@@ -123,13 +130,9 @@ void main()
  case 'p': case 'P':
  {
  int pos = (int)params[i] >= 0 && (int)params[i] <  3  ? (int)params[i] : 0;
- ServoWrite( 0 , limitAngle(anglesMatrix[pos][ 0 ],  0 ));
- ServoWrite( 1 , limitAngle(anglesMatrix[pos][ 1 ],  1 ));
- ServoWrite( 2 , limitAngle(anglesMatrix[pos][ 2 ],  2 ));
- writeStr("write position");
- writeFloat(anglesMatrix[pos][ 0 ]);
- writeFloat(anglesMatrix[pos][ 1 ]);
- writeFloat(anglesMatrix[pos][ 2 ]);
+ writeStr("begin moving to position");
+ setServosPosition(pos);
+ writeStr("end moving to position");
  }
  break;
 
@@ -190,4 +193,26 @@ void writeStr(char* str)
  UART1_Write_Text("\r\n");
  UART1_Write_Text(str);
  UART1_Write_Text("\r\n");
+}
+
+void setServosPosition(int pos)
+{
+ int i;
+
+ it[ 0 ].stepSize = (anglesMatrix[pos][ 0 ] - it[ 0 ].beginAngle) /  10 ;
+ it[ 1 ].stepSize = (anglesMatrix[pos][ 1 ] - it[ 1 ].beginAngle) /  10 ;
+ it[ 2 ].stepSize = (anglesMatrix[pos][ 2 ] - it[ 2 ].beginAngle) /  10 ;
+
+ for(i = 1; i <=  10 ; i++)
+ {
+ ServoWrite( 0 , limitAngle(it[ 0 ].beginAngle + i*it[ 0 ].stepSize,  0 ));
+ ServoWrite( 1 , limitAngle(it[ 1 ].beginAngle + i*it[ 1 ].stepSize,  1 ));
+ ServoWrite( 2 , limitAngle(it[ 2 ].beginAngle + i*it[ 2 ].stepSize,  2 ));
+
+ Delay_ms(200);
+ }
+
+ it[ 0 ].beginAngle = it[ 0 ].beginAngle +  10 *it[ 0 ].stepSize;
+ it[ 1 ].beginAngle = it[ 1 ].beginAngle +  10 *it[ 1 ].stepSize;
+ it[ 2 ].beginAngle = it[ 2 ].beginAngle +  10 *it[ 2 ].stepSize;
 }
