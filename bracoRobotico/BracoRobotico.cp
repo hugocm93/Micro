@@ -1,5 +1,5 @@
-#line 1 "C:/Users/aula/Downloads/Micro/bracoRobotico/BracoRobotico.c"
-#line 1 "c:/users/aula/downloads/micro/bracorobotico/servo.h"
+#line 1 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/BracoRobotico.c"
+#line 1 "c:/users/hugocm93/desktop/micro/bracorobotico/servo.h"
 
 
 
@@ -21,7 +21,7 @@ void ServoInit();
 void ServoAttach( char servo, char out, char pin );
 
 void ServoWrite(char srv_id, float angle);
-#line 18 "C:/Users/aula/Downloads/Micro/bracoRobotico/BracoRobotico.c"
+#line 23 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/BracoRobotico.c"
 typedef struct servo
 {
  float min;
@@ -30,20 +30,27 @@ typedef struct servo
 
 volatile Servo servos[4] = {{ 0 ,  180 },
  { 45 ,  135 },
- { -45 ,  180 },
+ { 45 ,  180 },
  { 56 ,  80 }};
 
-int parser(char* input, char* commands, int* params, int max);
+int parser(char* input, char* commands, float* params);
 
 float limitAngle(float angle, int servoId);
+
+void writeFloat(float f);
+
+void writeStr(char* str);
 
 void main()
 {
  char uart_rd;
- char output[40];
+ char input[ 10 *5 ];
  char delimiter[] = "end";
- char attempts = 255;
- int param = 0;
+
+
+ char commands[ 10 ];
+ float params[ 10 ];
+ int i, numberOfCommandsRead = 0;
 
  ADCON1 = 0x06;
  trisd = 0;
@@ -53,83 +60,82 @@ void main()
  Delay_ms(200);
  UART1_Init(57600);
  Delay_ms(200);
- UART1_Write_Text("Start:\r\n");
+ writeStr("Start:");
 
  ServoAttach( 0 , &PORTD,  0 );
  ServoAttach( 1 , &PORTD,  1 );
  ServoAttach( 2 , &PORTD,  2 );
  ServoAttach( 3 , &PORTD,  3 );
 
+
+
+
  ServoWrite( 0 , limitAngle(58,  0 ));
  ServoWrite( 1 , limitAngle(72,  1 ));
- ServoWrite( 2 , limitAngle(-20,  2 ));
+ ServoWrite( 2 , limitAngle(50,  2 ));
  ServoWrite( 3 , limitAngle(56,  3 ));
 
- while(1)
+ while( 1 )
  {
- if(UART1_Data_Ready())
+ if(!UART1_Data_Ready())
  {
- char commands[80];
- char params[80];
- int i, max = 80;
+ continue;
+ }
 
- UART1_Read_Text(output, delimiter, attempts);
- max = parser(output, commands, params, max);
+ UART1_Read_Text(input, delimiter,  255 );
+ numberOfCommandsRead = parser(input, commands, params);
 
- for(i = 0; i < max; i++)
+ for(i = 0; i < numberOfCommandsRead; i++)
  {
  switch(commands[i])
  {
- case 'b':
- case 'B':
+ case 'b': case 'B':
  ServoWrite( 0 , limitAngle(params[i],  0 ));
- UART1_Write_Text("write base\r\n");
+ writeStr("write to base");
  break;
 
- case 'o':
- case 'O':
+ case 'o': case 'O':
  ServoWrite( 1 , limitAngle(params[i],  1 ));
- UART1_Write_Text("write shoulder\r\n");
+ writeStr("write to shoulder");
  break;
 
- case 'c':
- case 'C':
+ case 'c': case 'C':
  ServoWrite( 2 , limitAngle(params[i],  2 ));
- UART1_Write_Text("write elbow\r\n");
+ writeStr("write to elbow");
  break;
 
- case 'p':
- case 'P':
+ case 'p': case 'P':
  ServoWrite( 0 , limitAngle(params[i],  0 ));
  ServoWrite( 1 , limitAngle(params[i],  1 ));
  ServoWrite( 2 , limitAngle(params[i],  2 ));
- UART1_Write_Text("write all\r\n");
+ writeStr("write to all");
  break;
 
- case 'g':
- case 'G':
- if(params[i])
- ServoWrite( 3 , servos[ 3 ].max);
- else
- ServoWrite( 3 , servos[ 3 ].min);
-
- UART1_Write_Text("write gripper\r\n");
- break;
+ case 'g': case 'G':
+ {
+ float gripperAngle = (int)params[i] ? servos[ 3 ].max : servos[ 3 ].min;
+ ServoWrite( 3 , gripperAngle);
+ writeStr("write to gripper");
  }
+ break;
+
+ default:
+ writeStr("");
+
  }
  }
  }
 }
 
 
-int parser(char* input, char* commands, int* params, int max)
+int parser(char* input, char* commands, float* params)
 {
  int i = 0;
  char* token = strtok (input, ";");
 
- while (token && i < max){
+ while (token && i <  10 ){
  commands[i] = token[1];
- params[i++] = atoi(&token[2]);
+ params[i++] = atof(&token[2]);
  token = strtok (0, ";");
  }
 
@@ -144,4 +150,22 @@ float limitAngle(float angle, int id)
  else if(angle < servos[id].min)
  return servos[id].min;
  return angle;
+}
+
+
+void writeFloat(float f)
+{
+ char str[20];
+ FloatToStr(f, str);
+ UART1_Write_Text("\r\n");
+ UART1_Write_Text(str);
+ UART1_Write_Text("\r\n");
+}
+
+
+void writeStr(char* str)
+{
+ UART1_Write_Text("\r\n");
+ UART1_Write_Text(str);
+ UART1_Write_Text("\r\n");
 }

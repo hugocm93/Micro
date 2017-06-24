@@ -26,7 +26,7 @@ L__ServoInit15:
 	MOVWF       R4 
 	MOVLW       0
 	MOVWF       R5 
-	CALL        _Mul_16x16_U+0, 0
+	CALL        _Mul_16X16_U+0, 0
 	MOVLW       _armServos+0
 	ADDWF       R0, 1 
 	MOVLW       hi_addr(_armServos+0)
@@ -122,7 +122,7 @@ L_ServoAttach3:
 	MOVWF       R4 
 	MOVLW       0
 	MOVWF       R5 
-	CALL        _Mul_16x16_U+0, 0
+	CALL        _Mul_16X16_U+0, 0
 	MOVLW       _armServos+0
 	ADDWF       R0, 1 
 	MOVLW       hi_addr(_armServos+0)
@@ -182,7 +182,7 @@ _Servo_Interrupt:
 	MOVWF       R4 
 	MOVLW       0
 	MOVWF       R5 
-	CALL        _Mul_16x16_U+0, 0
+	CALL        _Mul_16X16_U+0, 0
 	MOVLW       _armServos+0
 	ADDWF       R0, 0 
 	MOVWF       FSR0 
@@ -256,7 +256,7 @@ L_Servo_Interrupt5:
 	MOVWF       R4 
 	MOVLW       0
 	MOVWF       R5 
-	CALL        _Mul_16x16_U+0, 0
+	CALL        _Mul_16X16_U+0, 0
 	MOVLW       _armServos+0
 	ADDWF       R0, 1 
 	MOVLW       hi_addr(_armServos+0)
@@ -368,7 +368,7 @@ _ang2pwm:
 	MOVLW       136
 	MOVWF       R7 
 	CALL        _Add_32x32_FP+0, 0
-	CALL        _Double2Word+0, 0
+	CALL        _double2word+0, 0
 	MOVF        R0, 0 
 	MOVWF       ang2pwm_pwm_L0+0 
 	MOVF        R1, 0 
@@ -384,46 +384,50 @@ L__ang2pwm24:
 	BTFSC       STATUS+0, 0 
 	GOTO        L_ang2pwm9
 	MOVLW       96
-	MOVWF       R1 
+	MOVWF       ?FLOC___ang2pwmT81+0 
 	MOVLW       9
-	MOVWF       R2 
+	MOVWF       ?FLOC___ang2pwmT81+1 
 	GOTO        L_ang2pwm10
 L_ang2pwm9:
 	MOVF        ang2pwm_pwm_L0+0, 0 
-	MOVWF       R1 
+	MOVWF       ?FLOC___ang2pwmT81+0 
 	MOVF        ang2pwm_pwm_L0+1, 0 
-	MOVWF       R2 
+	MOVWF       ?FLOC___ang2pwmT81+1 
 L_ang2pwm10:
-	MOVF        R1, 0 
+	MOVF        ?FLOC___ang2pwmT81+0, 0 
 	MOVWF       ang2pwm_pwm_L0+0 
-	MOVF        R2, 0 
+	MOVF        ?FLOC___ang2pwmT81+1, 0 
 	MOVWF       ang2pwm_pwm_L0+1 
 ;servo.c,108 :: 		pwm = (pwm < TicksMin)? TicksMin : pwm;
 	MOVLW       2
-	SUBWF       R2, 0 
+	SUBWF       ?FLOC___ang2pwmT81+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__ang2pwm25
 	MOVLW       32
-	SUBWF       R1, 0 
+	SUBWF       ?FLOC___ang2pwmT81+0, 0 
 L__ang2pwm25:
 	BTFSC       STATUS+0, 0 
 	GOTO        L_ang2pwm11
 	MOVLW       32
-	MOVWF       R0 
+	MOVWF       ?FLOC___ang2pwmT83+0 
 	MOVLW       2
-	MOVWF       R1 
+	MOVWF       ?FLOC___ang2pwmT83+1 
 	GOTO        L_ang2pwm12
 L_ang2pwm11:
 	MOVF        ang2pwm_pwm_L0+0, 0 
-	MOVWF       R0 
+	MOVWF       ?FLOC___ang2pwmT83+0 
 	MOVF        ang2pwm_pwm_L0+1, 0 
-	MOVWF       R1 
+	MOVWF       ?FLOC___ang2pwmT83+1 
 L_ang2pwm12:
-	MOVF        R0, 0 
+	MOVF        ?FLOC___ang2pwmT83+0, 0 
 	MOVWF       ang2pwm_pwm_L0+0 
-	MOVF        R1, 0 
+	MOVF        ?FLOC___ang2pwmT83+1, 0 
 	MOVWF       ang2pwm_pwm_L0+1 
 ;servo.c,109 :: 		return pwm;
+	MOVF        ?FLOC___ang2pwmT83+0, 0 
+	MOVWF       R0 
+	MOVF        ?FLOC___ang2pwmT83+1, 0 
+	MOVWF       R1 
 ;servo.c,110 :: 		}
 L_end_ang2pwm:
 	RETURN      0

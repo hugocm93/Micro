@@ -7,7 +7,7 @@ _setup_servo:
 	MOVWF       R0 
 	MOVF        FARG_setup_servo_n_max+1, 0 
 	MOVWF       R1 
-	CALL        _Int2Double+0, 0
+	CALL        _int2double+0, 0
 	MOVF        R0, 0 
 	MOVWF       FLOC__setup_servo+0 
 	MOVF        R1, 0 
@@ -20,7 +20,7 @@ _setup_servo:
 	MOVWF       R0 
 	MOVF        FARG_setup_servo_n_min+1, 0 
 	MOVWF       R1 
-	CALL        _Int2Double+0, 0
+	CALL        _int2double+0, 0
 	MOVF        R0, 0 
 	MOVWF       R4 
 	MOVF        R1, 0 
@@ -134,7 +134,7 @@ L_setup_servo0:
 	MOVWF       R0 
 	MOVF        FARG_setup_servo_n_min+1, 0 
 	MOVWF       R1 
-	CALL        _Int2Double+0, 0
+	CALL        _int2double+0, 0
 	MOVF        R0, 0 
 	MOVWF       FLOC__setup_servo+0 
 	MOVF        R1, 0 
@@ -854,13 +854,13 @@ _meArm_gotoPoint:
 	MOVWF       R6 
 	MOVF        FARG_meArm_gotoPoint_y+3, 0 
 	MOVWF       R7 
-	MOVF        meArm_gotoPoint_y0_L0+0, 0 
+	MOVF        __y+0, 0 
 	MOVWF       R0 
-	MOVF        meArm_gotoPoint_y0_L0+1, 0 
+	MOVF        __y+1, 0 
 	MOVWF       R1 
-	MOVF        meArm_gotoPoint_y0_L0+2, 0 
+	MOVF        __y+2, 0 
 	MOVWF       R2 
-	MOVF        meArm_gotoPoint_y0_L0+3, 0 
+	MOVF        __y+3, 0 
 	MOVWF       R3 
 	CALL        _Sub_32x32_FP+0, 0
 	MOVF        R0, 0 
@@ -897,13 +897,13 @@ _meArm_gotoPoint:
 	MOVWF       R6 
 	MOVF        FARG_meArm_gotoPoint_z+3, 0 
 	MOVWF       R7 
-	MOVF        meArm_gotoPoint_z0_L0+0, 0 
+	MOVF        __z+0, 0 
 	MOVWF       R0 
-	MOVF        meArm_gotoPoint_z0_L0+1, 0 
+	MOVF        __z+1, 0 
 	MOVWF       R1 
-	MOVF        meArm_gotoPoint_z0_L0+2, 0 
+	MOVF        __z+2, 0 
 	MOVWF       R2 
-	MOVF        meArm_gotoPoint_z0_L0+3, 0 
+	MOVF        __z+3, 0 
 	MOVWF       R3 
 	CALL        _Sub_32x32_FP+0, 0
 	MOVF        R0, 0 
@@ -954,7 +954,7 @@ L_meArm_gotoPoint2:
 	MOVWF       R0 
 	MOVF        meArm_gotoPoint_i_L0+1, 0 
 	MOVWF       R1 
-	CALL        _Int2Double+0, 0
+	CALL        _int2double+0, 0
 	MOVF        meArm_gotoPoint_dist_L0+0, 0 
 	MOVWF       R4 
 	MOVF        meArm_gotoPoint_dist_L0+1, 0 
@@ -1001,7 +1001,7 @@ L_meArm_gotoPoint2:
 	MOVWF       R0 
 	MOVF        meArm_gotoPoint_i_L0+1, 0 
 	MOVWF       R1 
-	CALL        _Int2Double+0, 0
+	CALL        _int2double+0, 0
 	MOVF        R0, 0 
 	MOVWF       FLOC__meArm_gotoPoint+0 
 	MOVF        R1, 0 

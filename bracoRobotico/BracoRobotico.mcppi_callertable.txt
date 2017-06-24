@@ -1,12 +1,13 @@
 main
 	__CC2DW
 	ServoInit
-		Mul_16x16_U
+		Mul_16X16_U
 	UART1_Init
-	UART1_Write_Text
-		UART1_Write
+	writeStr
+		UART1_Write_Text
+			UART1_Write
 	ServoAttach
-		Mul_16x16_U
+		Mul_16X16_U
 	limitAngle
 		Compare_Double
 	ServoWrite
@@ -27,7 +28,7 @@ main
 					SETFOV32
 					RES032
 				SETFOV32
-			Double2Word
+			double2word
 				SETIOV3224
 	UART1_Data_Ready
 	UART1_Read_Text
@@ -39,15 +40,25 @@ main
 				strchr
 			strcspn
 				strchr
-		atoi
-			isdigit
-			Mul_16x16_U
-	Byte2Double
-		NRM4032
-			SETFUN32
-			FIXSIGN32
-			SETFOV32
-			RES032
+		atof
+			strtod
+				isspace
+				isdigit
+				Mul_32x32_U
+				longint2double
+					NRM4032
+						SETFUN32
+						FIXSIGN32
+						SETFOV32
+						RES032
+				Equals_Double
+				Mul_32x32_FP
+					RES032
+					SETFOV32
+					SETFUN32
+				Compare_Double
+	double2int
+		SETIOV3224
 interrupt
 	Servo_Interrupt
-		Mul_16x16_U
+		Mul_16X16_U

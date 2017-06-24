@@ -1,5 +1,5 @@
-#line 1 "C:/Users/aula/Downloads/Micro/bracoRobotico/servo.c"
-#line 1 "c:/users/aula/downloads/micro/bracorobotico/servo.h"
+#line 1 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/servo.c"
+#line 1 "c:/users/hugocm93/desktop/micro/bracorobotico/servo.h"
 
 
 
@@ -21,7 +21,7 @@ void ServoInit();
 void ServoAttach( char servo, char out, char pin );
 
 void ServoWrite(char srv_id, float angle);
-#line 4 "C:/Users/aula/Downloads/Micro/bracoRobotico/servo.c"
+#line 4 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/servo.c"
 const N_SERVOS = 4;
 
 
