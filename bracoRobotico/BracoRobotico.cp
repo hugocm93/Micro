@@ -21,7 +21,7 @@ void ServoInit();
 void ServoAttach( char servo, char out, char pin );
 
 void ServoWrite(char srv_id, float angle);
-#line 26 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/BracoRobotico.c"
+#line 39 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/BracoRobotico.c"
 typedef struct servo
 {
  float min;
@@ -31,6 +31,9 @@ volatile Servo servos[4] = {{ 0 ,  180 },
  { 45 ,  135 },
  { 45 ,  180 },
  { 56 ,  80 }};
+
+
+
 
 
 typedef struct angleIterator
@@ -58,11 +61,13 @@ float anglesMatrix[ 3 ][3] = {{
  }};
 
 
+
 int parser(char* input, char* commands, float* params);
 float limitAngle(float angle, int servoId);
 void writeFloat(float f);
 void writeStr(char* str);
 void setServosPosition(int position);
+void setServoAngle(int id, float angle);
 
 void main()
 {
@@ -82,6 +87,13 @@ void main()
  portd = 0;
 
 
+
+
+
+
+
+
+
  ServoInit();
  Delay_ms(200);
  ServoAttach( 0 , &PORTD,  0 );
@@ -90,9 +102,10 @@ void main()
  ServoAttach( 3 , &PORTD,  3 );
 
 
- ServoWrite( 0 , limitAngle(anglesMatrix[0][ 0 ],  0 ));
- ServoWrite( 1 , limitAngle(anglesMatrix[0][ 1 ],  1 ));
- ServoWrite( 2 , limitAngle(anglesMatrix[0][ 2 ],  2 ));
+ setServoAngle( 0 , anglesMatrix[0][ 0 ]);
+ setServoAngle( 1 , anglesMatrix[0][ 1 ]);
+ setServoAngle( 2 , anglesMatrix[0][ 2 ]);
+
 
 
  UART1_Init(57600);
@@ -113,17 +126,17 @@ void main()
  switch(commands[i])
  {
  case 'b': case 'B':
- ServoWrite( 0 , limitAngle(params[i],  0 ));
+ setServoAngle( 0 , params[i]);
  writeStr("write to base");
  break;
 
  case 'o': case 'O':
- ServoWrite( 1 , limitAngle(params[i],  1 ));
+ setServoAngle( 1 , params[i]);
  writeStr("write to shoulder");
  break;
 
  case 'c': case 'C':
- ServoWrite( 2 , limitAngle(params[i],  2 ));
+ setServoAngle( 2 , params[i]);
  writeStr("write to elbow");
  break;
 
@@ -138,8 +151,15 @@ void main()
 
  case 'g': case 'G':
  {
+
+
+
+
+
+
  float gripperAngle = (int)params[i] ? servos[ 3 ].max : servos[ 3 ].min;
- ServoWrite( 3 , gripperAngle);
+ setServoAngle( 3 , gripperAngle);
+
  writeStr("write to gripper");
  }
  break;
@@ -195,8 +215,12 @@ void writeStr(char* str)
  UART1_Write_Text("\r\n");
 }
 
+
 void setServosPosition(int pos)
 {
+
+
+
  int i;
 
  it[ 0 ].stepSize = (anglesMatrix[pos][ 0 ] - it[ 0 ].beginAngle) /  10 ;
@@ -215,4 +239,15 @@ void setServosPosition(int pos)
  it[ 0 ].beginAngle = it[ 0 ].beginAngle +  10 *it[ 0 ].stepSize;
  it[ 1 ].beginAngle = it[ 1 ].beginAngle +  10 *it[ 1 ].stepSize;
  it[ 2 ].beginAngle = it[ 2 ].beginAngle +  10 *it[ 2 ].stepSize;
+
+}
+
+
+void setServoAngle(int id, float angle)
+{
+
+
+
+ ServoWrite(id, limitAngle(angle, id));
+
 }

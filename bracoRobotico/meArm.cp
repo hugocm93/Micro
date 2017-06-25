@@ -46,7 +46,7 @@ typedef struct ServoInfo {
  int meArm_isReachable(float x, float y, float z);
 
 
- void meArm_servo(char id, unsigned char pwm);
+ void meArm_servo(char id, float angle);
 #line 1 "c:/users/hugocm93/desktop/micro/bracorobotico/servo.h"
 
 

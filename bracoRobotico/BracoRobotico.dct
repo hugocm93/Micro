@@ -346,6 +346,7 @@ canspisetfilter
 canspisetmask
 canspisetoperationmode
 canspiwrite
+cart2polar
 ccp1
 ccp1_bit
 ccp1con
@@ -480,6 +481,7 @@ clko_bit
 comfrem
 compare_double
 cos
+cosangle
 cose3
 cosh
 cr
@@ -787,6 +789,9 @@ jpegdecoder_16bit
 keypad_init
 keypad_key_click
 keypad_key_press
+l1
+l2
+l3
 labs
 lata
 lata0
@@ -1089,6 +1094,7 @@ pgd
 pgd_bit
 pgm
 pgm_bit
+pi
 pie1
 pie2
 pir1
@@ -1405,6 +1411,7 @@ setfov32
 setfun32
 setiov3224
 setjmp
+setservoangle
 setservosposition
 setup_servo
 shorttohex
@@ -1427,6 +1434,7 @@ soft_uart_break
 soft_uart_init
 soft_uart_read
 soft_uart_write
+solve
 sound_init
 sound_play
 sp0

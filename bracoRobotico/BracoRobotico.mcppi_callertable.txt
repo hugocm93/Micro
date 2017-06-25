@@ -4,28 +4,29 @@ main
 		Mul_16X16_U
 	ServoAttach
 		Mul_16X16_U
-	limitAngle
-		Compare_Double
-	ServoWrite
-		ang2pwm
-			Div_32x32_FP
-				SETFDZ32
-				RES032
-				SETFOV32
-				SETFUN32
-			Mul_32x32_FP
-				RES032
-				SETFOV32
-				SETFUN32
-			Add_32x32_FP
-				NRM4032
-					SETFUN32
-					FIXSIGN32
-					SETFOV32
+	setServoAngle
+		limitAngle
+			Compare_Double
+		ServoWrite
+			ang2pwm
+				Div_32x32_FP
+					SETFDZ32
 					RES032
-				SETFOV32
-			double2word
-				SETIOV3224
+					SETFOV32
+					SETFUN32
+				Mul_32x32_FP
+					RES032
+					SETFOV32
+					SETFUN32
+				Add_32x32_FP
+					NRM4032
+						SETFUN32
+						FIXSIGN32
+						SETFOV32
+						RES032
+					SETFOV32
+				double2word
+					SETIOV3224
 	UART1_Init
 	writeStr
 		UART1_Write_Text

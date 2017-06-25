@@ -1,4 +1,17 @@
+//#define PARTE2
+
+#ifdef PARTE2
+
+#include "meArm.h"
+#define ARM_ID 6
+#include "armData.h"
+
+#else 
+
 #include "servo.h"
+
+#endif
+
 
 // Não mudar a ordem!
 #define BASE 0
@@ -33,6 +46,9 @@ volatile Servo servos[4] = {{BASE_MIN, BASE_MAX},
                             {ELBOW_MIN, ELBOW_MAX},
                             {GRIPPER_MIN, GRIPPER_MAX}};
 
+#ifdef PARTE2
+float xyzMatrix[POSITIONS][3] = {{0, 130, 50}, {50, 130, 50}, {-50, 130, 50}};
+#else
 //Posicoes pre-definidas
 typedef struct angleIterator
 {
@@ -57,6 +73,7 @@ float anglesMatrix[POSITIONS][3] = {{
                                         SHOULDER_MAX,
                                         ELBOW_MAX
                                     }};
+#endif
 
 //Metodos auxiliares
 int parser(char* input, char* commands, float* params);
@@ -64,6 +81,7 @@ float limitAngle(float angle, int servoId);
 void writeFloat(float f);
 void writeStr(char* str);
 void setServosPosition(int position);
+void setServoAngle(int id, float angle);
 
 void main() 
 {
@@ -82,6 +100,13 @@ void main()
     trisd = 0;
     portd = 0;
 
+#ifdef PARTE2
+    meArm_calib(armData);
+    meArm_begin(&PORTD, BASE, SHOULDER, ELBOW, GRIPPER);
+
+    //Quando o programa iniciar, mover para a Posição 0, sem iteracao
+    meArm_goDirectlyTo(xyzMatrix[0][0],xyzMatrix[0][1],xyzMatrix[0][2]);
+#else 
     //Servo
     ServoInit(); 
     Delay_ms(200);
@@ -91,9 +116,10 @@ void main()
     ServoAttach(GRIPPER, &PORTD, GRIPPER);
 
     //Quando o programa iniciar, mover para a Posição 0, sem iteracao
-    ServoWrite(BASE, limitAngle(anglesMatrix[0][BASE], BASE));
-    ServoWrite(SHOULDER, limitAngle(anglesMatrix[0][SHOULDER], SHOULDER));
-    ServoWrite(ELBOW, limitAngle(anglesMatrix[0][ELBOW], ELBOW));
+    setServoAngle(BASE, anglesMatrix[0][BASE]);
+    setServoAngle(SHOULDER, anglesMatrix[0][SHOULDER]);
+    setServoAngle(ELBOW, anglesMatrix[0][ELBOW]);
+#endif
 
     //Serial
     UART1_Init(57600);
@@ -114,17 +140,17 @@ void main()
             switch(commands[i])
             {
                 case 'b': case 'B':
-                    ServoWrite(BASE, limitAngle(params[i], BASE));
+                    setServoAngle(BASE, params[i]);
                     writeStr("write to base");
                     break;
 
                 case 'o': case 'O':
-                    ServoWrite(SHOULDER, limitAngle(params[i], SHOULDER));
+                    setServoAngle(SHOULDER, params[i]);
                     writeStr("write to shoulder");
                     break;
 
                 case 'c': case 'C':
-                    ServoWrite(ELBOW, limitAngle(params[i], ELBOW));
+                    setServoAngle(ELBOW, params[i]);
                     writeStr("write to elbow");
                     break;
 
@@ -139,8 +165,15 @@ void main()
 
                 case 'g': case 'G':
                 {
+#ifdef PARTE2
+                    if((int)params[i])
+                        meArm_openGripper();
+                    else
+                        meArm_closeGripper();
+#else
                     float gripperAngle = (int)params[i] ? servos[GRIPPER].max : servos[GRIPPER].min;
-                    ServoWrite(GRIPPER, gripperAngle);
+                    setServoAngle(GRIPPER, gripperAngle);
+#endif
                     writeStr("write to gripper");
                 }
                     break;
@@ -196,8 +229,12 @@ void writeStr(char* str)
     UART1_Write_Text("\r\n");
 }
 
+
 void setServosPosition(int pos)
 {
+#ifdef PARTE2
+    meArm_gotoPoint(xyzMatrix[pos][0],xyzMatrix[pos][1],xyzMatrix[pos][2]);
+#else
     int i;
 
     it[BASE].stepSize = (anglesMatrix[pos][BASE] - it[BASE].beginAngle) / NUMBER_OF_STEPS; 
@@ -216,4 +253,15 @@ void setServosPosition(int pos)
     it[BASE].beginAngle = it[BASE].beginAngle + NUMBER_OF_STEPS*it[BASE].stepSize;
     it[SHOULDER].beginAngle = it[SHOULDER].beginAngle + NUMBER_OF_STEPS*it[SHOULDER].stepSize;
     it[ELBOW].beginAngle = it[ELBOW].beginAngle + NUMBER_OF_STEPS*it[ELBOW].stepSize;
+#endif
+}
+
+
+void setServoAngle(int id, float angle)
+{
+#ifdef PARTE2
+    meArm_servo((char)id, limitAngle(angle, id));
+#else
+    ServoWrite(id, limitAngle(angle, id));
+#endif
 }

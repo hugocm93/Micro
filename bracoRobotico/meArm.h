@@ -44,6 +44,6 @@ typedef struct ServoInfo {
     int meArm_isReachable(float x, float y, float z);
 
     // Write to the servos
-    void meArm_servo(char id, unsigned char pwm);
+    void meArm_servo(char id, float angle);
 
 #endif

@@ -1,4 +1,4 @@
-0	1	mikroCPIC1618.exe -MSF -DBG -pP18F452 -RA -DL -O11111114 -fo8 -N"C:\Users\hugocm93\Desktop\Micro\bracoRobotico\BracoRobotico.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"C:\Users\hugocm93\Desktop\Micro\bracoRobotico\" -SP"C:\Program Files\mikroC PRO for PIC\defs\" -SP"C:\Program Files\mikroC PRO for PIC\uses\P18\" -SP"C:\Users\aula\Downloads\Micro\bracoRobotico\" -SP"C:\Users\mplab.LCA-06\Downloads\Micro\bracoRobotico\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\HX711 Library\Uses\" "BracoRobotico.c" "servo.c" "meArm.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CType.mcl" "__Lib_CString.mcl" "__Lib_CStdlib.mcl" "__Lib_CMath.mcl" "__Lib_MemManager.mcl" "__Lib_Conversions.mcl" "__Lib_Sprintf.mcl" "__Lib_PrintOut.mcl" "__Lib_Sprinti.mcl" "__Lib_Sprintl.mcl" "__Lib_Time.mcl" "__Lib_Trigonometry.mcl" "__Lib_Button.mcl" "__Lib_Keypad4x4.mcl" "__Lib_Manchester.mcl" "__Lib_OneWire.mcl" "__Lib_PS2.mcl" "__Lib_Sound.mcl" "__Lib_SoftI2C.mcl" "__Lib_SoftSPI.mcl" "__Lib_SoftUART.mcl" "__Lib_ADC_A_C.mcl" "__Lib_EEPROM_256.mcl" "__Lib_FLASH_w8_e64.mcl" "__Lib_I2C_c34.mcl" "__Lib_PWM_c21.mcl" "__Lib_SPI_c345.mcl" "__Lib_UART_c67.mcl" "__Lib_PortExpander.mcl" "__Lib_CANSPI.mcl" "__Lib_CF.mcl" "__Lib_CFFat16.mcl" "__Lib_GlcdFonts.mcl" "__Lib_Glcd.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl" "__Lib_Mmc.mcl" "__Lib_MmcFat16.mcl" "__Lib_MmcFat16Constants.mcl" "__Lib_RS485.mcl" "__Lib_S1D13700.mcl" "__Lib_T6963C.mcl" "__Lib_SPIGlcd.mcl" "__Lib_SPILcd.mcl" "__Lib_SPILcd8.mcl" "__Lib_SPIT6963C.mcl" "__Lib_EthEnc28j60.mcl" "__Lib_TFT.mcl" "__Lib_TFT_Defs.mcl" "__Lib_TFT_16bit.mcl" "__Lib_TFT_16bit_Defs.mcl" "__Lib_TouchPanel_TFT.mcl" "__Lib_EthEnc24j600.mcl" "__Lib_TouchPanel.mcl"	 
+0	1	mikroCPIC1618.exe -MSF -DBG -pP18F452 -RA -DL -O11111114 -fo8 -N"C:\Users\hugocm93\Desktop\Micro\bracoRobotico\BracoRobotico.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"C:\Users\hugocm93\Desktop\Micro\bracoRobotico\" -SP"C:\Program Files\mikroC PRO for PIC\defs\" -SP"C:\Program Files\mikroC PRO for PIC\uses\P18\" -SP"C:\Users\aula\Downloads\Micro\bracoRobotico\" -SP"C:\Users\mplab.LCA-06\Downloads\Micro\bracoRobotico\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\HX711 Library\Uses\" "BracoRobotico.c" "servo.c" "meArm.c" "me-arm-ik.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CType.mcl" "__Lib_CString.mcl" "__Lib_CStdlib.mcl" "__Lib_CMath.mcl" "__Lib_MemManager.mcl" "__Lib_Conversions.mcl" "__Lib_Sprintf.mcl" "__Lib_PrintOut.mcl" "__Lib_Sprinti.mcl" "__Lib_Sprintl.mcl" "__Lib_Time.mcl" "__Lib_Trigonometry.mcl" "__Lib_Button.mcl" "__Lib_Keypad4x4.mcl" "__Lib_Manchester.mcl" "__Lib_OneWire.mcl" "__Lib_PS2.mcl" "__Lib_Sound.mcl" "__Lib_SoftI2C.mcl" "__Lib_SoftSPI.mcl" "__Lib_SoftUART.mcl" "__Lib_ADC_A_C.mcl" "__Lib_EEPROM_256.mcl" "__Lib_FLASH_w8_e64.mcl" "__Lib_I2C_c34.mcl" "__Lib_PWM_c21.mcl" "__Lib_SPI_c345.mcl" "__Lib_UART_c67.mcl" "__Lib_PortExpander.mcl" "__Lib_CANSPI.mcl" "__Lib_CF.mcl" "__Lib_CFFat16.mcl" "__Lib_GlcdFonts.mcl" "__Lib_Glcd.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl" "__Lib_Mmc.mcl" "__Lib_MmcFat16.mcl" "__Lib_MmcFat16Constants.mcl" "__Lib_RS485.mcl" "__Lib_S1D13700.mcl" "__Lib_T6963C.mcl" "__Lib_SPIGlcd.mcl" "__Lib_SPILcd.mcl" "__Lib_SPILcd8.mcl" "__Lib_SPIT6963C.mcl" "__Lib_EthEnc28j60.mcl" "__Lib_TFT.mcl" "__Lib_TFT_Defs.mcl" "__Lib_TFT_16bit.mcl" "__Lib_TFT_16bit_Defs.mcl" "__Lib_TouchPanel_TFT.mcl" "__Lib_EthEnc24j600.mcl" "__Lib_TouchPanel.mcl"	 
 warning: 0	1501	Specified search path does not exist: 'C:\Program Files\mikroC PRO for PIC\defs'	 
 warning: 0	1501	Specified search path does not exist: 'C:\Program Files\mikroC PRO for PIC\uses\P18'	 
 warning: 0	1501	Specified search path does not exist: 'C:\Users\aula\Downloads\Micro\bracoRobotico'	 
@@ -21,22 +21,24 @@ diagnostics: 2121	123	Compiled Successfully	__Lib_TFT_Defs.c
 diagnostics: 0	122	Compilation Started	__Lib_TFT_16bit_Defs.c
 diagnostics: 2006	123	Compiled Successfully	__Lib_TFT_16bit_Defs.c
 diagnostics: 0	122	Compilation Started	servo.h
-warning: 88	1506	Implicit conversion of pointer to int	BracoRobotico.c
-warning: 89	1506	Implicit conversion of pointer to int	BracoRobotico.c
-warning: 90	1506	Implicit conversion of pointer to int	BracoRobotico.c
-warning: 91	1506	Implicit conversion of pointer to int	BracoRobotico.c
-warning: 99	1509	Generated baud rate is 55556 bps (error = 3.55 percent)	BracoRobotico.c
-hint: 71	1163	Variable 'uart_rd' has been declared, but not used	BracoRobotico.c
-diagnostics: 219	123	Compiled Successfully	BracoRobotico.c
+warning: 113	1506	Implicit conversion of pointer to int	BracoRobotico.c
+warning: 114	1506	Implicit conversion of pointer to int	BracoRobotico.c
+warning: 115	1506	Implicit conversion of pointer to int	BracoRobotico.c
+warning: 116	1506	Implicit conversion of pointer to int	BracoRobotico.c
+warning: 125	1509	Generated baud rate is 55556 bps (error = 3.55 percent)	BracoRobotico.c
+hint: 89	1163	Variable 'uart_rd' has been declared, but not used	BracoRobotico.c
+diagnostics: 267	123	Compiled Successfully	BracoRobotico.c
 diagnostics: 0	122	Compilation Started	servo.h
 warning: 30	1506	Implicit conversion of pointer to int	servo.c
 diagnostics: 116	123	Compiled Successfully	servo.c
 diagnostics: 0	122	Compilation Started	ik.h
 diagnostics: 220	123	Compiled Successfully	meArm.c
-diagnostics: 0	127	All files Compiled in 296 ms	 
+diagnostics: 0	122	Compilation Started	ik.h
+diagnostics: 81	123	Compiled Successfully	me-arm-ik.c
+diagnostics: 0	127	All files Compiled in 344 ms	 
 hint: 0	1144	Used RAM (bytes): 429 (28%)  Free RAM (bytes): 1086 (72%)	Used RAM (bytes): 429 (28%)  Free RAM (bytes): 1086 (72%)
-hint: 0	1144	Used ROM (bytes): 9308 (28%)  Free ROM (bytes): 23460 (72%)	Used ROM (bytes): 9308 (28%)  Free ROM (bytes): 23460 (72%)
+hint: 0	1144	Used ROM (bytes): 9198 (28%)  Free ROM (bytes): 23570 (72%)	Used ROM (bytes): 9198 (28%)  Free ROM (bytes): 23570 (72%)
 diagnostics: 0	125	Project Linked Successfully	BracoRobotico.mcppi
-diagnostics: 0	128	Linked in 610 ms	 
-diagnostics: 0	129	Project 'BracoRobotico.mcppi' completed: 1953 ms	 
-diagnostics: 0	103	Finished successfully: 24 jun 2017, 19:53:00	BracoRobotico.mcppi
+diagnostics: 0	128	Linked in 735 ms	 
+diagnostics: 0	129	Project 'BracoRobotico.mcppi' completed: 1938 ms	 
+diagnostics: 0	103	Finished successfully: 25 jun 2017, 00:19:25	BracoRobotico.mcppi
