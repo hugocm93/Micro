@@ -1,27 +1,42 @@
-#line 1 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/BracoRobotico.c"
-#line 1 "c:/users/hugocm93/desktop/micro/bracorobotico/servo.h"
+#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
+#line 1 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/mearm.h"
+#line 19 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/mearm.h"
+typedef struct ServoInfo {
+ int n_min, n_max;
+ float gain;
+ float zero;
+ int id;
+} ServoInfo;
 
 
+ void meArm_calib(char *calib);
+
+ void meArm_begin(char portAddr, int pinBase, int pinShoulder, int pinElbow, int pinGripper);
+
+ void meArm_gotoPoint(float x, float y, float z);
+
+ void meArm_goDirectlyTo(float x, float y, float z);
 
 
-typedef struct
-{
- char Port;
- char Pino;
- unsigned PWM;
- union
- {
- char Enable:1;
- };
-}Servos;
+ void meArm_gotoPointCylinder(float theta, float r, float z);
+ void meArm_goDirectlyToCylinder(float theta, float r, float z);
 
 
-void ServoInit();
+ void meArm_openGripper();
 
-void ServoAttach( char servo, char out, char pin );
+ void meArm_closeGripper();
 
-void ServoWrite(char srv_id, float angle);
-#line 39 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/BracoRobotico.c"
+ int meArm_isReachable(float x, float y, float z);
+
+
+ void meArm_servo(char id, float angle);
+#line 1 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/armdata.h"
+#line 122 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/armdata.h"
+char armData[8]={ 180 , 8 ,
+  120 , 35 ,
+  180 , 140 ,
+  80 , 56 };
+#line 40 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
 typedef struct servo
 {
  float min;
@@ -33,35 +48,9 @@ volatile Servo servos[4] = {{ 0 ,  180 },
  { 56 ,  80 }};
 
 
-
-
-
-typedef struct angleIterator
-{
- float beginAngle;
- float stepSize;
-}AngleIterator;
-AngleIterator it[3] = {{( 180 - 0 )/2.0 +  0 , 0},
- {( 135 - 45 )/2.0 +  45 , 0},
- {( 180 - 45 )/2.0 +  45 , 0}};
-float anglesMatrix[ 3 ][3] = {{
- ( 180 - 0 )/2.0 +  0 ,
- ( 135 - 45 )/2.0 +  45 ,
- ( 180 - 45 )/2.0 +  45 
- },
- {
-  0 ,
-  45 ,
-  45 
- },
- {
-  180 ,
-  135 ,
-  180 
- }};
-
-
-
+float xyzMatrix[ 6 ][3] = {{0, 150, -35}, {90, 150, -35}, {-90, 150, -35},
+ {0, 150, 20}, {90, 150, 20}, {-90, 150, 20}};
+#line 69 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
 int parser(char* input, char* commands, float* params);
 float limitAngle(float angle, int servoId);
 void writeFloat(float f);
@@ -73,12 +62,12 @@ void main()
 {
 
  char uart_rd;
- char input[ 10 *5 ];
+ char input[ 20 *5 ];
  char delimiter[] = "end";
 
 
- char commands[ 10 ];
- float params[ 10 ];
+ char commands[ 20 ];
+ float params[ 20 ];
  int i, numberOfCommandsRead = 0;
 
 
@@ -87,27 +76,12 @@ void main()
  portd = 0;
 
 
+ meArm_calib(armData);
+ meArm_begin(&PORTD,  0 ,  1 ,  2 ,  3 );
 
 
-
-
-
-
-
- ServoInit();
- Delay_ms(200);
- ServoAttach( 0 , &PORTD,  0 );
- ServoAttach( 1 , &PORTD,  1 );
- ServoAttach( 2 , &PORTD,  2 );
- ServoAttach( 3 , &PORTD,  3 );
-
-
- setServoAngle( 0 , anglesMatrix[0][ 0 ]);
- setServoAngle( 1 , anglesMatrix[0][ 1 ]);
- setServoAngle( 2 , anglesMatrix[0][ 2 ]);
-
-
-
+ meArm_goDirectlyTo(xyzMatrix[3][0],xyzMatrix[3][1],xyzMatrix[3][2]);
+#line 115 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
  UART1_Init(57600);
  Delay_ms(200);
  writeStr("Start:");
@@ -142,7 +116,7 @@ void main()
 
  case 'p': case 'P':
  {
- int pos = (int)params[i] >= 0 && (int)params[i] <  3  ? (int)params[i] : 0;
+ int pos = (params[i] >= 0 && params[i] <  6 ) ? (int)params[i] : 0;
  writeStr("begin moving to position");
  setServosPosition(pos);
  writeStr("end moving to position");
@@ -152,14 +126,11 @@ void main()
  case 'g': case 'G':
  {
 
-
-
-
-
-
- float gripperAngle = (int)params[i] ? servos[ 3 ].max : servos[ 3 ].min;
- setServoAngle( 3 , gripperAngle);
-
+ if((int)params[i])
+ meArm_openGripper();
+ else
+ meArm_closeGripper();
+#line 167 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
  writeStr("write to gripper");
  }
  break;
@@ -178,7 +149,7 @@ int parser(char* input, char* commands, float* params)
  int i = 0;
  char* token = strtok (input, ";");
 
- while (token && i <  10 ){
+ while (token && i <  20 ){
  commands[i] = token[1];
  params[i++] = atof(&token[2]);
  token = strtok (0, ";");
@@ -219,35 +190,14 @@ void writeStr(char* str)
 void setServosPosition(int pos)
 {
 
-
-
- int i;
-
- it[ 0 ].stepSize = (anglesMatrix[pos][ 0 ] - it[ 0 ].beginAngle) /  10 ;
- it[ 1 ].stepSize = (anglesMatrix[pos][ 1 ] - it[ 1 ].beginAngle) /  10 ;
- it[ 2 ].stepSize = (anglesMatrix[pos][ 2 ] - it[ 2 ].beginAngle) /  10 ;
-
- for(i = 1; i <=  10 ; i++)
- {
- ServoWrite( 0 , limitAngle(it[ 0 ].beginAngle + i*it[ 0 ].stepSize,  0 ));
- ServoWrite( 1 , limitAngle(it[ 1 ].beginAngle + i*it[ 1 ].stepSize,  1 ));
- ServoWrite( 2 , limitAngle(it[ 2 ].beginAngle + i*it[ 2 ].stepSize,  2 ));
-
- Delay_ms(200);
- }
-
- it[ 0 ].beginAngle = it[ 0 ].beginAngle +  10 *it[ 0 ].stepSize;
- it[ 1 ].beginAngle = it[ 1 ].beginAngle +  10 *it[ 1 ].stepSize;
- it[ 2 ].beginAngle = it[ 2 ].beginAngle +  10 *it[ 2 ].stepSize;
-
+ meArm_gotoPoint(xyzMatrix[pos][0],xyzMatrix[pos][1],xyzMatrix[pos][2]);
+#line 247 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
 }
 
 
 void setServoAngle(int id, float angle)
 {
 
-
-
- ServoWrite(id, limitAngle(angle, id));
-
+ meArm_servo((char)id, limitAngle(angle, id));
+#line 257 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/BracoRobotico.c"
 }

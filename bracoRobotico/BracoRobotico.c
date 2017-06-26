@@ -1,4 +1,4 @@
-//#define PARTE2
+#define PARTE2
 
 #ifdef PARTE2
 
@@ -28,12 +28,13 @@
 #define GRIPPER_MIN 56
 #define GRIPPER_MAX 80
 
-#define MAX_COMMANDS 10 
+#define MAX_COMMANDS 20
 #define TRUE 1
 #define INPUT_SIZE MAX_COMMANDS*5 
 #define ATTEMPTS 255
 #define NUMBER_OF_STEPS 10
-#define POSITIONS 3
+#define POSITIONS 6
+#define STEP_DELAY 50
 
 // Controle de min e max
 typedef struct servo
@@ -47,7 +48,8 @@ volatile Servo servos[4] = {{BASE_MIN, BASE_MAX},
                             {GRIPPER_MIN, GRIPPER_MAX}};
 
 #ifdef PARTE2
-float xyzMatrix[POSITIONS][3] = {{0, 130, 50}, {50, 130, 50}, {-50, 130, 50}};
+float xyzMatrix[POSITIONS][3] = {{0, 150, -35}, {90, 150, -35}, {-90, 150, -35},
+                                 {0, 150, 20}, {90, 150, 20}, {-90, 150, 20}};
 #else
 //Posicoes pre-definidas
 typedef struct angleIterator
@@ -58,21 +60,9 @@ typedef struct angleIterator
 AngleIterator it[3] = {{(BASE_MAX-BASE_MIN)/2.0 + BASE_MIN, 0},
                        {(SHOULDER_MAX-SHOULDER_MIN)/2.0 + SHOULDER_MIN, 0},
                        {(ELBOW_MAX-ELBOW_MIN)/2.0 + ELBOW_MIN, 0}};
-float anglesMatrix[POSITIONS][3] = {{
-                                        (BASE_MAX-BASE_MIN)/2.0 + BASE_MIN,
-                                        (SHOULDER_MAX-SHOULDER_MIN)/2.0 + SHOULDER_MIN,
-                                        (ELBOW_MAX-ELBOW_MIN)/2.0 + ELBOW_MIN
-                                    },
-                                    {
-                                        BASE_MIN,
-                                        SHOULDER_MIN,
-                                        ELBOW_MIN
-                                    },
-                                    {
-                                        BASE_MAX,
-                                        SHOULDER_MAX,
-                                        ELBOW_MAX
-                                    }};
+float anglesMatrix[POSITIONS][3] = {{135, 80, 180},
+                                    {45, 140, 100},
+                                    {BASE_MAX, SHOULDER_MAX, ELBOW_MAX}};
 #endif
 
 //Metodos auxiliares
@@ -105,7 +95,7 @@ void main()
     meArm_begin(&PORTD, BASE, SHOULDER, ELBOW, GRIPPER);
 
     //Quando o programa iniciar, mover para a Posição 0, sem iteracao
-    meArm_goDirectlyTo(xyzMatrix[0][0],xyzMatrix[0][1],xyzMatrix[0][2]);
+    meArm_goDirectlyTo(xyzMatrix[3][0],xyzMatrix[3][1],xyzMatrix[3][2]);
 #else 
     //Servo
     ServoInit(); 
@@ -156,7 +146,7 @@ void main()
 
                 case 'p': case 'P':
                 {
-                    int pos = (int)params[i] >= 0 && (int)params[i] < POSITIONS ? (int)params[i] : 0;
+                    int pos = (params[i] >= 0 && params[i] < POSITIONS) ? (int)params[i] : 0;
                     writeStr("begin moving to position");
                     setServosPosition(pos);
                     writeStr("end moving to position");
@@ -247,7 +237,7 @@ void setServosPosition(int pos)
         ServoWrite(SHOULDER, limitAngle(it[SHOULDER].beginAngle + i*it[SHOULDER].stepSize, SHOULDER));
         ServoWrite(ELBOW, limitAngle(it[ELBOW].beginAngle + i*it[ELBOW].stepSize, ELBOW));
 
-        Delay_ms(200);
+        Delay_ms(STEP_DELAY);
     }
 
     it[BASE].beginAngle = it[BASE].beginAngle + NUMBER_OF_STEPS*it[BASE].stepSize;

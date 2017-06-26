@@ -1,5 +1,5 @@
-#line 1 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/me-arm-ik.c"
-#line 1 "c:/users/hugocm93/desktop/micro/bracorobotico/ik.h"
+#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/me-arm-ik.c"
+#line 1 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/ik.h"
 
 
 
@@ -16,7 +16,7 @@ int cosangle(float opp, float adj1, float adj2, float* theta);
 
 
 int solve(float x, float y, float z, float* a0, float* a1, float* a2);
-#line 4 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/me-arm-ik.c"
+#line 4 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/me-arm-ik.c"
 const float PI=3.14159265359;
 float L1=80;
 float L2=80;

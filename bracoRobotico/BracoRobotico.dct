@@ -1,3 +1,4 @@
+    
 ______
 ____doifc
 ___boot_delay128k
@@ -265,8 +266,8 @@ an6_bit
 an7
 an7_bit
 ang2pwm
-anglesmatrix
 apppwm
+armdata
 armservos
 asin
 asoneblock
@@ -627,6 +628,7 @@ gain
 gain
 gain
 gain
+gain
 gcen
 gcen_bit
 get_fosc_khz
@@ -680,6 +682,19 @@ go_done_bit
 go_not_done
 go_not_done_bit
 halfbits
+hx711_get_units
+hx711_get_value
+hx711_init
+hx711_offset
+hx711_power_down
+hx711_power_up
+hx711_read
+hx711_read_average
+hx711_ready
+hx711_reset_measure
+hx711_set_gain
+hx711_set_offset
+hx711_set_scale
 i2c_dat
 i2c_dat_bit
 i2c_data
@@ -783,7 +798,6 @@ ispunct
 isspace
 isupper
 isxdigit
-it
 jpegdecoder
 jpegdecoder_16bit
 keypad_init
@@ -1043,6 +1057,7 @@ nrm4032
 obf_trise_bit
 oerr
 oerr_bit
+offset
 osc2
 osc2_bit
 osccon
@@ -1386,6 +1401,7 @@ s1d13700_write_parameter
 s1d13700_write_text
 s1d13700_write_text_adv
 s1d13700_write_text_return_pos
+scale
 sck
 sck_bit
 scl
@@ -1956,10 +1972,6 @@ tft_init_ili9340
 tft_init_ili9340_8bit
 tft_init_ili9340_8bit_custom
 tft_init_ili9340_custom
-tft_init_ili9341_16bit
-tft_init_ili9341_16bit_custom
-tft_init_ili9341_8bit
-tft_init_ili9341_8bit_custom
 tft_init_ili9342
 tft_init_ili9342_custom
 tft_init_ili9481
@@ -2259,6 +2271,7 @@ wwidth
 wworkbits
 wworkbits
 xtoi
+xyzmatrix
 z
 z_bit
 zero

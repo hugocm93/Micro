@@ -1,5 +1,5 @@
-#line 1 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/meArm.c"
-#line 1 "c:/users/hugocm93/desktop/micro/bracorobotico/ik.h"
+#line 1 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/meArm.c"
+#line 1 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/ik.h"
 
 
 
@@ -16,8 +16,8 @@ int cosangle(float opp, float adj1, float adj2, float* theta);
 
 
 int solve(float x, float y, float z, float* a0, float* a1, float* a2);
-#line 1 "c:/users/hugocm93/desktop/micro/bracorobotico/mearm.h"
-#line 19 "c:/users/hugocm93/desktop/micro/bracorobotico/mearm.h"
+#line 1 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/mearm.h"
+#line 19 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/mearm.h"
 typedef struct ServoInfo {
  int n_min, n_max;
  float gain;
@@ -47,7 +47,7 @@ typedef struct ServoInfo {
 
 
  void meArm_servo(char id, float angle);
-#line 1 "c:/users/hugocm93/desktop/micro/bracorobotico/servo.h"
+#line 1 "c:/users/mplab.lca-06/downloads/micro/bracorobotico/servo.h"
 
 
 
@@ -69,7 +69,7 @@ void ServoInit();
 void ServoAttach( char servo, char out, char pin );
 
 void ServoWrite(char srv_id, float angle);
-#line 17 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/meArm.c"
+#line 17 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/meArm.c"
  float meArm_getX();
  float meArm_getY();
  float meArm_getZ();
@@ -131,7 +131,7 @@ float angleMinElbow=0.0;
 float angleMaxElbow=- 3.14159265359 /4.0;
 float angleMinGripper= 3.14159265359 /2.0;
 float angleMaxGripper=0.0;
-#line 98 "C:/Users/hugocm93/Desktop/Micro/bracoRobotico/meArm.c"
+#line 98 "C:/Users/mplab.LCA-06/Downloads/Micro/bracoRobotico/meArm.c"
  setup_servo(&_svoBase, sweepMinBase, sweepMaxBase, angleMinBase, angleMaxBase);
  setup_servo(&_svoShoulder, sweepMinShoulder, sweepMaxShoulder, angleMinShoulder, angleMaxShoulder);
  setup_servo(&_svoElbow, sweepMinElbow, sweepMaxElbow, angleMinElbow, angleMaxElbow);
